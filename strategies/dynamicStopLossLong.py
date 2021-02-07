@@ -96,7 +96,8 @@ class DynamicStopLossLong(StrategyBase):
                         if (self.hit_high_prediction == False):
                             # ejecuta si la peor estimacion supera el minimo estimado de ganancia
                             min_estimation = min(self.ensambleIndicators.indicatorsHigh)
-                            if (min_estimation>= self.ganancia_minima_estimada):
+                            ganancia_estimada = min_estimation - actual_price
+                            if (ganancia_estimada >= self.ganancia_minima_estimada):
                                 print("Ejecuta orden compra Buy!")
                             else:
                                 print("Llego a minimo sin high, pero no ejecuta porque no supera estimacion de ganancia minima")
