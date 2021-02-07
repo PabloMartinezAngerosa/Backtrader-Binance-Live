@@ -44,7 +44,7 @@ class EnsambleLinearIndicatorsClass():
         self.indicatorsHigh.append(self.mediaEstimadorHigh_iterada3)
         self.indicatorsHigh.append(self.mediaEstimadorLow_iterada3)
         self.indicatorsHigh.append(self.deltaMediaOpenHigh)
-        self.indicatorsHigh.sort()
+        self.indicatorsHigh.sort(reverse=True)
 
 
         

@@ -3,11 +3,12 @@ import json
 from dataset.data_live import DataLive
 from indicators.ensambleLinearIndicatorsClass import EnsambleLinearIndicatorsClass
 
-class EnsambleLinearRegressionAverage():
+class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
 
     def __init__(self, lags=5, length_frames=20):
         self.lags = lags
         self.length_frames = length_frames
+        self.indicators = None
     
     def create_lags_json(self, data=None):
         '''
@@ -111,7 +112,6 @@ class EnsambleLinearRegressionAverage():
     
     def get_indicators(self, dataset):
 
-        indicatorsEnsamble = EnsambleLinearIndicatorsClass()
         indicators = None
 
         # Define command and arguments
@@ -134,9 +134,9 @@ class EnsambleLinearRegressionAverage():
             raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
         if (indicators):
-            indicatorsEnsamble.update(indicators)
+            self.update(indicators)
        
-        return indicatorsEnsamble
+        return True
 
 
 

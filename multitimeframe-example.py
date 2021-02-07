@@ -113,11 +113,11 @@ dataset.high = [220.001,124.002,125.002,126.002,127.002,128.002,3.29,3.24,3.25,3
 dataset.volume = [220.001,124.002,125.002,126.002,127.002,128.002,429,424,425,426,427,428]
 
 ensambleIndicators = EnsambleLinearRegressionAverage(5,8)
-indicatorsEnsamble = ensambleIndicators.get_indicators(dataset)
+ensambleIndicators.get_indicators(dataset)
 
 
 
-print(indicatorsEnsamble.mediaEstimadorLow)
+print(ensambleIndicators.mediaEstimadorLow)
 
 
 

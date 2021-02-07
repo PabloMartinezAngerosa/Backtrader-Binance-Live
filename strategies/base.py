@@ -49,11 +49,11 @@ class StrategyBase(bt.Strategy):
     def updateIndicatorsEnsambleLinearModels(self, dataset):
         
         #TODO call R to get estimators
-        indicators = self.ensambleIndicators.get_indicators(dataset)
+        self.ensambleIndicators.get_indicators(dataset)
         print("Indicators")
-        print(indicators.mediaEstimadorLow)
-        print(indicators.mediaEstimadorHigh)
-        print(indicators.mediaEstimadorClose)
+        print(self.ensambleIndicators.mediaEstimadorLow)
+        print(self.ensambleIndicators.mediaEstimadorHigh)
+        print(self.ensambleIndicators.mediaEstimadorClose)
     
 
     def add_tick( self, indexData, referenceObject, value, isDate = False):
