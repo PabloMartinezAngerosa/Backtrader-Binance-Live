@@ -10,7 +10,7 @@ from config import BINANCE, ENV, PRODUCTION, COIN_TARGET, COIN_REFER, DEBUG
 
 from dataset.dataset import CustomDataset
 from sizer.percent import FullMoney
-from strategies.basic import Basic
+from strategies.dynamicStopLossLong import DynamicStopLossLong
 from utils import print_trade_analysis, print_sqn, send_telegram_message
 
 from production.cerebro import CerebroProduction
@@ -62,11 +62,11 @@ def main():
 
     # # Include Strategy
     if ENV == PRODUCTION:
-        newBasic = Basic()
-        cerebro.addstrategy(newBasic)
+        strategy = DynamicStopLossLong()
+        cerebro.addstrategy(strategy)
         cerebro.getHistoricalData()
     else:
-        cerebro.addstrategy(Basic)
+        cerebro.addstrategy(DynamicStopLossLong)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()

@@ -99,4 +99,4 @@ class CerebroProduction:
         '''
         Set historical data to Cerebro.  
         '''
-        self._broker.get_historical_klines()
+        self._broker.get_historical_klines(lapse=3)

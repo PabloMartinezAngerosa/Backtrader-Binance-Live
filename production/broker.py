@@ -73,7 +73,7 @@ class BrokerProduction:
         # self.run()
     
     def get_historical_klines(self, interval="KLINE_INTERVAL_1MINUTE", lapse=1):
-        print("Getting last 1 days")
+        print("Getting historical!")
         N = lapse
         date_N_days_ago = datetime.now() - timedelta(days=N) 
         klines = self.client.get_historical_klines(self.symbol, self.interval[interval], date_N_days_ago.strftime("%d %b %Y %H:%M:%S"))
