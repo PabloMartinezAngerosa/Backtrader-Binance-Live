@@ -134,16 +134,7 @@ class EnsambleLinearRegressionAverage():
             raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
         if (indicators):
-            indicatorsEnsamble.mediaEstimadorLow = indicators.split("_")[0]
-            indicatorsEnsamble.mediaEstimadorLow_iterada2 = indicators.split("_")[1]
-            indicatorsEnsamble.mediaEstimadorLow_iterada3 = indicators.split("_")[2]
-            indicatorsEnsamble.deltaMediaOpenLow = indicators.split("_")[3]
-            indicatorsEnsamble.mediaEstimadorHigh  = indicators.split("_")[4]
-            indicatorsEnsamble.mediaEstimadorHigh_iterada2 = indicators.split("_")[5]
-            indicatorsEnsamble.mediaEstimadorHigh_iterada3 = indicators.split("_")[6]
-            indicatorsEnsamble.deltaMediaOpenHigh = indicators.split("_")[7]
-            indicatorsEnsamble.mediaEstimadorClose = indicators.split("_")[8]
-        
+            indicatorsEnsamble.update(indicators)
        
         return indicatorsEnsamble
 
