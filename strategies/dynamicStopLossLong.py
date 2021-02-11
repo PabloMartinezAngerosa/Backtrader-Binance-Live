@@ -16,6 +16,8 @@ class DynamicStopLossLong(StrategyBase):
 
         self.log("Using Dynamic Stop Loss Long strategy")
         self.lendata1 = 0
+        self.lagsReady = False
+        
         self.order = None
         self.name = "DynamicStopLossLong"
 
@@ -129,16 +131,35 @@ class DynamicStopLossLong(StrategyBase):
                         # se paso del stop loss high ejecuta orden!
                         self.orderActive == False
                         print("Ejecuta orden venta Sell!")
-            
-   
-
-        
-        
         
         if len(self.data1.low) > self.lendata1:
-            # update stategy indicators 
-            self.updateIndicatorsEnsambleLinearModels(self.data1)
-            self.indicators_ready = True
-            print("New Indicators Ready!")
+            self.lendata1 += 1
+
+            print("Cada cambio de Vela de 30 min")
+            print(self.data1.low[0])
+            
+            low  = self.datas[1].low[0]
+            high = self.datas[1].high[0]
+            self.log('Low 1 min tick : %.3f %% '  % low)
+            self.log('High 1 min tick : %.3f %% '  % high)
+            self.log('Low data1: %.3f %% '  % float(self.data1.low[0]))
+            self.log('Low -1 data1: %.3f %% '  % float(self.data1.low[-1]))
+
+            # en produccion ya tiene los datos cargados con historial
+            # llama a buscar los indicadores ya estan cargados los lags.
+            if ENV == PRODUCTION:
+                self.lagsReady = True
+            else:
+                ## si son 20 frames en la ventana de analisis, necesita al menos 21 para hacer la prediccion. 
+                if (self.lendata1>self.ensambleIndicatorsLengthFrames):
+                    self.lagsReady = True
+            
+            if (self.lagsReady):
+                print("Ready para mandar datos!")
+                print(len(self.data1.low))
+                self.updateIndicatorsEnsambleLinearModels(self.data1)
+                self.indicators_ready = True
+                print("New Indicators Ready!")
+        
 
 

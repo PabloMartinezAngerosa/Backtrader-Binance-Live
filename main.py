@@ -69,7 +69,7 @@ def main():
         cerebro.addstrategy(strategy)
         cerebro.getHistoricalData()
     else:
-        cerebro.addstrategy(Basic)
+        cerebro.addstrategy(DynamicStopLossLong)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()
