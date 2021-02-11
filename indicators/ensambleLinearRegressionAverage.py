@@ -2,6 +2,7 @@ import subprocess
 import json
 from dataset.data_live import DataLive
 from indicators.ensambleLinearIndicatorsClass import EnsambleLinearIndicatorsClass
+from config import DEVELOPMENT, ENV, PRODUCTION
 
 class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
 
@@ -99,15 +100,25 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
         [m] = n           
         
         '''
-        dataset = DataLive()
-
-        for i in range(len(data.low)):
-            index = (i+1) % len(data.low)
-            dataset.close.append(data.close[index])
-            dataset.low.append(data.low[index])
-            dataset.high.append(data.high[index])
-            dataset.volume.append(data.volume[index])
-
+        dataset = DataLive(datetime = [], open = [], low = [], high = [], close = [], volume = [])
+        print(len(dataset.low))
+        if ENV == PRODUCTION:
+            for i in range(len(data.low)):
+                print(i)
+                index = (i+1) % len(data.low)
+                dataset.close.append(data.close[index])
+                dataset.low.append(data.low[index])
+                dataset.high.append(data.high[index])
+                dataset.volume.append(data.volume[index])
+        else:
+            cota_inferior = (len(data.low) - 1 )  *  -1
+            for i in range(cota_inferior,1):
+                print(i)
+                dataset.close.append(data.close[i])
+                dataset.low.append(data.low[i])
+                dataset.high.append(data.high[i])
+                dataset.volume.append(data.volume[i])
+        print(len(dataset.low))
         return dataset
     
     def get_indicators(self, dataset):
@@ -117,10 +128,10 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
         # Define command and arguments
         command ='Rscript'
         path2script ='indicators/R/ensambleLinearModels.R'
-        
-        dataset = self.remix_data_ascen(dataset)
 
-        values = json.dumps(self.create_lags_json(dataset))
+        datasetBuffer = self.remix_data_ascen(dataset)
+        print(datasetBuffer.low)
+        values = json.dumps(self.create_lags_json(datasetBuffer))
         args = [values.replace('"', '\\"')]
 
         # Build subprocess command
@@ -137,6 +148,3 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
             self.update(indicators)
        
         return True
-
-
-

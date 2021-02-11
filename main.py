@@ -6,11 +6,14 @@ import backtrader as bt
 import datetime as dt
 
 from ccxtbt.ccxtstore import CCXTStore
-from config import BINANCE, ENV, PRODUCTION, COIN_TARGET, COIN_REFER, DEBUG
+from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG
 
 from dataset.dataset import CustomDataset
 from sizer.percent import FullMoney
 from strategies.dynamicStopLossLong import DynamicStopLossLong
+# for test
+from strategies.basic import Basic
+
 from utils import print_trade_analysis, print_sqn, send_telegram_message
 
 from production.cerebro import CerebroProduction
@@ -66,7 +69,7 @@ def main():
         cerebro.addstrategy(strategy)
         cerebro.getHistoricalData()
     else:
-        cerebro.addstrategy(DynamicStopLossLong)
+        cerebro.addstrategy(Basic)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()
@@ -83,8 +86,8 @@ def main():
     # #  print_trade_analysis(result[0].analyzers.ta.get_analysis())
     # #  print_sqn(result[0].analyzers.sqn.get_analysis())
 
-    # if DEBUG:
-    #     cerebro.plot()
+    if DEBUG and ENV == DEVELOPMENT:
+        cerebro.plot()
 
 if __name__ == "__main__":
     try:

@@ -22,6 +22,11 @@ class StrategyBase(bt.Strategy):
     params = {'bufferSize':50}
     
     def __init__(self):
+        
+        # Para configurar lags y ancho de ventana de analisis
+        self.ensambleIndicatorsLags = 5
+        self.ensambleIndicatorsLengthFrames = 20
+
         self.order = None
         self.last_operation = "SELL"
         self.status = "DISCONNECTED"
@@ -31,7 +36,7 @@ class StrategyBase(bt.Strategy):
         self.hard_sell = False
         self.log("Base strategy initialized")
         self.subClass = None
-        self.ensambleIndicators = EnsambleLinearRegressionAverage(5,20)
+        self.ensambleIndicators = EnsambleLinearRegressionAverage(self.ensambleIndicatorsLags,self.ensambleIndicatorsLengthFrames)
 
         if ENV == PRODUCTION:
             self.datas = []
