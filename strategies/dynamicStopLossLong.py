@@ -16,7 +16,6 @@ class DynamicStopLossLong(StrategyBase):
 
         self.log("Using Dynamic Stop Loss Long strategy")
         self.lendata1 = 0
-        self.tickCount = 0
         self.lagsReady = False
         
         self.order = None
@@ -95,8 +94,6 @@ class DynamicStopLossLong(StrategyBase):
         if self.order:  # waiting for pending order
             return
 
-        self.tickCount  = self.tickCount  + 1
-        print(self.tickCount)
         self.log('Actual Price: %.3f %% '  % actual_price)
         
         # si estan listos los indicadores
@@ -147,8 +144,8 @@ class DynamicStopLossLong(StrategyBase):
             low  = self.datas[1].low[0]
             high = self.datas[1].high[0]
             self.log('Low 1 min tick : %.3f %% '  % low)
-            self.log('High 1 min tick : %.3f %% '  % high)
-            self.log('Low data1: %.3f %% '  % float(self.data1.low[0]))
+            #self.log('High 1 min tick : %.3f %% '  % high)
+            #self.log('Low data1: %.3f %% '  % float(self.data1.low[0]))
             self.log('Low -1 data1: %.3f %% '  % float(self.data1.low[-1]))
 
             # en produccion ya tiene los datos cargados con historial
@@ -162,9 +159,8 @@ class DynamicStopLossLong(StrategyBase):
             
             if (self.lagsReady):
                 print("Ready para mandar datos!")
-                print(len(self.data1.low))
+                #print(len(self.data1.low))
                 self.updateIndicatorsEnsambleLinearModels(self.data1)
-                self.tickCount  = 0
                 self.indicators_ready = True
                 print("New Indicators Ready!")
         
