@@ -8,6 +8,7 @@ from utils import send_telegram_message
 from production.strategy  import Strategy
 from dataset.data_live import DataLive
 from indicators.ensambleLinearRegressionAverage import EnsambleLinearRegressionAverage
+from UI.jsonParser import JsonParser
 # run_max.py
 import subprocess
 
@@ -37,6 +38,7 @@ class StrategyBase(bt.Strategy):
         self.log("Base strategy initialized")
         self.subClass = None
         self.ensambleIndicators = EnsambleLinearRegressionAverage(self.ensambleIndicatorsLags,self.ensambleIndicatorsLengthFrames)
+        self.jsonParser = JsonParser(self.ensambleIndicators)
 
         if ENV == PRODUCTION:
             self.datas = []
@@ -52,7 +54,8 @@ class StrategyBase(bt.Strategy):
             self.update_data_internal()
     
     def updateIndicatorsEnsambleLinearModels(self, dataset):
-        
+        # first create Json Files with previous cnadle info.
+        # self.jsonParser.create_json_file(self.ensambleIndicators)
         #TODO call R to get estimators
         self.ensambleIndicators.get_indicators(dataset)
         print("Indicators")

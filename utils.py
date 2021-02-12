@@ -1,6 +1,7 @@
 import requests
 
 from config import TELEGRAM, ENV
+import json
 
 
 def print_trade_analysis(analyzer):
@@ -36,6 +37,35 @@ def print_trade_analysis(analyzer):
     for row in print_list:
         print(row_format.format('', *row))
 
+def createJsonFile(data):
+    '''
+    data = {}
+    data['people'] = []
+    data['people'].append({
+        'name': 'Scott',
+        'website': 'stackabuse.com',
+        'from': 'Nebraska'
+    })
+    data['people'].append({
+        'name': 'Larry',
+        'website': 'google.com',
+        'from': 'Michigan'
+    })
+    data['people'].append({
+        'name': 'Tim',
+        'website': 'apple.com',
+        'from': 'Alabama'
+    })
+    '''
+
+    #with open('data.json', 'w') as outfile:
+    #    json.dump(data, outfile)
+    print(str(data))
+    start = "var text = \'"
+    end = "\';"
+    f = open("./UI/1.0/data.js", "w")
+    f.write(start + json.dumps(data) + end)
+    f.close()
 
 def print_sqn(analyzer):
     sqn = round(analyzer.sqn, 2)

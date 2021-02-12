@@ -16,6 +16,7 @@ class DynamicStopLossLong(StrategyBase):
 
         self.log("Using Dynamic Stop Loss Long strategy")
         self.lendata1 = 0
+        self.tickCount = 0
         self.lagsReady = False
         
         self.order = None
@@ -36,6 +37,8 @@ class DynamicStopLossLong(StrategyBase):
         self.stop_loss_high = 0
         self.active_high_prediction = 0
         self.orderActive  = False
+
+        self.jsonParser.add_strategy_name(self.name)
 
     def update_stop_loss_high(self, actual_price):
         '''
@@ -86,11 +89,14 @@ class DynamicStopLossLong(StrategyBase):
     def next(self):
         # if self.status != "LIVE" and ENV == PRODUCTION:  # waiting for live status in production
         #     return
+        actual_price  = self.datas[0].close[0]
 
+        #  self.jsonParser.addTick(self.datas[0].datetime, actual_price)
         if self.order:  # waiting for pending order
             return
 
-        actual_price  = self.datas[0].close[0]
+        self.tickCount  = self.tickCount  + 1
+        print(self.tickCount)
         self.log('Actual Price: %.3f %% '  % actual_price)
         
         # si estan listos los indicadores
@@ -158,6 +164,7 @@ class DynamicStopLossLong(StrategyBase):
                 print("Ready para mandar datos!")
                 print(len(self.data1.low))
                 self.updateIndicatorsEnsambleLinearModels(self.data1)
+                self.tickCount  = 0
                 self.indicators_ready = True
                 print("New Indicators Ready!")
         

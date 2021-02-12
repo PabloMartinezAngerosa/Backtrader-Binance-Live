@@ -7,9 +7,12 @@ from config import DEVELOPMENT, ENV, PRODUCTION
 class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
 
     def __init__(self, lags=5, length_frames=20):
+        EnsambleLinearIndicatorsClass.__init__(self)
         self.lags = lags
         self.length_frames = length_frames
         self.indicators = None
+        self.timestamp =  "Default"
+        self.date = "Default"
     
     def create_lags_json(self, data=None):
         '''
