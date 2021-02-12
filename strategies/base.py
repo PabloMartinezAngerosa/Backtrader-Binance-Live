@@ -55,12 +55,12 @@ class StrategyBase(bt.Strategy):
     
     def updateIndicatorsEnsambleLinearModels(self, dataset):
         # first create Json Files with previous cnadle info.
-        # self.jsonParser.create_json_file(self.ensambleIndicators)
         #TODO call R to get estimators
         self.ensambleIndicators.get_indicators(dataset)
         print("Indicators")
         print(self.ensambleIndicators.indicatorsLow)
         print(self.ensambleIndicators.indicatorsHigh)
+        self.jsonParser.create_json_file(self.ensambleIndicators)
     
 
     def add_tick( self, indexData, referenceObject, value, isDate = False):

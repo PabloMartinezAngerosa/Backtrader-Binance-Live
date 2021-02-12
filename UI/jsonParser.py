@@ -14,7 +14,7 @@ class JsonParser():
 
     def addTick(self, date_time, value):
         if self.firstEstimation == True:
-            self.ticks.append({"time":"Default", "value":value})
+            self.ticks.append({"time":date_time, "value":value})
 
     def startCandle(self):
         self.activeCandle = {

@@ -107,7 +107,6 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
         print(len(dataset.low))
         if ENV == PRODUCTION:
             for i in range(len(data.low)):
-                print(i)
                 index = (i+1) % len(data.low)
                 dataset.close.append(data.close[index])
                 dataset.low.append(data.low[index])
@@ -116,7 +115,6 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
         else:
             cota_inferior = (len(data.low) - 1 )  *  -1
             for i in range(cota_inferior,1):
-                print(i)
                 dataset.close.append(data.close[i])
                 dataset.low.append(data.low[i])
                 dataset.high.append(data.high[i])
