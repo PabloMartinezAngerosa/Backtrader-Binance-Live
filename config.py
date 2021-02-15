@@ -28,4 +28,9 @@ TELEGRAM = {
   "bot": "<BOT KEY HERE>"
 }
 
+SQL = {
+  "user" : "root",
+  "pass" :  "root" 
+}
+
 print("ENV = ", ENV)
