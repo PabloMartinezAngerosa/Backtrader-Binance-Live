@@ -20,7 +20,7 @@
     <link href="./dist/css/tabler-vendors.min.css" rel="stylesheet"/>
     <link href="./dist/css/demo.min.css" rel="stylesheet"/>
   </head>
-  <body class="antialiased theme-dark">
+  <body class="antialiased theme-light">
     <div class="page">
       <header class="navbar navbar-expand-md navbar-light d-print-none">
         <div class="container-xl">
@@ -265,63 +265,66 @@
                 <table class="table card-table table-vcenter">
                   <thead>
                     <tr>
-					<th>Solo</th>
                       <th>Estimador</th>
-                      <th colspan="2">Value</th>
-                    </tr>
+                      <th >Value</th>
+					  <th colspan="2">Delta-low</th>
+					</tr>
                   </thead>
                   <tbody>
                     <tr>
-					 <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
                       <td>Media</td>
-                      <td>35</td>
+                      <td id="low_media_table"></td>
+					  <td id="low_media_delta_table"></td>
                       <td class="w-50">
                         <div class="progress progress-xs">
-                          <div class="progress-bar bg-primary" style="width: 41.0%"></div>
+                          <div class="progress-bar bg-primary" id="low_media_table_progress" style="width: 0%"></div>
                         </div>
                       </td>
                     </tr>
                     <tr>
-					 <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
                       <td>Media 2 Iterada </td>
-                      <td>1,798</td>
+                      <td id="low_media2_table"></td>
+					  <td id="low_media2_delta_table"></td>
                       <td class="w-50">
                         <div class="progress progress-xs">
-                          <div class="progress-bar bg-primary" style="width: 35.96%"></div>
+                          <div class="progress-bar bg-primary" id="low_media2_table_progress" style="width: 0%"></div>
                         </div>
                       </td>
                     </tr>
                     <tr>
-					  <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
                       <td>Media 3 Iterada</td>
-                      <td>1,245</td>
+                      <td id="low_media3_table"></td>
+					  <td id="low_media3_delta_table"></td>
                       <td class="w-50">
                         <div class="progress progress-xs">
-                          <div class="progress-bar bg-primary" style="width: 24.9%"></div>
+                          <div class="progress-bar bg-primary" id="low_media3_table_progress" style="width: 0%"></div>
                         </div>
                       </td>
                     </tr>
                     <tr>
-					  <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
                       <td>Delta</td>
-                      <td>986</td>
+                      <td id="low_delta_table"></td>
+					  <td id="low_delta_delta_table"></td>
                       <td class="w-50">
                         <div class="progress progress-xs">
-                          <div class="progress-bar bg-primary" style="width: 19.72%"></div>
+                          <div class="progress-bar bg-primary" id="low_delta_table_progress" style="width: 0%"></div>
                         </div>
                       </td>
                     </tr>
                     
                     <tr>
-					  <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
                       <td>Low</td>
-                      <td>420</td>
+                      <td id="low_table"></td>
+					  <td></td>
                       <td class="w-50">
                         <div class="progress progress-xs">
-                          <div class="progress-bar bg-primary" style="width: 8.4%"></div>
+                          <div class="progress-bar bg-primary" id="low_table_progress"style="width: 0%"></div>
                         </div>
                       </td>
                     </tr>
+					<tr id="detail_delta_table_low" >
+						<td  colspan="3"></td>
+					</tr>
                   </tbody>
                 </table>
               </div>
@@ -334,62 +337,65 @@
                 <table class="table card-table table-vcenter">
                   <thead>
                     <tr>
-					  <th>Solo</th>
                       <th>Estimador</th>
-                      <th colspan="2">Value</th>
+                      <th>Value</th>
+					  <th colspan="2">Delta-high</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-					  <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
                       <td>Media</td>
-                      <td>3,550</td>
+                      <td id="high_media_table"></td>
+					  <td id="high_media_delta_table"></td>
                       <td class="w-50">
                         <div class="progress progress-xs">
-                          <div class="progress-bar bg-primary" style="width: 71.0%"></div>
+                          <div class="progress-bar bg-info" id="high_media_table_progress" style="width: 0%"></div>
                         </div>
                       </td>
                     </tr>
                     <tr>
-					  <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
                       <td>Media 2 Iterada</td>
-                      <td>1,798</td>
+					  <td id="high_media2_table"></td>
+					  <td id="high_media2_delta_table"></td>
                       <td class="w-50">
                         <div class="progress progress-xs">
-                          <div class="progress-bar bg-primary" style="width: 35.96%"></div>
+                          <div class="progress-bar bg-info" id="high_media2_table_progress" style="width: 0%"></div>
                         </div>
                       </td>
                     </tr>
                     <tr>
-					  <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
                       <td>Media 3 Iterada</td>
-                      <td>1,245</td>
+                      <td id="high_media3_table"></td>
+					  <td id="high_media3_delta_table"></td>
                       <td class="w-50">
                         <div class="progress progress-xs">
-                          <div class="progress-bar bg-primary" style="width: 24.9%"></div>
+                          <div class="progress-bar bg-info"  id="high_media3_table_progress"  style="width: 0%"></div>
                         </div>
                       </td>
                     </tr>
                     <tr>
-					  <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
                       <td>Delta</td>
-                      <td>986</td>
+                      <td id="high_delta_table"></td>
+					  <td id="high_delta_delta_table"></td>
                       <td class="w-50">
                         <div class="progress progress-xs">
-                          <div class="progress-bar bg-primary" style="width: 19.72%"></div>
+                          <div class="progress-bar bg-info"  id="high_delta_table_progress"  style="width: 0%"></div>
                         </div>
                       </td>
                     </tr>
                     <tr>
-					<td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
                       <td>High</td>
-                      <td>854</td>
+                      <td id="high_table"></td>
+					  <td></td>
                       <td class="w-50">
                         <div class="progress progress-xs">
-                          <div class="progress-bar bg-primary" style="width: 17.08%"></div>
+                          <div class="progress-bar bg-secondary" id="high_table_progress"  style="width: 0%"></div>
                         </div>
                       </td>
                     </tr>
+					<tr id="detail_delta_table_high">
+						<td  colspan="3"></td>
+					</tr>
                    
                   </tbody>
                 </table>
