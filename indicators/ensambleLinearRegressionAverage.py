@@ -127,35 +127,46 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
     def get_indicators(self, dataset, datetime, lags, lengths_frames, candle_min):
 
         indicators = None
-
-        # Define command and arguments
-        command ='Rscript'
-        path2script ='indicators/R/ensambleLinearModels.R'
+        is_in_database = False
 
         #TODO pregunta si en modo q no es produccion ya existen en la BD
         # en caso de existir evita los calculos con R y trabe de la BD
-        is_in_database = False
+        if (ENV == DEVELOPMENT):
+            result = self.sqlCache.check_estimators(datetime, candle_min, lags, lengths_frames)
+            if result.rowcount >0:
+                #  Ya existe en la BD con las condiciones
+                # crea desde aqui el resultado
+                print("Ya existe en la BD actualiza desde ahi")
+                is_in_database = True
+                for row in result:
+                    self.updateSqlIndicators(row)
+                    print("Actualizado las predicciones!")
 
-        datasetBuffer = self.remix_data_ascen(dataset)
-        print(datasetBuffer.low)
-        values = json.dumps(self.create_lags_json(datasetBuffer))
-        args = [values.replace('"', '\\"')]
+        # si es prod guarda en la BD
+        # si es dev pero no existia guara en la BD
+        if (is_in_database == False or ENV == PRODUCTION):
+            
+            # Define command and arguments
+            command ='Rscript'
+            path2script ='indicators/R/ensambleLinearModels.R'
 
-        # Build subprocess command
-        cmd = [command, path2script] + args
-        
-        
-        # check_output will run the command and store to result
-        try:
-            indicators = subprocess.check_output(cmd, universal_newlines=True,shell=True)
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+            datasetBuffer = self.remix_data_ascen(dataset)
+            print(datasetBuffer.low)
+            values = json.dumps(self.create_lags_json(datasetBuffer))
+            args = [values.replace('"', '\\"')]
 
-        if (indicators):
-            self.update(indicators)
-            # si es prod guarda en la BD
-            # si es dev pero no existia guara en la BD
-            if (is_in_database == False or ENV == PRODUCTION):
+            # Build subprocess command
+            cmd = [command, path2script] + args
+            
+            
+            # check_output will run the command and store to result
+            try:
+                indicators = subprocess.check_output(cmd, universal_newlines=True,shell=True)
+            except subprocess.CalledProcessError as e:
+                raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
+
+            if (indicators):
+                self.update(indicators)
                 self.sqlCache.insert_estimators(datetime, candle_min, lags, lengths_frames, self)
 
        

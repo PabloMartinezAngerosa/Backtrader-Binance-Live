@@ -1,4 +1,5 @@
 import sqlalchemy as sql
+from sqlalchemy.orm import Session
 from config import SQL
 
 class SqlCache:
@@ -8,6 +9,17 @@ class SqlCache:
         self.metadata = sql.MetaData()
         self.connection = self.engine.connect()
         self.table_combo_estimations = sql.Table('combo_estimations', self.metadata, autoload=True, autoload_with=self.engine)
+
+
+    def check_estimators(self, date, candle, lags, length_frames):
+        query = sql.select([self.table_combo_estimations]).where(sql.and_(
+            self.table_combo_estimations.columns.date  == date, 
+            self.table_combo_estimations.columns.candle_min  == candle,
+            self.table_combo_estimations.columns.lags  == lags,
+            self.table_combo_estimations.columns.length_frames == length_frames))
+        result = self.connection.execute(query)
+        return result
+
 
     def insert_estimators(self, date, candle_min, lags, length_frames, estimations):
 

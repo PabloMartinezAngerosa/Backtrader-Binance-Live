@@ -1,3 +1,5 @@
+import math
+
 class EnsambleLinearIndicatorsClass():
     
     def __init__(self):
@@ -13,22 +15,21 @@ class EnsambleLinearIndicatorsClass():
         self.indicatorsLow = []
         self.indicatorsHigh = []
     
-    def update(self, encode_values):
-        '''
-            Recibe los valores codificados por "_" 
-            en orden estricto. 
-        '''
-        values = encode_values.split("_")
-        self.mediaEstimadorLow = float(values[0])
-        self.mediaEstimadorLow_iterada2 = float(values[1])
-        self.mediaEstimadorLow_iterada3 = float(values[2])
-        self.deltaMediaOpenLow = float(values[3])
-        self.mediaEstimadorHigh  = float(values[4])
-        self.mediaEstimadorHigh_iterada2 = float(values[5])
-        self.mediaEstimadorHigh_iterada3 = float(values[6])
-        self.deltaMediaOpenHigh = float(values[7])
-        self.mediaEstimadorClose = float(values[8])
+    def updateSqlIndicators(self, sqlRow):
+        self.mediaEstimadorLow = sqlRow.low_mean
+        self.mediaEstimadorLow_iterada2 = sqlRow.low_mean2
+        self.mediaEstimadorLow_iterada3 = sqlRow.low_mean3
+        self.deltaMediaOpenLow = sqlRow.low_delta
+        self.mediaEstimadorHigh  = sqlRow.high_mean
+        self.mediaEstimadorHigh_iterada2 = sqlRow.high_mean2
+        self.mediaEstimadorHigh_iterada3 = sqlRow.high_mean3
+        self.deltaMediaOpenHigh = sqlRow.high_delta
+        self.mediaEstimadorClose = sqlRow.close_mean
 
+        self.updateIndicatorsList()
+
+    
+    def updateIndicatorsList(self):
         # refresh indicators low and sort
         self.indicatorsLow = []
         self.indicatorsLow.append(self.mediaEstimadorLow)
@@ -45,6 +46,32 @@ class EnsambleLinearIndicatorsClass():
         self.indicatorsHigh.append(self.mediaEstimadorLow_iterada3)
         self.indicatorsHigh.append(self.deltaMediaOpenHigh)
         self.indicatorsHigh.sort(reverse=True)
+
+    def checkValue(self, value):
+        if math.isnan(value):
+            return 0
+        else:
+            return value
+
+    def update(self, encode_values):
+        '''
+            Recibe los valores codificados por "_" 
+            en orden estricto. 
+        '''
+        values = encode_values.split("_")
+        self.mediaEstimadorLow = self.checkValue(float(values[0])))
+        self.mediaEstimadorLow_iterada2 = self.checkValue(float(values[1]))
+        self.mediaEstimadorLow_iterada3 = self.checkValue(float(values[2]))
+        self.deltaMediaOpenLow = self.checkValue(float(values[3]))
+        self.mediaEstimadorHigh  = self.checkValue(float(values[4]))
+        self.mediaEstimadorHigh_iterada2 = self.checkValue(float(values[5]))
+        self.mediaEstimadorHigh_iterada3 = self.checkValue(float(values[6]))
+        self.deltaMediaOpenHigh = self.checkValue(float(values[7]))
+        self.mediaEstimadorClose = self.checkValue(float(values[8]))
+
+        self.updateIndicatorsList()
+    
+
 
 
         
