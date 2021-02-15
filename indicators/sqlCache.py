@@ -1,14 +1,15 @@
 import sqlalchemy as sql
 from config import SQL
 
-class SqlCache():
-    __init__(self):
+class SqlCache:
+
+    def __init__(self):
         self.engine = sql.create_engine("mysql+mysqlconnector://" +   SQL.get("user") + ":" + SQL.get("pass")  + "@localhost/binance")
         self.metadata = sql.MetaData()
         self.connection = self.engine.connect()
         self.table_combo_estimations = sql.Table('combo_estimations', self.metadata, autoload=True, autoload_with=self.engine)
 
-    def insert_estimators(self, date, candle_min, lags, estimations):
+    def insert_estimators(self, date, candle_min, lags, length_frames, estimations):
 
 
         # low values
@@ -24,7 +25,7 @@ class SqlCache():
 
         close_mean = estimations.mediaEstimadorClose
 
-        query = sql.insert(self.table_combo_estimations).values(date=date, candle_min=candle_min, lags=lags, 
+        query = sql.insert(self.table_combo_estimations).values(date=date, candle_min=candle_min, lags=lags, length_frames = length_frames,
                            low_mean=low_mean, low_mean2 = low_mean2, low_mean3 = low_mean3, low_delta = low_delta,
                            high_mean = high_mean, high_mean2=high_mean2, high_mean3=high_mean3, high_delta= high_delta,
                            close_mean=close_mean) 

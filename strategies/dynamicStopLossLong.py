@@ -14,6 +14,11 @@ class DynamicStopLossLong(StrategyBase):
     def __init__(self):
         StrategyBase.__init__(self)
 
+        # configuration
+        self.ensambleIndicatorsLags = 5
+        self.ensambleIndicatorsLengthFrames = 20
+        self.candle_min = 30
+
         self.log("Using Dynamic Stop Loss Long strategy")
         self.lendata1 = 0
         self.lagsReady = False
@@ -159,7 +164,7 @@ class DynamicStopLossLong(StrategyBase):
             if (self.lagsReady):
                 print("Ready para mandar datos!")
                 #print(len(self.data1.low))
-                self.updateIndicatorsEnsambleLinearModels(self.data1)
+                self.updateIndicatorsEnsambleLinearModels()
                 self.indicators_ready = True
                 print("New Indicators Ready!")
         

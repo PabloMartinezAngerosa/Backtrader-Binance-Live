@@ -2,6 +2,7 @@ import subprocess
 import json
 from dataset.data_live import DataLive
 from indicators.ensambleLinearIndicatorsClass import EnsambleLinearIndicatorsClass
+from indicators.sqlCache import  SqlCache
 from config import DEVELOPMENT, ENV, PRODUCTION
 
 class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
@@ -13,6 +14,7 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
         self.indicators = None
         self.timestamp =  "Default"
         self.date = "Default"
+        self.sqlCache = SqlCache()
     
     def create_lags_json(self, data=None):
         '''
@@ -122,13 +124,17 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
         print(len(dataset.low))
         return dataset
     
-    def get_indicators(self, dataset):
+    def get_indicators(self, dataset, datetime, lags, lengths_frames, candle_min):
 
         indicators = None
 
         # Define command and arguments
         command ='Rscript'
         path2script ='indicators/R/ensambleLinearModels.R'
+
+        #TODO pregunta si en modo q no es produccion ya existen en la BD
+        # en caso de existir evita los calculos con R y trabe de la BD
+        is_in_database = False
 
         datasetBuffer = self.remix_data_ascen(dataset)
         print(datasetBuffer.low)
@@ -147,5 +153,10 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
 
         if (indicators):
             self.update(indicators)
+            # si es prod guarda en la BD
+            # si es dev pero no existia guara en la BD
+            if (is_in_database == False or ENV == PRODUCTION):
+                self.sqlCache.insert_estimators(datetime, candle_min, lags, lengths_frames, self)
+
        
         return True

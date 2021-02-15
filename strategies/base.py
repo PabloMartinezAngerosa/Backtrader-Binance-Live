@@ -24,9 +24,11 @@ class StrategyBase(bt.Strategy):
     
     def __init__(self):
         
-        # Para configurar lags y ancho de ventana de analisis
+        # Para configurar lags y ancho de ventana de analisis  
+        # default values. Se actualiza en cada estrategia
         self.ensambleIndicatorsLags = 5
         self.ensambleIndicatorsLengthFrames = 20
+        self.candle_min = 30
 
         self.order = None
         self.last_operation = "SELL"
@@ -53,10 +55,18 @@ class StrategyBase(bt.Strategy):
 
             self.update_data_internal()
     
-    def updateIndicatorsEnsambleLinearModels(self, dataset):
+    def updateIndicatorsEnsambleLinearModels(self):
         # first create Json Files with previous cnadle info.
         #TODO call R to get estimators
-        self.ensambleIndicators.get_indicators(dataset)
+        
+        datetime = self.datetime[0]
+        dataset = self.data1
+        
+        lags = self.ensambleIndicatorsLags
+        lengths_frames = self.ensambleIndicatorsLengthFrames
+        candle_min = self.candle_min
+
+        self.ensambleIndicators.get_indicators(dataset, datetime, lags, lengths_frames, candle_min)
         print("Indicators")
         print(self.ensambleIndicators.indicatorsLow)
         print(self.ensambleIndicators.indicatorsHigh)
