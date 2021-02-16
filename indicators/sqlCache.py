@@ -2,9 +2,22 @@ import sqlalchemy as sql
 from sqlalchemy.orm import Session
 from config import SQL
 
+# singleton class
 class SqlCache:
-
+    __instance = None
+    @staticmethod 
+    def getInstance():
+        """ Static access method. """
+        if SqlCache.__instance == None:
+            SqlCache()
+        return SqlCache.__instance
+    
     def __init__(self):
+        """ Virtually private constructor. """
+        if SqlCache.__instance != None:
+            raise Exception("This class is a singleton!")
+        else:
+            SqlCache.__instance = self
         self.engine = sql.create_engine("mysql+mysqlconnector://" +   SQL.get("user") + ":" + SQL.get("pass")  + "@localhost/binance")
         self.metadata = sql.MetaData()
         self.connection = self.engine.connect()
@@ -32,7 +45,7 @@ class SqlCache:
             volume = volume
         )
         result_proxy = self.connection.execute(query)
-        
+
     def insert_estimators(self, date, candle_min, lags, length_frames, estimations):
         # low values
         low_mean = estimations.mediaEstimadorLow
