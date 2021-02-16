@@ -52,11 +52,12 @@ class BrokerProduction:
         print("closed connection")
 
     def on_message(self,ws, message):
+        print("message recived")
         json_message = json.loads(message)
         
         candle = json_message["k"]
         is_candle_closed = candle["x"]
-        timestamp = pd.to_datetime(candle['T'], unit='ms')
+        timestamp = pd.to_datetime(json_message['E'], unit='ms')
 
         close = candle["c"]
         open = candle["o"]
@@ -64,17 +65,17 @@ class BrokerProduction:
         high = candle["h"]
         volume = candle["v"] 
 
-        self.cerebro.addNextFrame(0,timestamp, open, low, high, close, volume)
+        self.cerebro.addNextFrame(0,json_message['E'], open, low, high, close, volume)
         # agrega el precio realtime a la BD
         # esto solo se llama en ENV = PRODUCTION
         # si hay problema en la BD evita que se corte el flujo del bot.
-        try:
-            self.sql_cache.insert_realtime_price(candle['T'], open, low, high, close, volume)
-        except:
-            print("Problema en guardar en la BD el tick en realtime.")
+        #try:
+        self.sql_cache.insert_realtime_price(json_message['E'], open, low, high, close, volume)
+        #except:
+        #    print("Problema en guardar en la BD el tick en realtime.")
 
         if (is_candle_closed):
-            self.cerebro.addNextFrame(1, timestamp, open,  low, high, close, volume)
+            self.cerebro.addNextFrame(1, json_message['E'], open,  low, high, close, volume)
 
     def on_error(self, ws, message):
         print("Error socket")
@@ -87,7 +88,7 @@ class BrokerProduction:
         date_N_days_ago = datetime.now() - timedelta(days=N) 
         klines = self.client.get_historical_klines(self.symbol, self.interval[interval], date_N_days_ago.strftime("%d %b %Y %H:%M:%S"))
         data = pd.DataFrame(klines, columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'quote_av', 'trades', 'tb_base_av', 'tb_quote_av', 'ignore' ])
-        data['timestamp'] = pd.to_datetime(data['timestamp'], unit='ms')
+        # data['timestamp'] = pd.to_datetime(data['timestamp'], unit='ms')
         
         data.set_index('timestamp', inplace=True)
         data.sort_values(by=['timestamp'], inplace=True, ascending=True)

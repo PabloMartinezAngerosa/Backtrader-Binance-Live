@@ -63,5 +63,6 @@ class JsonParser():
 
     def parseData(self):
         self.data["candles"] = self.candles
+        print(self.data)
         createJsonFile(self.data)
 

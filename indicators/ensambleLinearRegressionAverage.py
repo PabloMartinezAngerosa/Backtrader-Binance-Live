@@ -14,7 +14,7 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
         self.indicators = None
         self.timestamp =  "Default"
         self.date = "Default"
-        self.sqlCache = SqlCache()
+        self.sqlCache = SqlCache.getInstance()
     
     def create_lags_json(self, data=None):
         '''
@@ -160,6 +160,8 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
 
             if (indicators):
                 self.update(indicators)
+                self.timestamp = datetime
+                self.date = pd.to_datetime(datetime, unit='ms')
                 self.sqlCache.insert_estimators(datetime, candle_min, lags, lengths_frames, self)
 
        

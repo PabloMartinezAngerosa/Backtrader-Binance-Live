@@ -17,7 +17,7 @@ class DynamicStopLossLong(StrategyBase):
         # configuration
         self.ensambleIndicatorsLags = 5
         self.ensambleIndicatorsLengthFrames = 20
-        self.candle_min = 30
+        self.candle_min = 1
 
         self.log("Using Dynamic Stop Loss Long strategy")
         self.lendata1 = 0
@@ -92,7 +92,11 @@ class DynamicStopLossLong(StrategyBase):
         # if self.status != "LIVE" and ENV == PRODUCTION:  # waiting for live status in production
         #     return
         actual_price  = self.datas[0].close[0]
+        print(actual_price)
+        print(self.datetime[0])
+        #TODO datetime[0] tiene q tener la fecha del tick
         self.jsonParser.addTick(self.datetime[0], actual_price)
+        print("jsom_parser")
         if self.order:  # waiting for pending order
             return
 

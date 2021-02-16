@@ -46,6 +46,7 @@ class StrategyBase(bt.Strategy):
             self.datas = []
             self.data0 = None
             self.data1 = None
+            self.datetime = []
 
             data1 = DataLive()
             data2 = DataLive()
@@ -56,8 +57,6 @@ class StrategyBase(bt.Strategy):
             self.update_data_internal()
     
     def updateIndicatorsEnsambleLinearModels(self):
-        # first create Json Files with previous cnadle info.
-        #TODO call R to get estimators
         
         datetime = self.datetime[0]
         dataset = self.data1
@@ -67,6 +66,7 @@ class StrategyBase(bt.Strategy):
         candle_min = self.candle_min
 
         self.ensambleIndicators.get_indicators(dataset, datetime, lags, lengths_frames, candle_min)
+
         self.jsonParser.create_json_file(self.ensambleIndicators)
     
 
@@ -95,6 +95,7 @@ class StrategyBase(bt.Strategy):
 
     def add_next_frame_live(self, indexData, datatime, open, low, high, close, volume, next = True):
         
+        self.datetime = self.add_tick(0, self.datetime, datatime, True)
         self.datas[indexData].datetime = self.add_tick(indexData, self.datas[indexData].datetime, datatime, True)
         self.datas[indexData].open = self.add_tick(indexData, self.datas[indexData].open, open)
         self.datas[indexData].low = self.add_tick(indexData, self.datas[indexData].low, low)
