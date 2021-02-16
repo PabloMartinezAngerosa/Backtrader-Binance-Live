@@ -9,6 +9,7 @@ class SqlCache:
         self.metadata = sql.MetaData()
         self.connection = self.engine.connect()
         self.table_combo_estimations = sql.Table('combo_estimations', self.metadata, autoload=True, autoload_with=self.engine)
+        self.table_realtime_price_miliseconds = sql.Table("realtime_price_miliseconds", self.metadata, autoload=True, autoload_with=self.engine)
 
 
     def check_estimators(self, date, candle, lags, length_frames):
@@ -21,9 +22,18 @@ class SqlCache:
         return result
 
 
+    def insert_realtime_price(self, date, open, low, high, close, volume):
+        query = sql.insert(self.table_realtime_price_miliseconds).values(
+            date = date,
+            open = open,
+            low = low,
+            close = close,
+            high = high,
+            volume = volume
+        )
+        result_proxy = self.connection.execute(query)
+        
     def insert_estimators(self, date, candle_min, lags, length_frames, estimations):
-
-
         # low values
         low_mean = estimations.mediaEstimadorLow
         low_mean2 = estimations.mediaEstimadorLow_iterada2
@@ -41,5 +51,4 @@ class SqlCache:
                            low_mean=low_mean, low_mean2 = low_mean2, low_mean3 = low_mean3, low_delta = low_delta,
                            high_mean = high_mean, high_mean2=high_mean2, high_mean3=high_mean3, high_delta= high_delta,
                            close_mean=close_mean) 
-        ResultProxy = self.connection.execute(query)
-        print(ResultProxy)
+        result_proxy = self.connection.execute(query)

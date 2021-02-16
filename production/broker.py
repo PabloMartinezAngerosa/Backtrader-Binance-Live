@@ -64,7 +64,6 @@ class BrokerProduction:
 
         self.cerebro.addNextFrame(0,timestamp, open, low, high, close, volume)
         if (is_candle_closed):
-            print(message)
             self.cerebro.addNextFrame(1, timestamp, open,  low, high, close, volume)
 
     def on_error(self, ws, message):

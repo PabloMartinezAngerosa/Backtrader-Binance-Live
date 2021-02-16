@@ -51,22 +51,20 @@ class DynamicStopLossLong(StrategyBase):
         '''
         # los indicadores estan de mayor  a menor
         # se busca el valor mas grande
-        print("busca los hig")
-        print(self.ensambleIndicators.indicatorsHigh)
+        # print("busca los hig")
+        # print(self.ensambleIndicators.indicatorsHigh)
         
         for high_estimation in self.ensambleIndicators.indicatorsHigh:
-            print(self.delta_stop_loss_low)
             cota_superior = high_estimation + self.delta_stop_loss_low
-            print(cota_superior)
             cota_inferior = high_estimation - self.delta_stop_loss_low
             if (actual_price > cota_inferior and actual_price < cota_superior):
                 self.stop_loss_high_active = True
                 #TODO con la estimacion?
                 self.active_high_prediction =  actual_price - self.delta_stop_loss_high
                 self.active_high_prediction = high_estimation
-                print("Toca estimador high")
+                # print("Toca estimador high")
                 return True
-        print("No toca estimador high")
+        # print("No toca estimador high")
         return False
 
     def update_stop_loss_low(self, actual_price):
@@ -84,9 +82,9 @@ class DynamicStopLossLong(StrategyBase):
                 #TODO con la estimacion?
                 self.stop_loss_low =  actual_price + self.delta_stop_loss_low
                 self.active_low_prediction = low_estimation
-                print("Toca estiamdor low")
+                # print("Toca estiamdor low")
                 return True
-        print("No toca estimador low")
+        # print("No toca estimador low")
         return False
 
 
@@ -102,20 +100,20 @@ class DynamicStopLossLong(StrategyBase):
         
         # si estan listos los indicadores
         if(self.indicators_ready):
-            print("Indicadores ready")
+            #print("Indicadores ready")
             # busca el stop loss high maximo y actualiza valores
             self.update_stop_loss_high(actual_price)
             # si no esta activa busca low
             if (self.orderActive == False):
-                print("Orden no activa")
+                #print("Orden no activa")
                 # busca el stop loss low minimo y actualiza valores
                 self.update_stop_loss_low(actual_price)
-                print("Busca entre bandas")
+                #print("Busca entre bandas")
                 # si  llego a un minimo en alguna instancia
                 if(self.stop_loss_low_active):
-                    print("Hay una banda activa")
+                    #print("Hay una banda activa")
                     delta_price = actual_price - self.stop_loss_low
-                    print(delta_price)
+                    #print(delta_price)
                     if (delta_price >= 0):
                         # se paso del stop loss ejecuta orden!
                         if (self.hit_high_prediction == False):

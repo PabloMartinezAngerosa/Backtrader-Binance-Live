@@ -60,7 +60,6 @@ def createJsonFile(data):
 
     #with open('data.json', 'w') as outfile:
     #    json.dump(data, outfile)
-    print(str(data))
     start = "var text = \'"
     end = "\';"
     f = open("./UI/1.0/data.js", "w")

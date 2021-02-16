@@ -44,7 +44,7 @@ def main():
             name = COIN_TARGET,
             dataname = "dataset/BTCUSDT-1m.csv",
             timeframe = bt.TimeFrame.Minutes,
-            fromdate = datetime.datetime(2021, 1, 2),
+            fromdate = datetime.datetime(2021, 1, 7),
             todate = datetime.datetime(2021, 1, 10),
             nullvalue = 0.0
         )

@@ -74,9 +74,7 @@ class CerebroProduction:
         Returns the index with which addition of other objects (like sizers)
         can be referenced
         '''
-        print(strategy.name)
         self.strategy  = strategy
-        print(self.strategy.name)
         return True
     
     def addNextFrame(self, indexData, datetime, open, low, high, close, vloume, next= True):

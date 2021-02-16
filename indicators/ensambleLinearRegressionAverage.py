@@ -106,7 +106,6 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
         
         '''
         dataset = DataLive(datetime = [], open = [], low = [], high = [], close = [], volume = [])
-        print(len(dataset.low))
         if ENV == PRODUCTION:
             for i in range(len(data.low)):
                 index = (i+1) % len(data.low)
@@ -121,7 +120,6 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
                 dataset.low.append(data.low[i])
                 dataset.high.append(data.high[i])
                 dataset.volume.append(data.volume[i])
-        print(len(dataset.low))
         return dataset
     
     def get_indicators(self, dataset, datetime, lags, lengths_frames, candle_min):
@@ -136,11 +134,9 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
             if result.rowcount >0:
                 #  Ya existe en la BD con las condiciones
                 # crea desde aqui el resultado
-                print("Ya existe en la BD actualiza desde ahi")
                 is_in_database = True
                 for row in result:
                     self.updateSqlIndicators(row)
-                    print("Actualizado las predicciones!")
 
         # si es prod guarda en la BD
         # si es dev pero no existia guara en la BD
@@ -151,7 +147,6 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
             path2script ='indicators/R/ensambleLinearModels.R'
 
             datasetBuffer = self.remix_data_ascen(dataset)
-            print(datasetBuffer.low)
             values = json.dumps(self.create_lags_json(datasetBuffer))
             args = [values.replace('"', '\\"')]
 
