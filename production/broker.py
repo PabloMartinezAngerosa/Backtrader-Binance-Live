@@ -5,6 +5,7 @@ from config import BINANCE, COIN_REFER, COIN_TARGET
 from datetime import timedelta, datetime
 import pandas as pd
 import math
+from indicators.sqlCache import  SqlCache
 
 class BrokerProduction:
     def __init__(self, info, interval="KLINE_INTERVAL_1MINUTE"):
@@ -31,6 +32,7 @@ class BrokerProduction:
         self.socket  = "wss://stream.binance.com:9443/ws/btcusdt@kline_" + self.interval[self.klineInterval]
         self.symbol = COIN_TARGET + COIN_REFER 
         self.client = Client(BINANCE.get("key"), BINANCE.get("secret"))
+        self.sql_cache = SqlCache()
 
     def run(self):
         self.ws = websocket.WebSocketApp(self.socket,
@@ -63,6 +65,14 @@ class BrokerProduction:
         volume = candle["v"] 
 
         self.cerebro.addNextFrame(0,timestamp, open, low, high, close, volume)
+        # agrega el precio realtime a la BD
+        # esto solo se llama en ENV = PRODUCTION
+        # si hay problema en la BD evita que se corte el flujo del bot.
+        try:
+            self.sql_cache.insert_realtime_price(candle['T'], open, low, high, close, volume)
+        except:
+            print("Problema en guardar en la BD el tick en realtime.")
+
         if (is_candle_closed):
             self.cerebro.addNextFrame(1, timestamp, open,  low, high, close, volume)
 

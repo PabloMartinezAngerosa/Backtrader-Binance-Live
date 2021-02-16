@@ -127,8 +127,6 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
         indicators = None
         is_in_database = False
 
-        #TODO pregunta si en modo q no es produccion ya existen en la BD
-        # en caso de existir evita los calculos con R y trabe de la BD
         if (ENV == DEVELOPMENT):
             result = self.sqlCache.check_estimators(datetime, candle_min, lags, lengths_frames)
             if result.rowcount >0:
