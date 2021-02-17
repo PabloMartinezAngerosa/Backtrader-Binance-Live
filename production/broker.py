@@ -77,7 +77,7 @@ class BrokerProduction:
         # esto solo se llama en ENV = PRODUCTION
         # si hay problema en la BD evita que se corte el flujo del bot.
         #try:
-        self.sql_cache.insert_realtime_price(json_message['E'], open, low, high, close, volume)
+        self.sql_cache.insert_realtime_price(datetime, open, low, high, close, volume)
         #except:
         #    print("Problema en guardar en la BD el tick en realtime.")
 

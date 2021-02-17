@@ -38,20 +38,16 @@ class SqlCache:
 
     def insert_realtime_price(self, date, open, low, high, close, volume):
         query = sql.insert(self.table_realtime_price_miliseconds).values(
-            date = date,
             open = open,
             low = low,
             close = close,
             high = high,
-            volume = volume
+            volume = volume,
+            date = date
         )
         result_proxy = self.connection.execute(query)
 
     def insert_estimators(self, date, candle_min, lags, length_frames, estimations):
-        # en Production date es timestamp integer
-        date = pd.to_datetime(json_message['E'], unit='ms')
-        # en DEV date es por Backtrader en float
-        # https://community.backtrader.com/topic/1151/datetime-format-internally 
 
         # low values
         low_mean = estimations.mediaEstimadorLow
