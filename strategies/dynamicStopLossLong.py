@@ -92,7 +92,6 @@ class DynamicStopLossLong(StrategyBase):
         # if self.status != "LIVE" and ENV == PRODUCTION:  # waiting for live status in production
         #     return
         actual_price  = self.datas[0].close[0]
-        #TODO datetime[0] tiene q tener la fecha del tick
         self.jsonParser.addTick(self.datetime[0], actual_price)
         if self.order:  # waiting for pending order
             return

@@ -1,6 +1,7 @@
 import sqlalchemy as sql
 from sqlalchemy.orm import Session
-from config import SQL
+from config import SQL,  DEVELOPMENT, ENV, PRODUCTION,DEBUG
+import pandas as pd
 
 # singleton class
 class SqlCache:
@@ -47,6 +48,11 @@ class SqlCache:
         result_proxy = self.connection.execute(query)
 
     def insert_estimators(self, date, candle_min, lags, length_frames, estimations):
+        # en Production date es timestamp integer
+        date = pd.to_datetime(json_message['E'], unit='ms')
+        # en DEV date es por Backtrader en float
+        # https://community.backtrader.com/topic/1151/datetime-format-internally 
+
         # low values
         low_mean = estimations.mediaEstimadorLow
         low_mean2 = estimations.mediaEstimadorLow_iterada2

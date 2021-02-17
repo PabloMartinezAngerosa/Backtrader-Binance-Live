@@ -54,7 +54,8 @@ class BrokerProduction:
 
     def on_message(self,ws, message):
         json_message = json.loads(message)
-        
+        # los ticks cuando se dispara el evento
+        datetime = json_message['E']
         candle = json_message["k"]
         is_candle_closed = candle["x"]
         timestamp = pd.to_datetime(json_message['E'], unit='ms')
@@ -65,7 +66,13 @@ class BrokerProduction:
         high = candle["h"]
         volume = candle["v"] 
 
-        self.cerebro.addNextFrame(0,json_message['E'], open, low, high, close, volume)
+        if (is_candle_closed):
+            # close candle time 
+            datetime = candle["T"]
+            # no ejecuta next frame
+            self.cerebro.addNextFrame(1, datetime, open,  low, high, close, volume, False)
+
+        self.cerebro.addNextFrame(0,datetime, open, low, high, close, volume, True)
         # agrega el precio realtime a la BD
         # esto solo se llama en ENV = PRODUCTION
         # si hay problema en la BD evita que se corte el flujo del bot.
@@ -73,9 +80,6 @@ class BrokerProduction:
         self.sql_cache.insert_realtime_price(json_message['E'], open, low, high, close, volume)
         #except:
         #    print("Problema en guardar en la BD el tick en realtime.")
-
-        if (is_candle_closed):
-            self.cerebro.addNextFrame(1, json_message['E'], open,  low, high, close, volume)
 
     def on_error(self, ws, message):
         print("Error socket")

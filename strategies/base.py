@@ -91,8 +91,8 @@ class StrategyBase(bt.Strategy):
             return buffer
 
     def add_next_frame_live(self, indexData, datatime, open, low, high, close, volume, next = True):
-        
-        self.datetime = self.add_tick(0, self.datetime, datatime, True)
+        if next == True:
+            self.datetime = self.add_tick(0, self.datetime, datatime, True)
         self.datas[indexData].datetime = self.add_tick(indexData, self.datas[indexData].datetime, datatime, True)
         self.datas[indexData].open = self.add_tick(indexData, self.datas[indexData].open, open)
         self.datas[indexData].low = self.add_tick(indexData, self.datas[indexData].low, low)
@@ -101,7 +101,7 @@ class StrategyBase(bt.Strategy):
         self.datas[indexData].volume = self.add_tick(indexData, self.datas[indexData].volume, volume)
 
         self.update_data_internal()
-        if next:
+        if next == True:
             self.next()
         
 
