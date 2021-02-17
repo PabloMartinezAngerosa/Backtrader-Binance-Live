@@ -3,7 +3,7 @@
 from datetime import datetime
 import backtrader as bt
 from termcolor import colored
-from config import DEVELOPMENT, COIN_TARGET, COIN_REFER, ENV, PRODUCTION, DEBUG
+from config import DEVELOPMENT, COIN_TARGET, COIN_REFER, ENV, PRODUCTION, DEBUG, STRATEGY
 from utils import send_telegram_message
 from production.strategy  import Strategy
 from dataset.data_live import DataLive
@@ -26,9 +26,9 @@ class StrategyBase(bt.Strategy):
         
         # Para configurar lags y ancho de ventana de analisis  
         # default values. Se actualiza en cada estrategia
-        self.ensambleIndicatorsLags = 5
-        self.ensambleIndicatorsLengthFrames = 20
-        self.candle_min = 30
+        self.ensambleIndicatorsLags = STRATEGY.get("lags")
+        self.ensambleIndicatorsLengthFrames = STRATEGY.get("length_frames")
+        self.candle_min = STRATEGY.get("candle_min")
 
         self.order = None
         self.last_operation = "SELL"
@@ -64,11 +64,8 @@ class StrategyBase(bt.Strategy):
         lags = self.ensambleIndicatorsLags
         lengths_frames = self.ensambleIndicatorsLengthFrames
         candle_min = self.candle_min
-        print("To get indicators")
         self.ensambleIndicators.get_indicators(dataset, datetime, lags, lengths_frames, candle_min)
-        print("To parser")
         self.jsonParser.create_json_file(self.ensambleIndicators)
-        print("parse ready")
 
     def add_tick( self, indexData, referenceObject, value, isDate = False):
         buffer = []

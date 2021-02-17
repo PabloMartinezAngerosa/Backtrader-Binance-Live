@@ -2,7 +2,7 @@
 
 import backtrader as bt
 
-from config import ENV, PRODUCTION
+from config import ENV, PRODUCTION, STRATEGY
 from strategies.base import StrategyBase
 
 
@@ -15,9 +15,9 @@ class DynamicStopLossLong(StrategyBase):
         StrategyBase.__init__(self)
 
         # configuration
-        self.ensambleIndicatorsLags = 5
-        self.ensambleIndicatorsLengthFrames = 20
-        self.candle_min = 30
+        self.ensambleIndicatorsLags = STRATEGY.get("lags")
+        self.ensambleIndicatorsLengthFrames = STRATEGY.get("length_frames")
+        self.candle_min = STRATEGY.get("candle_min")
 
         self.log("Using Dynamic Stop Loss Long strategy")
         self.lendata1 = 0
@@ -92,11 +92,8 @@ class DynamicStopLossLong(StrategyBase):
         # if self.status != "LIVE" and ENV == PRODUCTION:  # waiting for live status in production
         #     return
         actual_price  = self.datas[0].close[0]
-        print(actual_price)
-        print(self.datetime[0])
         #TODO datetime[0] tiene q tener la fecha del tick
         self.jsonParser.addTick(self.datetime[0], actual_price)
-        print("jsom_parser")
         if self.order:  # waiting for pending order
             return
 
@@ -144,12 +141,12 @@ class DynamicStopLossLong(StrategyBase):
         if len(self.data1.low) > self.lendata1:
             self.lendata1 += 1
 
-            print("Cada cambio de Vela de 30 min")
+            print("Cada cambio de Vela de " + str(self.candle_min)  + " min")
             print(self.data1.low[0])
             
             low  = self.datas[1].low[0]
             high = self.datas[1].high[0]
-            self.log('Low 1 min tick : %.3f %% '  % low)
+            self.log('Low : %.3f %% '  % low)
             #self.log('High 1 min tick : %.3f %% '  % high)
             #self.log('Low data1: %.3f %% '  % float(self.data1.low[0]))
             self.log('Low -1 data1: %.3f %% '  % float(self.data1.low[-1]))
@@ -168,7 +165,6 @@ class DynamicStopLossLong(StrategyBase):
                 #print(len(self.data1.low))
                 self.updateIndicatorsEnsambleLinearModels()
                 self.indicators_ready = True
-                print("New Indicators Ready!")
         
 
 

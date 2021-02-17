@@ -8,7 +8,7 @@ import math
 from indicators.sqlCache import  SqlCache
 
 class BrokerProduction:
-    def __init__(self, info, interval="KLINE_INTERVAL_1MINUTE"):
+    def __init__(self, info, interval):
         self.comminfo = info
         self.interval = {
             'KLINE_INTERVAL_1MINUTE': '1m',
@@ -30,6 +30,7 @@ class BrokerProduction:
         self.klineInterval = interval
         self.cerebro = None
         self.socket  = "wss://stream.binance.com:9443/ws/btcusdt@kline_" + self.interval[self.klineInterval]
+        print(self.socket)
         self.symbol = COIN_TARGET + COIN_REFER 
         self.client = Client(BINANCE.get("key"), BINANCE.get("secret"))
         self.sql_cache = SqlCache()
@@ -52,7 +53,6 @@ class BrokerProduction:
         print("closed connection")
 
     def on_message(self,ws, message):
-        print("message recived")
         json_message = json.loads(message)
         
         candle = json_message["k"]
@@ -82,8 +82,8 @@ class BrokerProduction:
         print(message)
         self.run()
     
-    def get_historical_klines(self, interval="KLINE_INTERVAL_1MINUTE", lapse=1):
-        print("Getting historical!")
+    def get_historical_klines(self, interval, lapse):
+        print("Getting historical " + self.interval[interval])
         N = lapse
         date_N_days_ago = datetime.now() - timedelta(days=N) 
         klines = self.client.get_historical_klines(self.symbol, self.interval[interval], date_N_days_ago.strftime("%d %b %Y %H:%M:%S"))
@@ -95,7 +95,7 @@ class BrokerProduction:
 
         row = len(data.index)
         for i in range(row):
-            datatime = data.index[i]    
+            datatime = data.index[i]   
             open = data.iat[i,0]
             high = data.iat[i,1]
             low = data.iat[i,2]

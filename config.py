@@ -33,4 +33,11 @@ SQL = {
   "pass" :  "root" 
 }
 
+STRATEGY = {
+  "length_frames": 20,
+  "lags": 5,
+  "candle_min":5,
+  "kline_interval": "KLINE_INTERVAL_5MINUTE"
+}
+
 print("ENV = ", ENV)

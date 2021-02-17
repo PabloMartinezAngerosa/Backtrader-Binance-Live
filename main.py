@@ -6,7 +6,7 @@ import backtrader as bt
 import datetime as dt
 
 from ccxtbt.ccxtstore import CCXTStore
-from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG
+from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG, STRATEGY
 
 from dataset.dataset import CustomDataset
 from sizer.percent import FullMoney
@@ -25,13 +25,13 @@ def main():
     cerebro = bt.Cerebro(quicknotify=True)
 
     if ENV == PRODUCTION:  # Live trading with Binance
-        kline_production = "KLINE_INTERVAL_30MINUTE"  
+        kline_production = STRATEGY.get("kline_interval")  
         cerebro = CerebroProduction()
         broker_config = {
             'apiKey': BINANCE.get("key"),
             'secret': BINANCE.get("secret")
         }
-        broker = BrokerProduction(broker_config, kline_production)
+        broker = BrokerProduction(broker_config,kline_production)
         cerebro.setbroker(broker)
 
         # hist_start_date = dt.datetime.utcnow() - dt.timedelta(minutes=30000)
@@ -67,7 +67,7 @@ def main():
     if ENV == PRODUCTION:
         strategy = DynamicStopLossLong()
         cerebro.addstrategy(strategy)
-        cerebro.getHistoricalData(kline_production)
+        cerebro.getHistoricalData(kline_production,3)
     else:
         cerebro.addstrategy(DynamicStopLossLong)
 
