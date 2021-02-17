@@ -25,13 +25,13 @@ def main():
     cerebro = bt.Cerebro(quicknotify=True)
 
     if ENV == PRODUCTION:  # Live trading with Binance
-        
+        kline_production = "KLINE_INTERVAL_30MINUTE"  
         cerebro = CerebroProduction()
         broker_config = {
             'apiKey': BINANCE.get("key"),
             'secret': BINANCE.get("secret")
         }
-        broker = BrokerProduction(broker_config)
+        broker = BrokerProduction(broker_config, kline_production)
         cerebro.setbroker(broker)
 
         # hist_start_date = dt.datetime.utcnow() - dt.timedelta(minutes=30000)
@@ -67,7 +67,7 @@ def main():
     if ENV == PRODUCTION:
         strategy = DynamicStopLossLong()
         cerebro.addstrategy(strategy)
-        cerebro.getHistoricalData()
+        cerebro.getHistoricalData(kline_production)
     else:
         cerebro.addstrategy(DynamicStopLossLong)
 

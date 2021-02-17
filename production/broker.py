@@ -80,7 +80,7 @@ class BrokerProduction:
     def on_error(self, ws, message):
         print("Error socket")
         print(message)
-        # self.run()
+        self.run()
     
     def get_historical_klines(self, interval="KLINE_INTERVAL_1MINUTE", lapse=1):
         print("Getting historical!")

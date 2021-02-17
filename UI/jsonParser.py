@@ -19,7 +19,7 @@ class JsonParser():
     def startCandle(self):
         self.activeCandle = {
             "timestamp":self.ensambleIndicators.timestamp,
-            "date": self.ensambleIndicators.date,
+            "date": self.ensambleIndicators.date.strftime('%B %d, %Y, %r'),
             "estimators": {
                 "low":{
                         "media":self.ensambleIndicators.mediaEstimadorLow,
@@ -63,6 +63,5 @@ class JsonParser():
 
     def parseData(self):
         self.data["candles"] = self.candles
-        print(self.data)
         createJsonFile(self.data)
 

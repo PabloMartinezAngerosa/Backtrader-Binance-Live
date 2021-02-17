@@ -64,11 +64,11 @@ class StrategyBase(bt.Strategy):
         lags = self.ensambleIndicatorsLags
         lengths_frames = self.ensambleIndicatorsLengthFrames
         candle_min = self.candle_min
-
+        print("To get indicators")
         self.ensambleIndicators.get_indicators(dataset, datetime, lags, lengths_frames, candle_min)
-
+        print("To parser")
         self.jsonParser.create_json_file(self.ensambleIndicators)
-    
+        print("parse ready")
 
     def add_tick( self, indexData, referenceObject, value, isDate = False):
         buffer = []

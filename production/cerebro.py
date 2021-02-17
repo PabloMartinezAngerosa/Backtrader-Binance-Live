@@ -94,8 +94,8 @@ class CerebroProduction:
     def setLenData1(self):
         self.strategy.lendata1 = len(self.strategy.data1.low)
 
-    def getHistoricalData(self):
+    def getHistoricalData(self, kline):
         '''
         Set historical data to Cerebro.  
         '''
-        self._broker.get_historical_klines(lapse=3)
+        self._broker.get_historical_klines(interval = kline, lapse=3)

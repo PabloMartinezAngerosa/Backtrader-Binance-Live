@@ -17,7 +17,7 @@ class DynamicStopLossLong(StrategyBase):
         # configuration
         self.ensambleIndicatorsLags = 5
         self.ensambleIndicatorsLengthFrames = 20
-        self.candle_min = 1
+        self.candle_min = 30
 
         self.log("Using Dynamic Stop Loss Long strategy")
         self.lendata1 = 0

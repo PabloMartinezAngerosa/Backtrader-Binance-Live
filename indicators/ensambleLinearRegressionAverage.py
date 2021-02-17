@@ -4,6 +4,7 @@ from dataset.data_live import DataLive
 from indicators.ensambleLinearIndicatorsClass import EnsambleLinearIndicatorsClass
 from indicators.sqlCache import  SqlCache
 from config import DEVELOPMENT, ENV, PRODUCTION
+import pandas as pd
 
 class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
 
@@ -159,6 +160,8 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
                 raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
             if (indicators):
+                print("Indicators processed")
+                print(indicators)
                 self.update(indicators)
                 self.timestamp = datetime
                 self.date = pd.to_datetime(datetime, unit='ms')
