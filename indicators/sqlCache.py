@@ -2,6 +2,9 @@ import sqlalchemy as sql
 from sqlalchemy.orm import Session
 from config import SQL,  DEVELOPMENT, ENV, PRODUCTION,DEBUG
 import pandas as pd
+import os.path
+
+
 
 # singleton class
 class SqlCache:
@@ -43,7 +46,7 @@ class SqlCache:
             close = close,
             high = high,
             volume = volume,
-            date = date
+            timestamp = date
         )
         result_proxy = self.connection.execute(query)
 
@@ -67,3 +70,26 @@ class SqlCache:
                            high_mean = high_mean, high_mean2=high_mean2, high_mean3=high_mean3, high_delta= high_delta,
                            close_mean=close_mean) 
         result_proxy = self.connection.execute(query)
+
+    def create_real_time_price_csv(self, _from, _to):
+        # select from to values
+        print("Start select")
+
+        query = sql.select([self.table_realtime_price_miliseconds]).where(sql.and_(
+            self.table_realtime_price_miliseconds.columns.timestamp  >= _from, 
+            self.table_realtime_price_miliseconds.columns.timestamp  <= _to))
+        result = self.connection.execute(query)
+
+
+        interval = "milliseconds_"  + str(_from) + "_" + str(_to) 
+        filename = "BTCUSDT-" + interval + ".csv"
+        filedirectory = "./"
+        data = pd.read_sql(query, self.connection)
+        column_names = ["timestamp", "open", "high", "low", "close", "volume"]
+        data = data.reindex(columns=column_names)
+        data['timestamp'] = pd.to_datetime(data['timestamp'], unit='ms')
+        # sort ascending
+        data.set_index('timestamp', inplace=True)
+        data.sort_values(by=['timestamp'], inplace=True, ascending=True)
+        data.to_csv(filedirectory + filename)
+

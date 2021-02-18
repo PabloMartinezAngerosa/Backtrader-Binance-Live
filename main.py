@@ -40,6 +40,14 @@ def main():
    
 
     else:  # Backtesting with CSV file
+        '''data = CustomDataset(
+            name = COIN_TARGET,
+            dataname = "dataset/BTCUSDT-1m.csv",
+            timeframe = bt.TimeFrame.Minutes,
+            fromdate = datetime.datetime(2021, 1, 7),
+            todate = datetime.datetime(2021, 1, 10),
+            nullvalue = 0.0
+        )'''
         data = CustomDataset(
             name = COIN_TARGET,
             dataname = "dataset/BTCUSDT-1m.csv",
