@@ -37,7 +37,7 @@ STRATEGY = {
   "length_frames": 20,
   "lags": 5,
   "candle_min":15,
-  "kline_interval": "KLINE_INTERVAL_1MINUTE"
+  "kline_interval": "KLINE_INTERVAL_15MINUTE"
 }
 
 print("ENV = ", ENV)
