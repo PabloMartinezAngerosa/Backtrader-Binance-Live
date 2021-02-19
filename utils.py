@@ -1,7 +1,9 @@
 import requests
+from distutils.dir_util import copy_tree
 
 from config import TELEGRAM, ENV
 import json
+import os
 
 
 def print_trade_analysis(analyzer):
@@ -63,6 +65,8 @@ def createJsonFile(data):
     start = "var text = \'"
     end = "\';"
     f = open("./UI/1.0/data.js", "w")
+    #TODO cambiar cuando este finalizada 1.0 de javascript!
+    #f = open("./sessions/template/data.js", "w")
     f.write(start + json.dumps(data) + end)
     f.close()
 
@@ -80,3 +84,22 @@ def send_telegram_message(message=""):
         'chat_id': TELEGRAM.get("channel"),
         'text': message
     })
+
+def copy_UI_template():
+    '''
+        copia el template de UI para mostrar graficos 
+    '''
+    # copy subdirectory example
+    fromDirectory = "./UI/1.0"
+    toDirectory = "./sessions/template"
+
+    path = "./sessions/template"
+    try:
+        os.makedirs(path)
+    except OSError:
+        print ("Creation of the directory %s failed" % path)
+    else:
+        print ("Successfully created the directory %s" % path)
+
+    copy_tree(fromDirectory, toDirectory)
+    print("Copy Ready")

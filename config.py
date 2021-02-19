@@ -36,8 +36,8 @@ SQL = {
 STRATEGY = {
   "length_frames": 20,
   "lags": 5,
-  "candle_min":15,
-  "kline_interval": "KLINE_INTERVAL_15MINUTE"
+  "candle_min":1,
+  "kline_interval": "KLINE_INTERVAL_1MINUTE"
 }
 
 print("ENV = ", ENV)

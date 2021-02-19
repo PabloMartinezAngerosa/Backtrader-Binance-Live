@@ -83,7 +83,7 @@ class SqlCache:
 
         interval = "milliseconds_"  + str(_from) + "_" + str(_to) 
         filename = "BTCUSDT-" + interval + ".csv"
-        filedirectory = "./"
+        filedirectory = "./dataset/"
         data = pd.read_sql(query, self.connection)
         column_names = ["timestamp", "open", "high", "low", "close", "volume"]
         data = data.reindex(columns=column_names)

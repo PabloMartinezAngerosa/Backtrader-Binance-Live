@@ -9,12 +9,13 @@ from ccxtbt.ccxtstore import CCXTStore
 from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG, STRATEGY
 
 from dataset.dataset import CustomDataset
+from dataset.dataset_live import CustomDatasetLive
 from sizer.percent import FullMoney
 from strategies.dynamicStopLossLong import DynamicStopLossLong
 # for test
 from strategies.basic import Basic
 
-from utils import print_trade_analysis, print_sqn, send_telegram_message
+from utils import print_trade_analysis, print_sqn, send_telegram_message, copy_UI_template
 
 from production.cerebro import CerebroProduction
 from production.broker import BrokerProduction
@@ -22,6 +23,11 @@ import websocket, json, pprint, talib, numpy
 
 
 def main():
+
+    # template donde se guardan los resultados de la sessions y graficos. 
+    #TODO conectar  creacion d Json a este link cuando este terminado parser JS.-
+    # copy_UI_template()
+
     cerebro = bt.Cerebro(quicknotify=True)
 
     if ENV == PRODUCTION:  # Live trading with Binance
@@ -40,14 +46,6 @@ def main():
    
 
     else:  # Backtesting with CSV file
-        '''data = CustomDataset(
-            name = COIN_TARGET,
-            dataname = "dataset/BTCUSDT-1m.csv",
-            timeframe = bt.TimeFrame.Minutes,
-            fromdate = datetime.datetime(2021, 1, 7),
-            todate = datetime.datetime(2021, 1, 10),
-            nullvalue = 0.0
-        )'''
         data = CustomDataset(
             name = COIN_TARGET,
             dataname = "dataset/BTCUSDT-1m.csv",
@@ -56,10 +54,21 @@ def main():
             todate = datetime.datetime(2021, 1, 10),
             nullvalue = 0.0
         )
+        '''
+        data = CustomDatasetLive(
+            name = COIN_TARGET,
+            dataname = "dataset/BTCUSDT-milliseconds_1613602127864_1613629271971.csv",
+            timeframe = bt.TimeFrame.Seconds,
+            dtformat='%Y-%m-%d %H:%M:%S.%f',
+            #fromdate = datetime.datetime(2021, 1, 7),
+            #todate = datetime.datetime(2021, 1, 10),
+            nullvalue = 0.0
+        )
+        '''
         cerebro.adddata(data)
         # Resample to have multiple data like Binance. Compression x30, x60, x240, min. 
-        second_time_frame = 30
-        cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, 
+        second_time_frame = 60*15
+        cerebro.resampledata(data, timeframe=bt.TimeFrame.Seconds, 
                              compression=second_time_frame)
         broker = cerebro.getbroker()
         broker.setcommission(commission=0.001, name=COIN_TARGET)  # Simulating exchange fee
@@ -99,7 +108,7 @@ def main():
 
 if __name__ == "__main__":
     try:
-        main()
+        main()        
     except KeyboardInterrupt:
         print("finished.")
         time = dt.datetime.now().strftime("%d-%m-%y %H:%M")
