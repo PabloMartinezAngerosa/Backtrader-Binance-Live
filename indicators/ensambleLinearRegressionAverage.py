@@ -147,15 +147,17 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
 
             datasetBuffer = self.remix_data_ascen(dataset)
             values = json.dumps(self.create_lags_json(datasetBuffer))
-            args = [values.replace('"', '\\"')]
-            # args = [values]
-            # Build subprocess command
-            cmd = [command, path2script] + args
-
+        
             if WINDOWS:
                 shell = True
+                args = [values.replace('"', '\\"')]
             else:
                 shell = False
+                args = [values]
+            
+             # Build subprocess command
+            cmd = [command, path2script] + args
+
             # check_output will run the command and store to result
             try:
                 indicators = subprocess.check_output(cmd, universal_newlines=True,shell=shell)
