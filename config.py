@@ -8,7 +8,7 @@ COIN_REFER = "USDT"
 
 ENV = os.getenv("ENVIRONMENT", PRODUCTION)
 DEBUG = True
-PERSISTENCE_CONNECTION = False
+PERSISTENCE_CONNECTION = True
 WINDOWS = False
 
 # TEST KEY
@@ -38,8 +38,8 @@ SQL = {
 STRATEGY = {
   "length_frames": 20,
   "lags": 5,
-  "candle_min":1,
-  "kline_interval": "KLINE_INTERVAL_1MINUTE"
+  "candle_min":15,
+  "kline_interval": "KLINE_INTERVAL_15MINUTE"
 }
 
 print("ENV = ", ENV)
