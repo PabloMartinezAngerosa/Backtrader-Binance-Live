@@ -1,7 +1,7 @@
 from binance.client import Client
 from binance.enums import *
-import websocket, json, pprint, talib, numpy
-from config import BINANCE, COIN_REFER, COIN_TARGET
+import websocket, json, pprint, numpy
+from config import BINANCE, COIN_REFER, COIN_TARGET, PERSISTENCE_CONNECTION
 from datetime import timedelta, datetime
 import pandas as pd
 import math
@@ -84,7 +84,8 @@ class BrokerProduction:
     def on_error(self, ws, message):
         print("Error socket")
         print(message)
-        self.run()
+        if PERSISTENCE_CONNECTION:
+            self.run()
     
     def get_historical_klines(self, interval, lapse):
         print("Getting historical " + self.interval[interval])

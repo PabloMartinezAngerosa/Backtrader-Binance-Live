@@ -3,7 +3,7 @@ import json
 from dataset.data_live import DataLive
 from indicators.ensambleLinearIndicatorsClass import EnsambleLinearIndicatorsClass
 from indicators.sqlCache import  SqlCache
-from config import DEVELOPMENT, ENV, PRODUCTION
+from config import DEVELOPMENT, ENV, PRODUCTION, WINDOWS
 import pandas as pd
 
 class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
@@ -143,19 +143,22 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
             
             # Define command and arguments
             command ='Rscript'
-            path2script ='indicators/R/ensambleLinearModels.R'
+            path2script ='./indicators/R/ensambleLinearModels.R'
 
             datasetBuffer = self.remix_data_ascen(dataset)
             values = json.dumps(self.create_lags_json(datasetBuffer))
             args = [values.replace('"', '\\"')]
-
+            # args = [values]
             # Build subprocess command
             cmd = [command, path2script] + args
-            
-            
+
+            if WINDOWS:
+                shell = True
+            else:
+                shell = False
             # check_output will run the command and store to result
             try:
-                indicators = subprocess.check_output(cmd, universal_newlines=True,shell=True)
+                indicators = subprocess.check_output(cmd, universal_newlines=True,shell=shell)
             except subprocess.CalledProcessError as e:
                 raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 

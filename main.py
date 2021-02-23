@@ -19,7 +19,7 @@ from utils import print_trade_analysis, print_sqn, send_telegram_message, copy_U
 
 from production.cerebro import CerebroProduction
 from production.broker import BrokerProduction
-import websocket, json, pprint, talib, numpy
+import websocket, json, pprint, numpy
 
 
 def main():

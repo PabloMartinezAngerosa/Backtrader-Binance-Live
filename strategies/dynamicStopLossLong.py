@@ -93,6 +93,7 @@ class DynamicStopLossLong(StrategyBase):
         #     return
         actual_price  = self.datas[0].close[0]
         self.jsonParser.addTick(self.datetime[0], actual_price)
+        
         if self.order:  # waiting for pending order
             return
 

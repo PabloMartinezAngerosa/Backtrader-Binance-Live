@@ -8,6 +8,8 @@ COIN_REFER = "USDT"
 
 ENV = os.getenv("ENVIRONMENT", PRODUCTION)
 DEBUG = True
+PERSISTENCE_CONNECTION = False
+WINDOWS = False
 
 # TEST KEY
 # API Key: rrkkiKYpKfkk6iM88GEG7k6LlK0VX5a4JjfSKaQQQjCVTtRiB9GNUwWVbHiv0MBf
@@ -30,7 +32,7 @@ TELEGRAM = {
 
 SQL = {
   "user" : "root",
-  "pass" :  "root" 
+  "pass" :  "libertad" 
 }
 
 STRATEGY = {
