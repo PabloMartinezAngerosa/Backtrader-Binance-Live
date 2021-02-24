@@ -32,6 +32,7 @@ class StrategyBase(bt.Strategy):
 
         self.order = None
         self.last_operation = "SELL"
+        self.transaction_buy_and_sell = False
         self.status = "DISCONNECTED"
         self.bar_executed = 0
         self.buy_price_close = None
