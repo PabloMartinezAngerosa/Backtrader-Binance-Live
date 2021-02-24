@@ -1,4 +1,5 @@
 import math
+import pandas as pd
 
 class EnsambleLinearIndicatorsClass():
     
@@ -25,6 +26,8 @@ class EnsambleLinearIndicatorsClass():
         self.mediaEstimadorHigh_iterada3 = sqlRow.high_mean3
         self.deltaMediaOpenHigh = sqlRow.high_delta
         self.mediaEstimadorClose = sqlRow.close_mean
+        self.timestamp = sqlRow.date
+        self.date = pd.to_datetime(self.timestamp, unit='ms')
 
         self.updateIndicatorsList()
 

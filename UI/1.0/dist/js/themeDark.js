@@ -629,5 +629,17 @@ function checkCandleTicksLength(dataset){
 	console.log(totalLength/dataset.candles.length)
 
 }
+
+function logFirstLastTicksTime(dataset){
+   var length = dataset.candles.length;
+   var first = dataset.candles[0].ticks[0].time;
+   console.log("Primer tick time es:");
+   console.log(first);
+   var last = dataset.candles[length-1].ticks[dataset.candles[length-1].ticks.length -1].time;
+   console.log("Segundo tick time es:");
+   console.log(last)
+}
+
 checkCandleTicksLength(data);
+logFirstLastTicksTime(data);
 refreshDashBoard(data);

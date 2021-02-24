@@ -1,4 +1,4 @@
 from indicators.sqlCache import  SqlCache
 
 sql = SqlCache()
-sql.create_real_time_price_csv(1613602127864, 1613629271971)
+sql.create_real_time_price_csv(1614051002135, 1614104099999)

@@ -134,6 +134,7 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
                 #  Ya existe en la BD con las condiciones
                 # crea desde aqui el resultado
                 is_in_database = True
+                print("esta en la BD")
                 for row in result:
                     self.updateSqlIndicators(row)
 
