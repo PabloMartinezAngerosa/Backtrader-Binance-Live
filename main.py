@@ -61,7 +61,7 @@ def main():
         
         data = CustomDatasetLive(
             name = COIN_TARGET,
-            dataname = "dataset/BTCUSDT-milliseconds_1614051002135_1614104099999.csv",
+            dataname = "dataset/databases/BTCUSDT-milliseconds_1614051002135_1614104099999.csv",
             timeframe = bt.TimeFrame.Seconds,
             dtformat='%Y-%m-%d %H:%M:%S.%f',
             compression=2,
