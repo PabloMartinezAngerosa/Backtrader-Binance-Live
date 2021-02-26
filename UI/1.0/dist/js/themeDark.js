@@ -58,32 +58,7 @@ areaSeries.applyOptions({
 
 // to remove areaSeries.removePriceLine(priceLine);
 
-areaSeries.setMarkers([
-    {
-        time: '2018-10-19',
-        position: 'aboveBar',
-        color: 'red',
-        shape: 'arrowDown',
-		text: 'buy $12344',
-    },
-    {
-        time: '2018-11-08',
-        position: 'belowBar',
-        color: 'red',
-        shape: 'arrowUp',
-        id: 'id3',
-		text: 'sell $12344',
-    },
-	{
-        time: '2018-12-07',
-        position: 'belowBar',
-        color: 'blue',
-        shape: 'square',
-        id: 'id3',
-		text: 'sell $12344',
-		size: 1,
-    },
-]);
+
 
 // areaSeries.setData([
 	// { time: '2018-10-19', value: 26.19 },
@@ -548,6 +523,44 @@ function generateLinesHigh(estimators, high){
 	
 }
 
+
+
+
+function updateOrders(lowTime, highTime){
+
+	var orders = data.trades;
+	var orderCandle = [];
+	console.log("order")
+	console.log(orders.length);
+	for(var i=0;i<orders.length;i++){
+		console.log(orders[i].buy.timestamp)
+		if ((orders[i].buy.timestamp >= lowTime) && (orders[i].buy.timestamp <= highTime)){
+			var color = 'green'
+			if (orders[i].pnl < 0){
+            	color = 'red'
+			}
+			orderCandle.push(
+				{
+					time: orders[i].buy.timestamp,
+					position: 'aboveBar',
+					color: color,
+					shape: 'arrowDown',
+					text: 'buy $' + orders[i].buy.price,
+				}
+			);
+			orderCandle.push(
+				{
+					time: orders[i].sell.timestamp,
+					position: 'belowBar',
+					color: color,
+					shape: 'arrowUp',
+					text: 'sell $' + orders[i].sell.price,
+				}
+			);
+		}
+	}
+	areaSeries.setMarkers(orderCandle);
+}
 var candle = null;
 
 function updateCandleData(index){
@@ -566,20 +579,30 @@ function updateCandleData(index){
 	// add ticks
 	var bufferTicks = [];
 	var bufferValues = [];
+	var bufferTimes = [];
+
 	for(var i=0; i < candle.ticks.length; i++){
 		var tick = {time:candle.ticks[i].time, value:candle.ticks[i].value}
 		bufferTicks.push(tick);
 		bufferValues.push(candle.ticks[i].value);
+		bufferTimes.push(candle.ticks[i].time);
 	}
 	
 	//TODO agregar minimo, maximo, open, close al js
 	var low = Math.min(...bufferValues);
 	var high = Math.max(...bufferValues);
+
+	var lowTime = Math.min(...bufferTimes);
+	var highTime = Math.max(...bufferTimes);
 	
 	agregarTick(bufferTicks);
-	// add order si existen
+
 	updateEstimadores(candle.estimators, low, high);
 	
+	// update orders si existen
+	updateOrders(lowTime, highTime);
+
+	/*
 	var logs = candle.logs;
 	for (var i=0; i < logs.length; i++){
 		agregarLogChart(logs[i].message, logs[i].date);
@@ -595,6 +618,7 @@ function updateCandleData(index){
 		agregarEstrategiaPrecio(strategiePrice.name, strategiePrice.total, strategiePrice.profitPercent, i+1);
 	}
 
+	*/
 	
 	
 }

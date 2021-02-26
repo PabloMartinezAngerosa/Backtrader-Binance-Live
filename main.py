@@ -11,9 +11,11 @@ from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFE
 from dataset.dataset import CustomDataset
 from dataset.dataset_live import CustomDatasetLive
 from sizer.percent import FullMoney
-from strategies.dynamicStopLossLong import DynamicStopLossLong
+
+from strategies.dynamicHighStopLossLong import DynamicHighStopLossLong
+#from strategies.dynamicStopLossLong import DynamicStopLossLong
 # for test
-from strategies.basic import Basic
+#from strategies.basic import Basic
 
 from utils import print_trade_analysis, print_sqn, send_telegram_message, copy_UI_template
 
@@ -70,7 +72,7 @@ def main():
         
         cerebro.adddata(data)
         # Resample to have multiple data like Binance. Compression x30, x60, x240, min. 
-        second_time_frame = 880
+        second_time_frame = 180
         cerebro.resampledata(data, timeframe=bt.TimeFrame.Seconds, 
                              compression=second_time_frame)
         broker = cerebro.getbroker()
@@ -85,11 +87,11 @@ def main():
 
     # # Include Strategy
     if ENV == PRODUCTION:
-        strategy = DynamicStopLossLong()
+        strategy = DynamicHighStopLossLong()
         cerebro.addstrategy(strategy)
         cerebro.getHistoricalData(kline_production,3)
     else:
-        cerebro.addstrategy(DynamicStopLossLong)
+        cerebro.addstrategy(DynamicHighStopLossLong)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()

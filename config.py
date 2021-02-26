@@ -6,7 +6,7 @@ DEVELOPMENT = "development"
 COIN_TARGET = "BTC"
 COIN_REFER = "USDT"
 
-ENV = os.getenv("ENVIRONMENT", DEVELOPMENT)
+ENV = os.getenv("ENVIRONMENT", PRODUCTION)
 DEBUG = True
 PERSISTENCE_CONNECTION = True
 WINDOWS = False
@@ -38,8 +38,10 @@ SQL = {
 STRATEGY = {
   "length_frames": 20,
   "lags": 5,
-  "candle_min":15,
-  "kline_interval": "KLINE_INTERVAL_15MINUTE"
+  "candle_min":3,
+  "kline_interval": "KLINE_INTERVAL_3MINUTE",
+  "mean_tick_prod":90,
+  "mean_tick_dev":90
 }
 
 print("ENV = ", ENV)

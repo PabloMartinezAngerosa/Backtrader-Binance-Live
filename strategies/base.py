@@ -32,10 +32,12 @@ class StrategyBase(bt.Strategy):
 
         self.order = None
         self.last_operation = "SELL"
-        self.transaction_buy_and_sell = False
         self.status = "DISCONNECTED"
         self.bar_executed = 0
         self.buy_price_close = None
+        self.sell_price_close = None
+        self.timestamp_sell = None
+        self.timestamp_buy = None
         self.soft_sell = False
         self.hard_sell = False
         self.log("Base strategy initialized")
@@ -114,6 +116,11 @@ class StrategyBase(bt.Strategy):
         self.soft_sell = False
         self.hard_sell = False
         self.buy_price_close = None
+        self.timestamp_buy = None
+
+    def reset_buy_indicators(self):
+        self.sell_price_close = None
+        self.timestamp_sell = None
 
     def notify_data(self, data, status, *args, **kwargs):
         self.status = data._getstatusname(status)
@@ -124,7 +131,8 @@ class StrategyBase(bt.Strategy):
     def short(self):
         if self.last_operation == "SELL":
             return
-
+        self.sell_price_close = self.data0.close[0]
+        self.timestamp_sell = self.datetime[0]
         if ENV == DEVELOPMENT:
             self.log("Sell ordered: $%.2f" % self.data0.close[0])
             return self.sell()
@@ -141,6 +149,7 @@ class StrategyBase(bt.Strategy):
 
         self.log("Buy ordered: $%.2f" % self.data0.close[0], True)
         self.buy_price_close = self.data0.close[0]
+        self.timestamp_buy = self.datetime[0]
         price = self.data0.close[0]
 
         if ENV == DEVELOPMENT:
@@ -170,16 +179,27 @@ class StrategyBase(bt.Strategy):
                     (order.executed.price,
                      order.executed.value,
                      order.executed.comm), True)
+                self.jsonParser.addBuyOperation(self.timestamp_buy, 
+                                                self.buy_price_close, 
+                                                order.executed.price, 
+                                                order.executed.value, 
+                                                order.executed.comm)
+                self.reset_buy_indicators()
                 if ENV == PRODUCTION:
                     print(order.__dict__)
 
             else:  # Sell
                 self.last_operation = "SELL"
-                self.reset_sell_indicators()
                 self.log('SELL EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f' %
                          (order.executed.price,
                           order.executed.value,
                           order.executed.comm), True)
+                self.jsonParser.addSellOperation(self.timestamp_sell, 
+                                self.sell_price_close, 
+                                order.executed.price, 
+                                order.executed.value, 
+                                order.executed.comm)
+                self.reset_sell_indicators()
 
             # Sentinel to None: new orders allowed
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
@@ -196,6 +216,7 @@ class StrategyBase(bt.Strategy):
         if trade.pnl < 0:
             color = 'red'
 
+        self.jsonParser.addTrade(trade.pnl, trade.pnlcomm)
         self.log(colored('OPERATION PROFIT, GROSS %.2f, NET %.2f' % (trade.pnl, trade.pnlcomm), color), True)
 
     def log(self, txt, send_telegram=False, color=None):

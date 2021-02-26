@@ -88,6 +88,9 @@ class SqlCache:
         column_names = ["timestamp", "open", "high", "low", "close", "volume"]
         data = data.reindex(columns=column_names)
         data['timestamp'] = pd.to_datetime(data['timestamp'], unit='ms')
+        # backtrader ejecuta una orden con el proximo open para simular demora
+        # se reescribe los open con los close. Xq no existe esa infromacion.
+        data['open'] = data['close']
         # sort ascending
         data.set_index('timestamp', inplace=True)
         data.sort_values(by=['timestamp'], inplace=True, ascending=True)

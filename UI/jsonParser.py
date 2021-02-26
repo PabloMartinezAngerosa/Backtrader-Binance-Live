@@ -5,12 +5,24 @@ class JsonParser():
         self.data = {}
         self.firstEstimation = False
         self.ticks = []
+        self.trades = []
+        self.sell = None
+        self.buy = None
         self.candles  = []
         self.activeCandle = None
         self.ensambleIndicators = ensambleIndicators
 
     def add_strategy_name(self, name):
           self.data["strategyName"] = name
+
+    def addSellOperation(self, timestamp, price, price_executed, amount, commision):
+        self.sell = {"timestamp":timestamp,"price":price,"price_executed":price_executed, "amount":amount, "commision":commision}
+
+    def addBuyOperation(self, timestamp, price, price_executed, amount, commision):
+        self.buy = {"timestamp":timestamp,"price":price,"price_executed":price_executed, "amount":amount, "commision":commision}
+        
+    def addTrade(self, pnl, pnlcomn):
+        self.trades.append({"sell":self.sell, "buy":self.buy, "pnl":pnl, "pnlcomn":pnlcomn})
 
     def addTick(self, date_time, value):
         if self.firstEstimation == True:
@@ -62,6 +74,8 @@ class JsonParser():
         self.ticks = []
 
     def parseData(self):
+        # agrega trades acumulados
+        self.data["trades"] = self.trades
         self.data["candles"] = self.candles
         createJsonFile(self.data)
 
