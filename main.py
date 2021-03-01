@@ -12,7 +12,8 @@ from dataset.dataset import CustomDataset
 from dataset.dataset_live import CustomDatasetLive
 from sizer.percent import FullMoney
 
-from strategies.dynamicHighStopLossLong import DynamicHighStopLossLong
+from strategies.overlapHighEstimators import OverlapHighEstimators
+#from strategies.dynamicHighStopLossLong import DynamicHighStopLossLong
 #from strategies.dynamicStopLossLong import DynamicStopLossLong
 # for test
 #from strategies.basic import Basic
@@ -61,7 +62,7 @@ def main():
         
         data = CustomDatasetLive(
             name = COIN_TARGET,
-            dataname = "dataset/databases/BTCUSDT-milliseconds_1614051002135_1614104099999.csv",
+            dataname = "dataset/databases/BTCUSDT-milliseconds_1614320462088_1614348719999.csv",
             timeframe = bt.TimeFrame.Seconds,
             dtformat='%Y-%m-%d %H:%M:%S.%f',
             compression=2,
@@ -72,7 +73,7 @@ def main():
         
         cerebro.adddata(data)
         # Resample to have multiple data like Binance. Compression x30, x60, x240, min. 
-        second_time_frame = 180
+        second_time_frame = 300
         cerebro.resampledata(data, timeframe=bt.TimeFrame.Seconds, 
                              compression=second_time_frame)
         broker = cerebro.getbroker()
@@ -87,15 +88,18 @@ def main():
 
     # # Include Strategy
     if ENV == PRODUCTION:
-        strategy = DynamicHighStopLossLong()
+        strategy = OverlapHighEstimators()
         cerebro.addstrategy(strategy)
         cerebro.getHistoricalData(kline_production,3)
     else:
-        cerebro.addstrategy(DynamicHighStopLossLong)
+        cerebro.addstrategy(OverlapHighEstimators)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()
     # print('Starting Portfolio Value: %.2f' % initial_value)
+    if ENV == PRODUCTION:
+        message_init = "Buenas! Se ha lanzado una nueva instancia de trading de velas de 15 minutos. Mucha suerte, que siga la aventura. \U0001F680" 
+        send_telegram_message(message_init)
     result = cerebro.run()
 
     # if ENV == PRODUCTION:

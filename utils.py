@@ -4,7 +4,7 @@ from distutils.dir_util import copy_tree
 from config import TELEGRAM, ENV
 import json
 import os
-
+import telegram_send
 
 def print_trade_analysis(analyzer):
     # Get the results we are interested in
@@ -78,12 +78,14 @@ def print_sqn(analyzer):
 def send_telegram_message(message=""):
     if ENV != "production":
         return
-
-    base_url = "https://api.telegram.org/bot%s" % TELEGRAM.get("bot")
-    return requests.get("%s/sendMessage" % base_url, params={
-        'chat_id': TELEGRAM.get("channel"),
-        'text': message
-    })
+    telegram_send.send(messages=[message])
+    return True
+    #base_url = "https://api.telegram.org/bot%s" % TELEGRAM.get("bot")
+    #print(base_url)
+    #return requests.get("%s/sendMessage" % base_url, params={
+    #    'chat_id': TELEGRAM.get("channel"),
+    #    'text': message
+    #}).content
 
 def copy_UI_template():
     '''

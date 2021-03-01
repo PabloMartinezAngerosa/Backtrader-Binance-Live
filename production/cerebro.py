@@ -82,7 +82,7 @@ class CerebroProduction:
         Adds next ``tick``  to strategy.
         For live support only 1 strats. 
         '''
-        print(datetime)
+        #print(datetime)
         # tick = DataLive(datetime, open, low, high, close)
         # bufferData = []
         # bufferData.append(tick)

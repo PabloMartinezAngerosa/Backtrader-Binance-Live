@@ -9,6 +9,7 @@ COIN_REFER = "USDT"
 ENV = os.getenv("ENVIRONMENT", PRODUCTION)
 DEBUG = True
 PERSISTENCE_CONNECTION = True
+TESTING_PRODUCTION = True
 WINDOWS = False
 
 # TEST KEY
@@ -19,15 +20,19 @@ WINDOWS = False
 # PRODUCTION
  # ExcI0XeCRrWCUfklhGggIFCCNjn9gwB0bsU79qbE0kuASPzrqfOR1BZDhBuJ8lSj 
  # gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5
- 
+
+TESTING_PRODUCTION_DATE = {
+  "from":1614581102107,
+  "to":1614619800048:
+}
 BINANCE = {
   "key": "ExcI0XeCRrWCUfklhGggIFCCNjn9gwB0bsU79qbE0kuASPzrqfOR1BZDhBuJ8lSjf",
   "secret": "gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5"
 }
 
 TELEGRAM = {
-  "channel": "<CHANEL ID>",
-  "bot": "<BOT KEY HERE>"
+  "channel": "t.me/libertad_kamikaze_bot",
+  "bot": "1626640400:AAEJeXYbxMIsNiDu7okdHHHU7JuHsmn0swo"
 }
 
 SQL = {
@@ -38,10 +43,10 @@ SQL = {
 STRATEGY = {
   "length_frames": 20,
   "lags": 5,
-  "candle_min":3,
-  "kline_interval": "KLINE_INTERVAL_3MINUTE",
-  "mean_tick_prod":90,
-  "mean_tick_dev":90
+  "candle_min":15,
+  "kline_interval": "KLINE_INTERVAL_15MINUTE",
+  "mean_tick_prod":430,
+  "mean_tick_dev":150
 }
 
 print("ENV = ", ENV)

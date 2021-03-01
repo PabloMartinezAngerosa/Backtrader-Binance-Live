@@ -1,7 +1,7 @@
 from binance.client import Client
 from binance.enums import *
 import websocket, json, pprint, numpy
-from config import BINANCE, COIN_REFER, COIN_TARGET, PERSISTENCE_CONNECTION
+from config import BINANCE, COIN_REFER, COIN_TARGET, PERSISTENCE_CONNECTION, TESTING_PRODUCTION, TESTING_PRODUCTION_DATE
 from datetime import timedelta, datetime
 import pandas as pd
 import math
@@ -36,12 +36,33 @@ class BrokerProduction:
         self.sql_cache = SqlCache()
 
     def run(self):
-        self.ws = websocket.WebSocketApp(self.socket,
-                    on_message = lambda ws,msg: self.on_message(ws, msg),
-                    on_error   = lambda ws,msg: self.on_error(ws, msg),
-                    on_close   = lambda ws:     self.on_close(ws),
-                    on_open    = lambda ws:     self.on_open(ws))
-        self.ws.run_forever()
+        if TESTING_PRODUCTION == False:
+            self.ws = websocket.WebSocketApp(self.socket,
+                        on_message = lambda ws,msg: self.on_message(ws, msg),
+                        on_error   = lambda ws,msg: self.on_error(ws, msg),
+                        on_close   = lambda ws:     self.on_close(ws),
+                        on_open    = lambda ws:     self.on_open(ws))
+            self.ws.run_forever()
+        else:
+            self.simulate_binance_socket()
+    
+    def simulate_binance_socket(self):
+        # obtiene con datos del config los ticks correspondientes
+        data_tick = self.sql_cache.get_ticks_realtime(TESTING_PRODUCTION_DATE.get("from"), TESTING_PRODUCTION_DATE.get("to"))
+        for tick in data_tick:
+            message = {}
+            candle = {}
+            message["E"] = data_tick["timestamp"]
+            candle["x"] = data_tick["is_close"]
+            candle["c"] = data_tick["close"]
+            candle["o"] = data_tick["open"]
+            candle["h"] = data_tick["high"]
+            candle["l"] = data_tick["low"]
+            candle["v"] = data_tick["volume"]
+            candle["T"] = data_tick["timestamp_close"]
+            message["k"] = candle
+        # genera el json_message simulando lo que envia Binance desde el API
+        # llama on_message 
 
     def set_cerebro(self,cerebro):
         self.cerebro = cerebro
@@ -66,9 +87,13 @@ class BrokerProduction:
         high = candle["h"]
         volume = candle["v"] 
 
+        datetime_closed = datetime
+        is_closed = 0
+
         if (is_candle_closed):
+            is_closed = 1
             # close candle time 
-            datetime = candle["T"]
+            datetime_closed = candle["T"]
             # no ejecuta next frame
             self.cerebro.addNextFrame(1, datetime, open,  low, high, close, volume, False)
 
@@ -77,7 +102,8 @@ class BrokerProduction:
         # esto solo se llama en ENV = PRODUCTION
         # si hay problema en la BD evita que se corte el flujo del bot.
         #try:
-        self.sql_cache.insert_realtime_price(datetime, open, low, high, close, volume)
+        if TESTING_PRODUCTION == False:
+            self.sql_cache.insert_realtime_price(datetime, open, low, high, close, volume, datetime_closed,  is_closed)
         #except:
         #    print("Problema en guardar en la BD el tick en realtime.")
 

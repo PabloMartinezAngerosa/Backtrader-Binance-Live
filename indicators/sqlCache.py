@@ -39,14 +39,16 @@ class SqlCache:
         return result
 
 
-    def insert_realtime_price(self, date, open, low, high, close, volume):
+    def insert_realtime_price(self, date, open, low, high, close, volume, datetime_closed, is_candle_closed):
         query = sql.insert(self.table_realtime_price_miliseconds).values(
             open = open,
             low = low,
             close = close,
             high = high,
             volume = volume,
-            timestamp = date
+            timestamp = date,
+            timestamp_close = datetime_closed,
+            is_close = is_candle_closed
         )
         result_proxy = self.connection.execute(query)
 
@@ -78,7 +80,7 @@ class SqlCache:
         query = sql.select([self.table_realtime_price_miliseconds]).where(sql.and_(
             self.table_realtime_price_miliseconds.columns.timestamp  >= _from, 
             self.table_realtime_price_miliseconds.columns.timestamp  <= _to))
-        result = self.connection.execute(query)
+        # result = self.connection.execute(query)
 
 
         interval = "milliseconds_"  + str(_from) + "_" + str(_to) 
@@ -96,3 +98,9 @@ class SqlCache:
         data.sort_values(by=['timestamp'], inplace=True, ascending=True)
         data.to_csv(filedirectory + filename)
 
+    def get_ticks_realtime(self, _from, _to):
+        query = sql.select([self.table_realtime_price_miliseconds]).where(sql.and_(
+            self.table_realtime_price_miliseconds.columns.timestamp  >= _from, 
+            self.table_realtime_price_miliseconds.columns.timestamp  <= _to))
+        data = pd.read_sql(query, self.connection)
+        return data

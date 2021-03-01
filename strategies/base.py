@@ -115,12 +115,12 @@ class StrategyBase(bt.Strategy):
     def reset_sell_indicators(self):
         self.soft_sell = False
         self.hard_sell = False
-        self.buy_price_close = None
-        self.timestamp_buy = None
-
-    def reset_buy_indicators(self):
         self.sell_price_close = None
         self.timestamp_sell = None
+
+    def reset_buy_indicators(self):
+        self.buy_price_close = None
+        self.timestamp_buy = None
 
     def notify_data(self, data, status, *args, **kwargs):
         self.status = data._getstatusname(status)
@@ -136,12 +136,27 @@ class StrategyBase(bt.Strategy):
         if ENV == DEVELOPMENT:
             self.log("Sell ordered: $%.2f" % self.data0.close[0])
             return self.sell()
-
-        cash, value = self.broker.get_wallet_balance(COIN_TARGET)
-        amount = value*0.99
-        self.log("Sell ordered: $%.2f. Amount %.6f %s - $%.2f USDT" % (self.data0.close[0],
-                                                                       amount, COIN_TARGET, value), True)
-        return self.sell(size=amount)
+        if ENV == PRODUCTION:
+            send_telegram_message(" \U0001F4E3 Orden de venta a : $%.2f" % self.data0.close[0])
+            self.last_operation = "SELL"
+            self.jsonParser.addSellOperation(self.timestamp_sell, 
+                                self.sell_price_close, 
+                                self.sell_price_close, 
+                                0, 
+                                0)
+            delta_order = self.sell_price_close - self.buy_price_close
+            self.jsonParser.addTrade(self.sell_price_close - self.buy_price_close, 0)
+            if delta_order > 0:
+                send_telegram_message(" \U0001F44C El trade fue exitoso! Con delta de : $%.2f" % delta_order)
+            else:
+                send_telegram_message(" \U0001F44E El trade fue erroneo. Con delta de : $%.2f" % delta_order)
+            self.reset_sell_indicators()
+            self.reset_buy_indicators()
+        # cash, value = self.broker.get_wallet_balance(COIN_TARGET)
+        #amount = value*0.99
+        #self.log("Sell ordered: $%.2f. Amount %.6f %s - $%.2f USDT" % (self.data0.close[0],
+        #                                                              amount, COIN_TARGET, value), True)
+        #return self.sell(size=amount)
 
     def long(self):
         if self.last_operation == "BUY":
@@ -154,12 +169,20 @@ class StrategyBase(bt.Strategy):
 
         if ENV == DEVELOPMENT:
             return self.buy()
-
-        cash, value = self.broker.get_wallet_balance(COIN_REFER)
-        amount = (value / price) * 0.99  # Workaround to avoid precision issues
-        self.log("Buy ordered: $%.2f. Amount %.6f %s. Ballance $%.2f USDT" % (self.data0.close[0],
-                                                                              amount, COIN_TARGET, value), True)
-        return self.buy(size=amount)
+        
+        if ENV == PRODUCTION:
+            send_telegram_message(" \U0001F4E3 Orden de compra a : $%.2f" % self.data0.close[0])
+            self.last_operation = "BUY"
+            self.jsonParser.addBuyOperation(self.timestamp_buy, 
+                                self.buy_price_close, 
+                                self.buy_price_close, 
+                                0, 
+                                0)
+        #cash, value = self.broker.get_wallet_balance(COIN_REFER)
+        #amount = (value / price) * 0.99  # Workaround to avoid precision issues
+        #self.log("Buy ordered: $%.2f. Amount %.6f %s. Ballance $%.2f USDT" % (self.data0.close[0],
+        #                                                                     amount, COIN_TARGET, value), True)
+        #return self.buy(size=amount)
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:

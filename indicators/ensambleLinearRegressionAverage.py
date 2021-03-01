@@ -3,7 +3,7 @@ import json
 from dataset.data_live import DataLive
 from indicators.ensambleLinearIndicatorsClass import EnsambleLinearIndicatorsClass
 from indicators.sqlCache import  SqlCache
-from config import DEVELOPMENT, ENV, PRODUCTION, WINDOWS
+from config import DEVELOPMENT, ENV, PRODUCTION, WINDOWS, TESTING_PRODUCTION
 import pandas as pd
 
 class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
@@ -128,7 +128,7 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
         indicators = None
         is_in_database = False
 
-        if (ENV == DEVELOPMENT):
+        if (ENV == DEVELOPMENT or TESTING_PRODUCTION):
             result = self.sqlCache.check_estimators(datetime, candle_min, lags, lengths_frames)
             if result.rowcount >0:
                 #  Ya existe en la BD con las condiciones
