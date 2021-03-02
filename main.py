@@ -6,7 +6,7 @@ import backtrader as bt
 import datetime as dt
 
 from ccxtbt.ccxtstore import CCXTStore
-from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG, STRATEGY
+from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG, STRATEGY, TESTING_PRODUCTION
 
 from dataset.dataset import CustomDataset
 from dataset.dataset_live import CustomDatasetLive
@@ -90,7 +90,8 @@ def main():
     if ENV == PRODUCTION:
         strategy = OverlapHighEstimators()
         cerebro.addstrategy(strategy)
-        cerebro.getHistoricalData(kline_production,3)
+        if TESTING_PRODUCTION == False:
+            cerebro.getHistoricalData(kline_production,3)
     else:
         cerebro.addstrategy(OverlapHighEstimators)
 

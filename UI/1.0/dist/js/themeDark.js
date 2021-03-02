@@ -602,6 +602,8 @@ function updateCandleData(index){
 	// update orders si existen
 	updateOrders(lowTime, highTime);
 
+	var log_candle_times = "Start: " + lowTime + " - End: " + highTime;
+	agregarLogChart(log_candle_times, Date(Date.now()).toString());
 	/*
 	var logs = candle.logs;
 	for (var i=0; i < logs.length; i++){
@@ -657,11 +659,18 @@ function checkCandleTicksLength(dataset){
 function logFirstLastTicksTime(dataset){
    var length = dataset.candles.length;
    var first = dataset.candles[0].ticks[0].time;
+   console.log("-----------------------------");
+   console.log("Fecha primer candle es:");
+   console.log(dataset.candles[0].date);
    console.log("Primer tick time es:");
    console.log(first);
    var last = dataset.candles[length-1].ticks[dataset.candles[length-1].ticks.length -1].time;
    console.log("Segundo tick time es:");
-   console.log(last)
+   console.log(last);
+
+   console.log("Fecha ultimo candle es:");
+   console.log(dataset.candles[length-1].date);
+   console.log("-----------------------------")
 }
 
 checkCandleTicksLength(data);
