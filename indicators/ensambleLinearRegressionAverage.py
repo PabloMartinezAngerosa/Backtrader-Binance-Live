@@ -140,7 +140,7 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
 
         # si es prod guarda en la BD
         # si es dev pero no existia guara en la BD
-        if (is_in_database == False or ENV == PRODUCTION):
+        if (is_in_database == False or ENV == PRODUCTION) and TESTING_PRODUCTION == False:
             
             # Define command and arguments
             command ='Rscript'

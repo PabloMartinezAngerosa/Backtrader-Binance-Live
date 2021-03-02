@@ -49,18 +49,20 @@ class BrokerProduction:
     def simulate_binance_socket(self):
         # obtiene con datos del config los ticks correspondientes
         data_tick = self.sql_cache.get_ticks_realtime(TESTING_PRODUCTION_DATE.get("from"), TESTING_PRODUCTION_DATE.get("to"))
-        for tick in data_tick:
+        for index, tick in data_tick.iterrows():
             message = {}
             candle = {}
-            message["E"] = data_tick["timestamp"]
-            candle["x"] = data_tick["is_close"]
-            candle["c"] = data_tick["close"]
-            candle["o"] = data_tick["open"]
-            candle["h"] = data_tick["high"]
-            candle["l"] = data_tick["low"]
-            candle["v"] = data_tick["volume"]
-            candle["T"] = data_tick["timestamp_close"]
+            message["E"] = tick["timestamp"]
+            candle["x"] = tick["is_close"]
+            candle["c"] = tick["close"]
+            candle["o"] = tick["open"]
+            candle["h"] = tick["high"]
+            candle["l"] = tick["low"]
+            candle["v"] = tick["volume"]
+            candle["T"] = tick["timestamp_close"]
             message["k"] = candle
+            print(tick["close"])
+            self.on_message(None, json.dumps(message))
         # genera el json_message simulando lo que envia Binance desde el API
         # llama on_message 
 
