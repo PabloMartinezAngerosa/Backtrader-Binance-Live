@@ -15,7 +15,7 @@ from sizer.percent import FullMoney
 
 from strategies.overlapHighEstimators import OverlapHighEstimators
 #from strategies.dynamicHighStopLossLong import DynamicHighStopLossLong
-#from strategies.dynamicStopLossLong import DynamicStopLossLong
+from strategies.dynamicStopLossLong import DynamicStopLossLong
 # for test
 #from strategies.basic import Basic
 
