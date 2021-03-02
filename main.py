@@ -7,6 +7,7 @@ import datetime as dt
 
 from ccxtbt.ccxtstore import CCXTStore
 from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG, STRATEGY, TESTING_PRODUCTION
+from messages import MESSAGE_TELEGRAM
 
 from dataset.dataset import CustomDataset
 from dataset.dataset_live import CustomDatasetLive
@@ -99,7 +100,7 @@ def main():
     # initial_value = cerebro.broker.getvalue()
     # print('Starting Portfolio Value: %.2f' % initial_value)
     if ENV == PRODUCTION:
-        message_init = "Buenas! Se ha lanzado una nueva instancia de trading de velas de 15 minutos. Mucha suerte, que siga la aventura. \U0001F680" 
+        message_init =  MESSAGE_TELEGRAM.get("init_session")
         send_telegram_message(message_init)
     result = cerebro.run()
 
