@@ -33,8 +33,8 @@ class DynamicHighStopLossLong(StrategyBase):
         self.indicators_ready = False
         # Cuanto permite correrse de la estimacion
         # antes de ejecutar el trade.
-        self.delta_stop_loss_low = 15 
-        self.delta_stop_loss_high = 5
+        self.delta_stop_loss_low = 50 
+        self.delta_stop_loss_high = 30
 
         # delta miimo desde la compra para ejecutar el buy en una prediccion de high
         self.delta_minimo = 120  

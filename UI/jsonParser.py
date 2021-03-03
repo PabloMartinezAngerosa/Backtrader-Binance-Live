@@ -5,6 +5,7 @@ class JsonParser():
         self.data = {}
         self.firstEstimation = False
         self.ticks = []
+        self.logs = []
         self.trades = []
         self.sell = None
         self.buy = None
@@ -27,6 +28,9 @@ class JsonParser():
     def addTick(self, date_time, value):
         if self.firstEstimation == True:
             self.ticks.append({"time":date_time, "value":value})
+
+    def add_log(self, message, date):
+        self.logs.append({"message":message, "date":date})
 
     def startCandle(self):
         self.activeCandle = {
@@ -65,6 +69,8 @@ class JsonParser():
     def closeCandle(self):
         # agrega ticks acumulados
         self.activeCandle["ticks"] = self.ticks
+        # agrega logs
+        self.activeCandle["logs"] = self.logs
         # agrega ordenes acumuladas
         # agrega invests results generados
         # guarda en candles
@@ -72,6 +78,7 @@ class JsonParser():
         # refresh active candle
         self.activeCandle = None
         self.ticks = []
+        self.logs = []
 
     def parseData(self):
         # agrega trades acumulados

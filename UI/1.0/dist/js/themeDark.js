@@ -47,6 +47,8 @@ areaSeries.applyOptions({
     lastValueVisible: false,
 });
 
+var lineSeries = chart.addLineSeries();
+
  // const priceLine = areaSeries.createPriceLine({
     // price: 26.5,
     // color: 'rgba(38, 198, 218, 1)',
@@ -604,13 +606,15 @@ function updateCandleData(index){
 
 	var log_candle_times = "Start: " + lowTime + " - End: " + highTime;
 	agregarLogChart(log_candle_times, Date(Date.now()).toString());
-	/*
+	
 	var logs = candle.logs;
 	for (var i=0; i < logs.length; i++){
 		agregarLogChart(logs[i].message, logs[i].date);
 	}	// agrega logs
-	
 
+	createAverageLineSerie(index, 15);
+	
+ /*
 
 	// agrega estrategias de precio name, gananciaTotal, revenuePercent, indexStrategyPrice
 	ocultarTodasEstrategiasPrecio();
@@ -623,6 +627,26 @@ function updateCandleData(index){
 	*/
 	
 	
+}
+
+function createAverageLineSerie(index, lags) {
+	var candle = data.candles[index];
+	var bufferTicks = [];
+	var counter = 0;
+
+	for(var i=0; i < candle.ticks.length; i++){
+		counter = counter + 1;
+		if (counter >= lags) {
+			var acumValue = 0;
+			for(var j= (i - (lags - 1)); j <= i; j++) {
+				acumValue = acumValue + candle.ticks[j].value;
+			}
+			var mean = acumValue / lags;
+			bufferTicks.push({time:candle.ticks[i].time, value:mean})
+		}
+	}
+
+	lineSeries.setData(bufferTicks);
 }
 
 function updateActualNextPrevIndex(index){

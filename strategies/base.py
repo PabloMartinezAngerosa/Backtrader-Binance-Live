@@ -133,8 +133,8 @@ class StrategyBase(bt.Strategy):
             return
         self.sell_price_close = self.data0.close[0]
         self.timestamp_sell = self.datetime[0]
+        self.log("Sell ordered: $%.2f" % self.data0.close[0])
         if ENV == DEVELOPMENT:
-            self.log("Sell ordered: $%.2f" % self.data0.close[0])
             return self.sell()
         if ENV == PRODUCTION:
             send_telegram_message(" \U0001F4E3 Orden de venta a : $%.2f" % self.data0.close[0])
@@ -242,7 +242,7 @@ class StrategyBase(bt.Strategy):
         self.jsonParser.addTrade(trade.pnl, trade.pnlcomm)
         self.log(colored('OPERATION PROFIT, GROSS %.2f, NET %.2f' % (trade.pnl, trade.pnlcomm), color), True)
 
-    def log(self, txt, send_telegram=False, color=None):
+    def log(self, txt, send_telegram=False, color=None, to_ui = False, date = None):
         if not DEBUG:
             return
 
@@ -256,5 +256,7 @@ class StrategyBase(bt.Strategy):
             txt = colored(txt, color)
 
         print('[%s] %s' % (value.strftime("%d-%m-%y %H:%M"), txt))
+        if to_ui == True:
+            self.jsonParser.add_log(txt, date)
         if send_telegram:
             send_telegram_message(txt)

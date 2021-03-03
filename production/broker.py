@@ -61,7 +61,6 @@ class BrokerProduction:
             candle["v"] = tick["volume"]
             candle["T"] = tick["timestamp_close"]
             message["k"] = candle
-            print(tick["close"])
             self.on_message(None, json.dumps(message))
         # genera el json_message simulando lo que envia Binance desde el API
         # llama on_message 
