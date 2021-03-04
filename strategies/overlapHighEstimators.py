@@ -52,6 +52,9 @@ class OverlapHighEstimators(StrategyBase):
 
         self.jsonParser.add_strategy_name(self.name)
 
+        self.mean_filter_lag = 15
+        self.mean_filter_ticks = [] 
+
     def refreshOverlapHighEstimatorsValues(self):
         self.high1["value"] = self.ensambleIndicators.indicatorsHigh[3]
         self.high2["value"] = self.ensambleIndicators.indicatorsHigh[2]
@@ -117,20 +120,26 @@ class OverlapHighEstimators(StrategyBase):
         # if self.status != "LIVE" and ENV == PRODUCTION:  # waiting for live status in production
         #     return
         actual_price  = self.datas[0].close[0]
+        actual_price_unfilt = actual_price
+        self.mean_filter_ticks.append(actual_price)
+        if  len(self.mean_filter_ticks) == self.mean_filter_lag:
+            actual_price = sum(self.mean_filter_ticks) / self.mean_filter_lag
+            # clean for memory 
+            self.mean_filter_ticks.pop(0)
         self.actual_tick = self.actual_tick + 1
         self.jsonParser.addTick(self.datetime[0], actual_price)
         
         if self.order:  # waiting for pending order
             return
 
-        self.log('Actual Price: %.3f %% '  % actual_price)
+        #self.log('Actual Price: %.3f %% '  % actual_price)
         
         # si estan listos los indicadores comienza la estrategia
         if self.indicators_ready == True and self.made_trade == False:
             if self.last_operation != "BUY" and  self.actual_tick < (self.mean_tick * self.tickMax):
                 if self.check_high_estimator_overlap(actual_price, self.actual_tick) == True:
                     print("tres seguidos mas el delta, esto es suba! compra!")
-                    self.buy_price = actual_price
+                    self.buy_price = actual_price_unfilt
                     self.long()
             
             if self.last_operation != "SELL":
