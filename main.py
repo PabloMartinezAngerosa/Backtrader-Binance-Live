@@ -13,7 +13,8 @@ from dataset.dataset import CustomDataset
 from dataset.dataset_live import CustomDatasetLive
 from sizer.percent import FullMoney
 
-from strategies.overlapHighEstimators import OverlapHighEstimators
+from strategies.elasticLowBandOverlapHigh import ElasticLowBandOverlapHigh
+#from strategies.overlapHighEstimators import OverlapHighEstimators
 #from strategies.dynamicHighStopLossLong import DynamicHighStopLossLong
 #from strategies.dynamicStopLossLong import DynamicStopLossLong
 # for test
@@ -89,12 +90,12 @@ def main():
 
     # # Include Strategy
     if ENV == PRODUCTION:
-        strategy = OverlapHighEstimators()
+        strategy = ElasticLowBandOverlapHigh()
         cerebro.addstrategy(strategy)
         if TESTING_PRODUCTION == False:
             cerebro.getHistoricalData(kline_production,3)
     else:
-        cerebro.addstrategy(OverlapHighEstimators)
+        cerebro.addstrategy(ElasticLowBandOverlapHigh)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()

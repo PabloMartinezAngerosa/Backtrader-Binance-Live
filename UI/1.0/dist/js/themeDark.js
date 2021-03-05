@@ -231,8 +231,8 @@ legend.appendChild(firstRow);
 chart.subscribeCrosshairMove((param) => {
 	if (param.time) {
 		const price = param.seriesPrices.get(areaSeries);
-		firstRow.innerText = 'Price $' + '  ' + price.toFixed(2) + " , delta $" + (areaSeries.coordinateToPrice(param.point.y) - price ).toFixed(2);
-		showEstimatorDetailNear(areaSeries.coordinateToPrice(param.point.y))
+		const estimatorDelta = showEstimatorDetailNear(areaSeries.coordinateToPrice(param.point.y), price);
+		firstRow.innerText = 'Price $' + '  ' + price.toFixed(2) + " , delta $" + (areaSeries.coordinateToPrice(param.point.y) - price ).toFixed(2) + estimatorDelta;
 	}
   else {
   	firstRow.innerText = '';
@@ -379,45 +379,54 @@ function hiddenAllEstimatorsDetails(){
     axisLabelVisible: false});
 }
 
-function showEstimatorDetailNear(price){
+function showEstimatorDetailNear(price, local_price){
 	hiddenAllEstimatorsDetails();
 	delta = 10;
 	var candle_estimators = candle.estimators;
+	var message = "";
 	// low
 	if (price > (candle_estimators.low.media - delta) &&  price < (candle_estimators.low.media + delta)) {
 		candle_estimators.low.mediaRef.applyOptions({
 		axisLabelVisible: true});
+		message = " la diferencia con estimador low media es: " + (candle_estimators.low.media - local_price);
 	}
 	if (price > (candle_estimators.low.mediaIter2 - delta) &&  price < (candle_estimators.low.mediaIter2 + delta)) {
 		candle_estimators.low.media2Ref.applyOptions({
 		axisLabelVisible: true});
+		message = " la diferencia con estimador low media 2 es: " + (candle_estimators.low.mediaIter2 - local_price);
 	}
 	if (price > (candle_estimators.low.mediaIter3 - delta) &&  price < (candle_estimators.low.mediaIter3 + delta)) {
 		candle_estimators.low.media3Ref.applyOptions({
 		axisLabelVisible: true});
+		message = " la diferencia con estimador low media 3 es: " + (candle_estimators.low.mediaIter3 - local_price);
 	}
 	if (price > (candle_estimators.low.delta - delta) &&  price < (candle_estimators.low.delta + delta)) {
 		candle_estimators.low.deltaRef.applyOptions({
 		axisLabelVisible: true});
+		message = " la diferencia con estimador low delta es: " + (candle_estimators.low.delta - local_price);
 	}
 	// high
 	if (price > (candle_estimators.high.media - delta) &&  price < (candle_estimators.high.media + delta)) {
 		candle_estimators.high.mediaRef.applyOptions({
 		axisLabelVisible: true});
+		message = " la diferencia con estimador high media es: " + (candle_estimators.high.media - local_price);
 	}
 	if (price > (candle_estimators.high.mediaIter2 - delta) &&  price < (candle_estimators.high.mediaIter2 + delta)) {
 		candle_estimators.high.media2Ref.applyOptions({
 		axisLabelVisible: true});
+		message = " la diferencia con estimador high media 2 es: " + (candle_estimators.high.mediaIter2 - local_price);
 	}
 	if (price > (candle_estimators.high.mediaIter3 - delta) &&  price < (candle_estimators.high.mediaIter3 + delta)) {
 		candle_estimators.high.media3Ref.applyOptions({
 		axisLabelVisible: true});
+		message = " la diferencia con estimador high media 3 es: " + (candle_estimators.high.mediaIter3 - local_price);
 	}
 	if (price > (candle_estimators.high.delta - delta) &&  price < (candle_estimators.high.delta + delta)) {
 		candle_estimators.high.deltaRef.applyOptions({
 		axisLabelVisible: true});
+		message = " la diferencia con estimador high delta  es: " + (candle_estimators.high.delta - local_price);
 	}
-	
+	return message;
 }
 
 function updateEstimadores(candle_estimators, low, high){
@@ -532,8 +541,6 @@ function updateOrders(lowTime, highTime){
 
 	var orders = data.trades;
 	var orderCandle = [];
-	console.log("order")
-	console.log(orders.length);
 	for(var i=0;i<orders.length;i++){
 		console.log(orders[i].buy.timestamp)
 		if ((orders[i].buy.timestamp >= lowTime) && (orders[i].buy.timestamp <= highTime)){
