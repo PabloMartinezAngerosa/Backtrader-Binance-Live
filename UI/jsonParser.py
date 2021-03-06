@@ -5,12 +5,14 @@ class JsonParser():
         self.data = {}
         self.firstEstimation = False
         self.ticks = []
+        self.ticks_average = []
         self.logs = []
         self.trades = []
         self.sell = None
         self.buy = None
         self.candles  = []
         self.activeCandle = None
+        self.inflectionPoints = []
         self.ensambleIndicators = ensambleIndicators
 
     def add_strategy_name(self, name):
@@ -24,10 +26,17 @@ class JsonParser():
         
     def addTrade(self, pnl, pnlcomn):
         self.trades.append({"sell":self.sell, "buy":self.buy, "pnl":pnl, "pnlcomn":pnlcomn})
+    
+    def add_inflection_point(self, timestamp, price):
+        self.inflectionPoints.append({"time":timestamp, "value":price})
 
     def addTick(self, date_time, value):
         if self.firstEstimation == True:
             self.ticks.append({"time":date_time, "value":value})
+    
+    def add_average_tick(self, date_time, value):
+        if self.firstEstimation == True:
+            self.ticks_average.append({"time":date_time, "value":value})
 
     def add_log(self, message, date):
         self.logs.append({"message":message, "date":date})
@@ -69,8 +78,10 @@ class JsonParser():
     def closeCandle(self):
         # agrega ticks acumulados
         self.activeCandle["ticks"] = self.ticks
+        self.activeCandle["averageTicks"] = self.ticks_average
         # agrega logs
         self.activeCandle["logs"] = self.logs
+        self.activeCandle["inflectionPoints"] = self.inflectionPoints
         # agrega ordenes acumuladas
         # agrega invests results generados
         # guarda en candles
@@ -78,7 +89,9 @@ class JsonParser():
         # refresh active candle
         self.activeCandle = None
         self.ticks = []
+        self.ticks_average = []
         self.logs = []
+        self.inflectionPoints = []
 
     def parseData(self):
         # agrega trades acumulados

@@ -535,14 +535,13 @@ function generateLinesHigh(estimators, high){
 }
 
 
-
+var AREA_MARKERS = [];
 
 function updateOrders(lowTime, highTime){
 
 	var orders = data.trades;
 	var orderCandle = [];
 	for(var i=0;i<orders.length;i++){
-		console.log(orders[i].buy.timestamp)
 		if ((orders[i].buy.timestamp >= lowTime) && (orders[i].buy.timestamp <= highTime)){
 			var color = 'green'
 			if (orders[i].pnl < 0){
@@ -568,6 +567,7 @@ function updateOrders(lowTime, highTime){
 			);
 		}
 	}
+	AREA_MARKERS = orderCandle;
 	areaSeries.setMarkers(orderCandle);
 }
 var candle = null;
@@ -619,7 +619,10 @@ function updateCandleData(index){
 		agregarLogChart(logs[i].message, logs[i].date);
 	}	// agrega logs
 
-	createAverageLineSerie(index, 15);
+	// agrega line serie con los precios en promedio hechos en python
+	createAverageLineSerie(candle.averageTicks);
+	// var averageTicks = createAverageLineSerie(index, 15);
+	createPendienteZeroAverageTicks(candle.inflectionPoints);
 	
  /*
 
@@ -636,7 +639,8 @@ function updateCandleData(index){
 	
 }
 
-function createAverageLineSerie(index, lags) {
+function createAverageLineSerie(bufferTicks) {
+	/*
 	var candle = data.candles[index];
 	var bufferTicks = [];
 	var counter = 0;
@@ -652,8 +656,24 @@ function createAverageLineSerie(index, lags) {
 			bufferTicks.push({time:candle.ticks[i].time, value:mean})
 		}
 	}
-
+   */
 	lineSeries.setData(bufferTicks);
+}
+
+function createPendienteZeroAverageTicks(ticks){
+
+	for (var i =0; i < ticks.length;i++){
+		AREA_MARKERS.push(
+			{
+				time: ticks[i].time,
+				position: 'aboveBar',
+				color: "blue",
+				shape: 'circle',
+				text: ''
+			}
+		);
+	}
+	areaSeries.setMarkers(AREA_MARKERS);
 }
 
 function updateActualNextPrevIndex(index){
