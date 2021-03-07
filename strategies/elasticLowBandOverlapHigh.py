@@ -26,14 +26,15 @@ class ElasticLowBandOverlapHigh(StrategyBase):
         self.order = None
         self.name = "ElasticLowBandOverlapHigh"
 
-        self.stoploss = 100
+        self.stoploss = 70
         self.cota_superior_low = 30
-        self.elastic_margin_low = 20
+        self.elastic_margin_low = 15
 
         self.elastic_margin_high = 30
         self.stoploss_elastic_high = 100
         self.min_elastic_high_low = 180
 
+        self.minimum_profit_proyected = 60
 
         self.actual_tick = 0
         self.mean_tick = STRATEGY.get("mean_tick_dev")
@@ -54,10 +55,12 @@ class ElasticLowBandOverlapHigh(StrategyBase):
         self.high_upper = 0
 
         self.jsonParser.add_strategy_name(self.name)
-
+        self.filter_ready = False
         self.mean_filter_ticks = []
-        self.mean_filter_lag = 15
+        self.mean_filter_lag = 3
         self.active_elastic_high = 0
+        self.touch_high = False
+        self.touch_high_cota = 15
     
     def get_high_low(self):
         # los indicadores estan de menor a mayor
@@ -75,6 +78,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
         return self.ensambleIndicators.indicatorsHigh[0]
    
     def refresh_variables(self):
+        self.filter_ready = False
         self.is_first_tick = True
         self.made_trade = False
         self.low_active = False
@@ -85,6 +89,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
         # volver este a 0 por vela implicar esperar al menos 1 tick para poder hacer los calculos
         # y considerarlo en la estrategia.
         self.filter_price_candle = []
+        self.touch_high = False
     
     def sell_order(self):
         self.short()
@@ -119,6 +124,18 @@ class ElasticLowBandOverlapHigh(StrategyBase):
             self.log(message,  to_ui = True, date = self.datetime[0])
             self.sell_order()
 
+    def is_high(self, actual_price):
+        for high_estimation in self.ensambleIndicators.indicatorsHigh:
+            if (high_estimation - self.touch_high_cota) <= actual_price and high_estimation > self.open_candle:
+                return True
+        return False
+
+    def minimum_profit_estimation(self, actual_price):
+        for high_estimation in self.ensambleIndicators.indicatorsHigh:
+            if (high_estimation - actual_price) <= self.minimum_profit_proyected and high_estimation > self.open_candle:
+                return False
+        return True
+
     def next(self):
         # if self.status != "LIVE" and ENV == PRODUCTION:  # waiting for live status in production
         #     return
@@ -128,6 +145,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
 
         self.mean_filter_ticks.append({"value":actual_price,"date":self.datetime[0]})
         if  len(self.mean_filter_ticks) == self.mean_filter_lag:
+            self.filter_ready =  True 
             filter_price = self.create_filter_mean(self.mean_filter_ticks, self.datetime[0])
             self.filter_price_candle.append(filter_price)
             self.jsonParser.add_average_tick(self.datetime[0], filter_price["value"])
@@ -151,8 +169,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
         # self.log()
         # self.log("Compra",  to_ui = True, date = self.datetime[0])
         # self.short()
-
-        if(self.indicators_ready and self.made_trade == False):
+        if(self.indicators_ready and self.made_trade == False and self.filter_ready == True):
             if self.is_first_tick == True:
                 self.is_first_tick = False
                 self.open_candle = actual_price
@@ -163,20 +180,34 @@ class ElasticLowBandOverlapHigh(StrategyBase):
             # Busca compra
             if (self.orderActive == False):
 
-                if self.actual_tick <= (self.mean_tick * 0.6):
-                    # elsastic band low
-                    if actual_price < self.low_upper + self.cota_superior_low:
-                        self.low_active =  True
-                    elif actual_price > (self.low_upper + self.cota_superior_low + self.elastic_margin_low) and self.low_active == True:
-                        message = "Estuvo en la franja de minimos y ahora marca tendencia alcista, compra!"
-                        self.do_long(message)
-                    elif actual_price >= self.high_upper and self.high_active == False:
-                        self.high_active = True
-                    '''
-                    elif actual_price >= (self.high_upper + self.elastic_margin_high) and self.high_active == True:
-                        message = "Parece una subida estrepitosa paso todos los High! Compra"
-                        self.do_long(message)
-                    '''
+                # certifica si no toco high
+                if self.touch_high == False:
+                    self.touch_high = self.is_high(actual_price)
+                    if self.touch_high == True:
+                        message = "Toca high antes que Low estimation en $ " + str(actual_price) + ". Ya no realiza trade."
+                        self.log(message,  to_ui = True, date = self.datetime[0])
+
+                if self.touch_high == False:
+                    if self.actual_tick <= (self.mean_tick * 0.6):
+                        # elsastic band low, utiliza el filtro para asegurar q no son picos. 
+                        if filter_price["value"] < self.low_upper + self.cota_superior_low:
+                            self.low_active =  True
+                        elif filter_price["value"] > (self.low_upper + self.cota_superior_low + self.elastic_margin_low) and self.low_active == True:
+                            if self.minimum_profit_estimation(actual_price) == True:
+                                message = "Estuvo en la franja de minimos y ahora marca tendencia alcista, compra!"
+                                self.do_long(message)
+                            else:
+                                message = "Estuvo en la franja de minimos y ahora marca tendencia alcista, pero no alcanza la estimacion minima. No ejecuta trade"
+                                self.log(message,  to_ui = True, date = self.datetime[0])
+                                # no deja ejecutar mas en trade. es peligroso en general erra.
+                                self.touch_high = True
+                        elif actual_price >= self.high_upper and self.high_active == False:
+                            self.high_active = True
+                        '''
+                        elif actual_price >= (self.high_upper + self.elastic_margin_high) and self.high_active == True:
+                            message = "Parece una subida estrepitosa paso todos los High! Compra"
+                            self.do_long(message)
+                        '''
             # busca venta
             else:
                 if self.filter_price_is_inflection == True:
@@ -187,7 +218,10 @@ class ElasticLowBandOverlapHigh(StrategyBase):
                         if actual_price - self.buy_price_close > 100:
                             message = "El primer punto de inflexion es mayoer que 100,   Vende!."
                             self.do_short(message)
-
+                # hard limit high
+                if actual_price - self.buy_price_close >= 90:
+                    message = "Llego minio high de $" + str(actual_price - self.buy_price_close) + ". Vende con ganancia minima! Lento pero seguro."
+                    self.do_short(message)
                        
                 # stop loss filter average este es en caso que desde la compra no actualiza y va a perdida
                 if self.last_operation != "SELL":

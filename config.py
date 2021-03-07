@@ -1,4 +1,5 @@
 import os
+from config_binance import BINANCE_CREDENTIALS
 
 PRODUCTION = "production"
 DEVELOPMENT = "development"
@@ -22,13 +23,11 @@ WINDOWS = False
  # gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5
 
 TESTING_PRODUCTION_DATE = {
-  "from":1614904199999,
-  "to":1614960000019
+  "from":1614843899999,
+  "to":1614875400095
 }
-BINANCE = {
-  "key": "ExcI0XeCRrWCUfklhGggIFCCNjn9gwB0bsU79qbE0kuASPzrqfOR1BZDhBuJ8lSjf",
-  "secret": "gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5"
-}
+
+BINANCE = BINANCE_CREDENTIALS
 
 TELEGRAM = {
   "channel": "t.me/libertad_kamikaze_bot",
