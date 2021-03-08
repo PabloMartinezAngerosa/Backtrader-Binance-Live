@@ -135,3 +135,16 @@ class BrokerProduction:
             volume = data.iat[i,4]
             self.cerebro.addNextFrame(1,datatime, open, low, high, close, volume,  False)
         self.cerebro.setLenData1()
+
+    def order(self, side, quantity, symbol,  order_type = ORDER_TYPE_MARKET):
+        try:
+            order = self.client.create_order(
+                symbol=symbol,
+                side=side,
+                type=order_type,
+                quantity=quantity
+            )
+        except Exception as e:
+            print(e)
+            return False
+        return True

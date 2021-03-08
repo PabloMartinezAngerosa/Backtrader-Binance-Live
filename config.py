@@ -11,6 +11,7 @@ ENV = os.getenv("ENVIRONMENT", PRODUCTION)
 DEBUG = True
 PERSISTENCE_CONNECTION = True
 TESTING_PRODUCTION = False
+LIVE = False # doble certificacion para operar en Binance. Production y LIVE. Puede estar Production pero en modo testing. 
 WINDOWS = False
 
 # TEST KEY
@@ -23,8 +24,8 @@ WINDOWS = False
  # gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5
 
 TESTING_PRODUCTION_DATE = {
-  "from":1614843899999,
-  "to":1614875400095
+  "from":1615165199999,
+  "to":1615182300035
 }
 
 BINANCE = BINANCE_CREDENTIALS
@@ -42,9 +43,9 @@ SQL = {
 STRATEGY = {
   "length_frames": 20,
   "lags": 5,
-  "candle_min":15,
-  "kline_interval": "KLINE_INTERVAL_15MINUTE",
-  "mean_tick_prod":430,
+  "candle_min":30,
+  "kline_interval": "KLINE_INTERVAL_30MINUTE",
+  "mean_tick_prod":850,
   "mean_tick_dev":150
 }
 

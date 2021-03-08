@@ -75,6 +75,7 @@ class CerebroProduction:
         can be referenced
         '''
         self.strategy  = strategy
+        self.strategy.broker = self._broker
         return True
     
     def addNextFrame(self, indexData, datetime, open, low, high, close, vloume, next= True):

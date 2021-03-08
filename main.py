@@ -13,6 +13,7 @@ from dataset.dataset import CustomDataset
 from dataset.dataset_live import CustomDatasetLive
 from sizer.percent import FullMoney
 
+#from strategies.mediaEstimadoresDinamica import MediaEstimadoresDinamica
 from strategies.elasticLowBandOverlapHigh import ElasticLowBandOverlapHigh
 #from strategies.overlapHighEstimators import OverlapHighEstimators
 #from strategies.dynamicHighStopLossLong import DynamicHighStopLossLong
