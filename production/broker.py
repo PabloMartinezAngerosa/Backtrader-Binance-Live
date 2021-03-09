@@ -8,7 +8,7 @@ import math
 from indicators.sqlCache import  SqlCache
 
 class BrokerProduction:
-    def __init__(self, info, interval):
+    def __init__(self, info, interval, stand_alone = False):
         self.comminfo = info
         self.interval = {
             'KLINE_INTERVAL_1MINUTE': '1m',
@@ -27,12 +27,16 @@ class BrokerProduction:
             'KLINE_INTERVAL_1WEEK': '1w',
             'KLINE_INTERVAL_1MONTH': '1M'
         }
+        self.STANDALONE = stand_alone
         self.klineInterval = interval
         self.cerebro = None
         self.socket  = "wss://stream.binance.com:9443/ws/btcusdt@kline_" + self.interval[self.klineInterval]
         print(self.socket)
-        self.symbol = COIN_TARGET + COIN_REFER 
-        self.client = Client(BINANCE.get("key"), BINANCE.get("secret"))
+        self.symbol = COIN_TARGET + COIN_REFER
+        # en la version stand alone, en fuerza bruto por ejemplo, no es necesario instanciar el Client.
+        # ya hay uno funcionando si es en Live Production o se trate todo lo necesario de la BD. 
+        if self.STANDALONE == False: 
+            self.client = Client(BINANCE.get("key"), BINANCE.get("secret"))
         self.sql_cache = SqlCache()
 
     def run(self):
@@ -46,9 +50,13 @@ class BrokerProduction:
         else:
             self.simulate_binance_socket()
     
-    def simulate_binance_socket(self):
+    def simulate_binance_socket(self, data_tick= None):
+        try:
+            data_tick # does a exist in the current namespace
+            print("Datatick se envia a simulate binance socket")
+        except NameError:
+            data_tick = self.sql_cache.get_ticks_realtime(TESTING_PRODUCTION_DATE.get("from"), TESTING_PRODUCTION_DATE.get("to"))
         # obtiene con datos del config los ticks correspondientes
-        data_tick = self.sql_cache.get_ticks_realtime(TESTING_PRODUCTION_DATE.get("from"), TESTING_PRODUCTION_DATE.get("to"))
         for index, tick in data_tick.iterrows():
             message = {}
             candle = {}
@@ -103,7 +111,7 @@ class BrokerProduction:
         # esto solo se llama en ENV = PRODUCTION
         # si hay problema en la BD evita que se corte el flujo del bot.
         #try:
-        if TESTING_PRODUCTION == False:
+        if TESTING_PRODUCTION == False and self.STANDALONE == False:
             self.sql_cache.insert_realtime_price(datetime, open, low, high, close, volume, datetime_closed,  is_closed)
         #except:
         #    print("Problema en guardar en la BD el tick en realtime.")

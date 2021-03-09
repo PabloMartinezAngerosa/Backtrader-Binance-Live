@@ -3,7 +3,7 @@
 from datetime import datetime
 import backtrader as bt
 from termcolor import colored
-from config import DEVELOPMENT, COIN_TARGET, COIN_REFER, ENV, PRODUCTION, DEBUG, STRATEGY
+from config import DEVELOPMENT, COIN_TARGET, COIN_REFER, ENV, PRODUCTION, DEBUG, STRATEGY, SANDBOX_INITAL_CAPITAL
 from utils import send_telegram_message
 from production.strategy  import Strategy
 from dataset.data_live import DataLive
@@ -22,10 +22,28 @@ class StrategyBase(bt.Strategy):
 
     params = {'bufferSize':50}
     
-    def __init__(self):
+    def __init__(self, stand_alone=False):
         
         # Para configurar lags y ancho de ventana de analisis  
         # default values. Se actualiza en cada estrategia
+        self.STANDALONE = stand_alone
+        # capital initial for stand alone estimations and test
+        self.acum_capital = SANDBOX_INITAL_CAPITAL
+        # leverage x2
+        self.acum_capital_leverage2 = SANDBOX_INITAL_CAPITAL
+        # leverage x5
+        self.acum_capital_leverage5 = SANDBOX_INITAL_CAPITAL
+        # leverage x10
+        self.acum_capital_leverage10 = SANDBOX_INITAL_CAPITAL
+        # leverage x20
+        self.acum_capital_leverage20 = SANDBOX_INITAL_CAPITAL
+        # leverage x50
+        self.acum_capital_leverage50 = SANDBOX_INITAL_CAPITAL
+        # leverage x100
+        self.acum_capital_leverage100 = SANDBOX_INITAL_CAPITAL
+        # leverage x125
+        self.acum_capital_leverage125 = SANDBOX_INITAL_CAPITAL
+        print("se incializa estrategia base con standalone " + str(self.STANDALONE))
         self.ensambleIndicatorsLags = STRATEGY.get("lags")
         self.ensambleIndicatorsLengthFrames = STRATEGY.get("length_frames")
         self.candle_min = STRATEGY.get("candle_min")
@@ -45,7 +63,7 @@ class StrategyBase(bt.Strategy):
         self.ensambleIndicators = EnsambleLinearRegressionAverage(self.ensambleIndicatorsLags,self.ensambleIndicatorsLengthFrames)
         self.jsonParser = JsonParser(self.ensambleIndicators)
 
-        if ENV == PRODUCTION:
+        if ENV == PRODUCTION or self.STANDALONE == True:
             self.datas = []
             self.data0 = None
             self.data1 = None
@@ -67,8 +85,9 @@ class StrategyBase(bt.Strategy):
         lags = self.ensambleIndicatorsLags
         lengths_frames = self.ensambleIndicatorsLengthFrames
         candle_min = self.candle_min
-        self.ensambleIndicators.get_indicators(dataset, datetime, lags, lengths_frames, candle_min)
-        self.jsonParser.create_json_file(self.ensambleIndicators)
+        self.ensambleIndicators.get_indicators(dataset, datetime, lags, lengths_frames, candle_min, stand_alone=True)
+        if self.STANDALONE == False:
+            self.jsonParser.create_json_file(self.ensambleIndicators)
 
     def add_tick( self, indexData, referenceObject, value, isDate = False):
         buffer = []
@@ -128,15 +147,44 @@ class StrategyBase(bt.Strategy):
         if status == data.LIVE:
             self.log("LIVE DATA - Ready to trade")
 
+    def actualize_long_short_strategy_profit(self, buy_price, sell_price):
+        # estima compra con Binance feed
+        buy_bitcoin = (self.acum_capital / buy_price) * (1 - 0.001)
+        sell_bitcoin = (buy_bitcoin * sell_price) * (1-0.001)
+        self.acum_capital = sell_bitcoin
+
+        # leverage x2
+        self.acum_capital_leverage2 = self.get_leverage_profit(2, buy_price, sell_price, self.acum_capital_leverage2)
+        # leverage x5
+        self.acum_capital_leverage5 = self.get_leverage_profit(5, buy_price, sell_price, self.acum_capital_leverage5)
+        # leverage x10
+        self.acum_capital_leverage10 = self.get_leverage_profit(10, buy_price, sell_price, self.acum_capital_leverage10)
+        # leverage x20
+        self.acum_capital_leverage20 = self.get_leverage_profit(20, buy_price, sell_price, self.acum_capital_leverage20)
+        # leverage x50
+        self.acum_capital_leverage50 = self.get_leverage_profit(50, buy_price, sell_price, self.acum_capital_leverage50)
+        # leverage x100
+        self.acum_capital_leverage100 = self.get_leverage_profit(100, buy_price, sell_price, self.acum_capital_leverage100)
+        # leverage x125
+        self.acum_capital_leverage125 = self.get_leverage_profit(125, buy_price, sell_price, self.acum_capital_leverage125)
+
+    def get_leverage_profit(leverage, buy_price, sell_price, acum_capital):
+        if acum_capital <= 0:
+            return 0
+        buy_bitcoin = ((self.acum_capital * leverage) / buy_price) * (1 - 0.001)
+        sell_bitcoin = (buy_bitcoin * sell_price) * (1-0.001)
+        self.acum_capital = sell_bitcoin - ((self.acum_capital * leverage) - self.acum_capital)
+        
+
     def short(self):
         if self.last_operation == "SELL":
             return
         self.sell_price_close = self.data0.close[0]
         self.timestamp_sell = self.datetime[0]
         self.log("Sell ordered: $%.2f" % self.data0.close[0])
-        if ENV == DEVELOPMENT:
+        if ENV == DEVELOPMENT and self.STANDALONE== False:
             return self.sell()
-        if ENV == PRODUCTION:
+        if ENV == PRODUCTION and self.STANDALONE== False:
             send_telegram_message(" \U0001F4E3 Orden de venta a : $%.2f" % self.data0.close[0])
             self.last_operation = "SELL"
             self.jsonParser.addSellOperation(self.timestamp_sell, 
@@ -150,6 +198,13 @@ class StrategyBase(bt.Strategy):
                 send_telegram_message(" \U0001F44C El trade fue exitoso! Con delta de : $%.2f" % delta_order)
             else:
                 send_telegram_message(" \U0001F44E El trade fue erroneo. Con delta de : $%.2f" % delta_order)
+            self.actualize_long_short_strategy_profit(self.buy_price_close, self.sell_price_close)
+            self.reset_sell_indicators()
+            self.reset_buy_indicators()
+
+        if self.STANDALONE == True:
+            self.last_operation = "SELL"
+            self.actualize_long_short_strategy_profit(self.buy_price_close, self.sell_price_close)
             self.reset_sell_indicators()
             self.reset_buy_indicators()
         # cash, value = self.broker.get_wallet_balance(COIN_TARGET)
@@ -167,10 +222,10 @@ class StrategyBase(bt.Strategy):
         self.timestamp_buy = self.datetime[0]
         price = self.data0.close[0]
 
-        if ENV == DEVELOPMENT:
+        if ENV == DEVELOPMENT and self.STANDALONE == False:
             return self.buy()
         
-        if ENV == PRODUCTION:
+        if ENV == PRODUCTION and self.STANDALONE == False:
             send_telegram_message(" \U0001F4E3 Orden de compra a : $%.2f" % self.data0.close[0])
             self.last_operation = "BUY"
             self.jsonParser.addBuyOperation(self.timestamp_buy, 
@@ -178,6 +233,10 @@ class StrategyBase(bt.Strategy):
                                 self.buy_price_close, 
                                 0, 
                                 0)
+
+        if self.STANDALONE == True:
+            self.last_operation = "BUY"
+
         #cash, value = self.broker.get_wallet_balance(COIN_REFER)
         #amount = (value / price) * 0.99  # Workaround to avoid precision issues
         #self.log("Buy ordered: $%.2f. Amount %.6f %s. Ballance $%.2f USDT" % (self.data0.close[0],
@@ -254,9 +313,9 @@ class StrategyBase(bt.Strategy):
 
         if color:
             txt = colored(txt, color)
-
-        print('[%s] %s' % (value.strftime("%d-%m-%y %H:%M"), txt))
+        if self.STANDALONE == False:
+            print('[%s] %s' % (value.strftime("%d-%m-%y %H:%M"), txt))
         if to_ui == True:
             self.jsonParser.add_log(txt, date)
-        if send_telegram:
+        if send_telegram and self.STANDALONE == False:
             send_telegram_message(txt)

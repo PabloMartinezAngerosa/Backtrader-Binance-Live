@@ -36,6 +36,7 @@ class SqlCache:
             self.table_combo_estimations.columns.lags  == lags,
             self.table_combo_estimations.columns.length_frames == length_frames))
         result = self.connection.execute(query)
+        #print(result)
         return result
 
 

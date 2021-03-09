@@ -123,25 +123,27 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
                 dataset.volume.append(data.volume[i])
         return dataset
     
-    def get_indicators(self, dataset, datetime, lags, lengths_frames, candle_min):
+    def get_indicators(self, dataset, datetime, lags, lengths_frames, candle_min, stand_alone = False):
 
         indicators = None
         is_in_database = False
 
-        if (ENV == DEVELOPMENT or TESTING_PRODUCTION):
+        if (ENV == DEVELOPMENT or TESTING_PRODUCTION or stand_alone == True):
+            #print("bsuca en la BD si existen, deberian!")
+            #print(datetime)
             result = self.sqlCache.check_estimators(datetime, candle_min, lags, lengths_frames)
+            #print(result.rowcount)
             if result.rowcount >0:
                 #  Ya existe en la BD con las condiciones
                 # crea desde aqui el resultado
                 is_in_database = True
-                print("esta en la BD")
+                #print("esta en la BD")
                 for row in result:
                     self.updateSqlIndicators(row)
 
         # si es prod guarda en la BD
         # si es dev pero no existia guara en la BD
-        if (is_in_database == False or ENV == PRODUCTION) and TESTING_PRODUCTION == False:
-            
+        if (is_in_database == False or ENV == PRODUCTION) and TESTING_PRODUCTION == False and stand_alone == False:
             # Define command and arguments
             command ='Rscript'
             path2script ='./indicators/R/ensambleLinearModels.R'
@@ -166,8 +168,8 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
                 raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
             if (indicators):
-                print("Indicators processed")
-                print(indicators)
+                #print("Indicators processed")
+                #print(indicators)
                 self.update(indicators)
                 self.timestamp = datetime
                 self.date = pd.to_datetime(datetime, unit='ms')

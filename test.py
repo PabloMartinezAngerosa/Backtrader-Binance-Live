@@ -1,0 +1,4 @@
+from strategies.elasticLowBandOverlapHighFuerzaBruta import ElasticLowBandOverlapHighFuerzaBruta
+
+elasticFuerzaBruta = ElasticLowBandOverlapHighFuerzaBruta(1615165199999, 1615182300035)
+elasticFuerzaBruta.get_best_estrategy_params()

@@ -43,10 +43,13 @@ SQL = {
 STRATEGY = {
   "length_frames": 20,
   "lags": 5,
-  "candle_min":30,
-  "kline_interval": "KLINE_INTERVAL_30MINUTE",
-  "mean_tick_prod":850,
-  "mean_tick_dev":150
+  "candle_min":15,
+  "kline_interval": "KLINE_INTERVAL_15MINUTE",
+  "mean_tick_prod":434,
+  "mean_tick_dev":434
 }
+
+# for standalone and test
+SANDBOX_INITAL_CAPITAL = 1000
 
 print("ENV = ", ENV)

@@ -12,10 +12,12 @@ class ElasticLowBandOverlapHigh(StrategyBase):
     # Moving average parameters
     # params = (('pfast',20),('pslow',50),)
 
-    def __init__(self):
-        StrategyBase.__init__(self)
+    def __init__(self, stand_alone = False):
+        StrategyBase.__init__(self, stand_alone = stand_alone)
 
         # configuration
+        self.STANDALONE = stand_alone
+
         self.broker = None
         self.ensambleIndicatorsLags = STRATEGY.get("lags")
         self.ensambleIndicatorsLengthFrames = STRATEGY.get("length_frames")
@@ -28,19 +30,19 @@ class ElasticLowBandOverlapHigh(StrategyBase):
         self.order = None
         self.name = "ElasticLowBandOverlapHigh"
 
-        self.stoploss = 70
+        self.stoploss = 120
         self.stoploss_lower = 50
-        self.cota_superior_low = 30
+        self.cota_superior_low = 10
         self.elastic_margin_low = 15
 
         self.elastic_margin_high = 30
         self.stoploss_elastic_high = 100
         self.min_elastic_high_low = 180
-        self.fixed_limit_high = 90
-        self.fixed_limit_high_lower = 60
+        self.fixed_limit_high = 250
+        self.fixed_limit_high_lower = 120
 
-        self.minimum_profit_proyected = 60
-        self.first_inflection_point_min_revenue = 80
+        self.minimum_profit_proyected = 140
+        self.first_inflection_point_min_revenue = 140
 
         self.actual_tick = 0
         self.mean_tick = STRATEGY.get("mean_tick_dev")
@@ -64,10 +66,10 @@ class ElasticLowBandOverlapHigh(StrategyBase):
         self.jsonParser.add_strategy_name(self.name)
         self.filter_ready = False
         self.mean_filter_ticks = []
-        self.mean_filter_lag = 3
+        self.mean_filter_lag = 5
         self.active_elastic_high = 0
         self.touch_high = False
-        self.touch_high_cota = 50
+        self.touch_high_cota = 15
         self.active_lower = False
         self.cota_superior_lower = 15  
     
@@ -134,7 +136,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
     def do_long(self, message):
         if self.last_operation != "Buy":
             succces_trade = True
-            if ENV == PRODUCTION and TESTING_PRODUCTION == False and LIVE == True and self.broker != None:
+            if ENV == PRODUCTION and TESTING_PRODUCTION == False and LIVE == True and self.broker != None and self.STANDALONE == False:
                 TRADE_SYMBOL = 'BTCUSDT'
                 TRADE_QUANTITY = 0.000293
                 succces_trade = self.broker.order(SIDE_BUY, TRADE_QUANTITY, TRADE_SYMBOL)
@@ -148,7 +150,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
     def do_short(self, message):
         if self.last_operation != "SELL":
             succces_trade = True
-            if ENV == PRODUCTION and TESTING_PRODUCTION == False and LIVE == True self.broker != None:
+            if ENV == PRODUCTION and TESTING_PRODUCTION == False and LIVE == True and self.broker != None and self.STANDALONE == False:
                 TRADE_SYMBOL = 'BTCUSDT'
                 TRADE_QUANTITY = 0.000293
                 succces_trade = self.broker.order(SIDE_SELL, TRADE_QUANTITY, TRADE_SYMBOL)
@@ -200,7 +202,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
         if self.order:  # waiting for pending order
             return
 
-        self.log('Actual Price: %.3f %% '  % actual_price)
+        #self.log('Actual Price: %.3f %% '  % actual_price)
         
         # self.log()
         # self.log("Compra",  to_ui = True, date = self.datetime[0])
@@ -248,6 +250,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
                 # esta estraegia no import si toco high
                 # en caso de que toco la minima estimacion low (sin contar delta)
                 # y el promedio subre, realiza compra
+                '''
                 if self.actual_tick <= (self.mean_tick * 0.6):
                     if actual_price <= self.low_lowwer and self.active_lower == False:
                         self.active_lower = True
@@ -260,10 +263,12 @@ class ElasticLowBandOverlapHigh(StrategyBase):
                             succes_order = self.do_long(message)
                             if succes_order == True:
                                 self.made_lower_buy = True
+                '''
                 
             # busca venta
             else:
                 # lower strategy es agressive
+                '''
                 if self.last_operation != "SELL":
                     if self.active_lower == True and self.made_lower_buy == True:
                         if actual_price - self.buy_price_close >= self.fixed_limit_high_lower:
@@ -272,7 +277,8 @@ class ElasticLowBandOverlapHigh(StrategyBase):
                         elif self.buy_price_close - actual_price >= self.stoploss_lower:
                             message = "Llego a un stop loss lower de $" + str(self.buy_price_close - actual_price) + ". Vende con perdida."
                             self.do_short(message)
-
+                '''
+                # primer punto de inflexion con ganancia cierra
                 if self.last_operation != "SELL":
                     if self.filter_price_is_inflection == True:
                         if filter_price["value"] > self.active_elastic_high: 
@@ -293,7 +299,8 @@ class ElasticLowBandOverlapHigh(StrategyBase):
                     if self.buy_price_close - filter_price["value"] >= self.stoploss:
                         message = "Llego a un stop loss de $" + str(self.buy_price_close - filter_price["value"]) + ". Vende con perdida."
                         self.do_short(message)
-                
+
+                '''
                 if self.last_operation != "SELL":
                     # elastic high stop loss filtered una vez que toca al menos un active_elastic_high
                     if self.is_active_elastic_high == True:
@@ -305,6 +312,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
                             message = "Llego a un elastic high con stop loss average de $" + str(self.active_elastic_high - filter_price["value"])
                             message = message +  ". Vende con delta de ganancia de " 
                             self.do_short(message)
+                '''
 
                 if self.last_operation != "SELL":
                     if self.actual_tick >= (self.mean_tick - 10):
@@ -315,7 +323,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
             self.lendata1 += 1
             self.actual_tick = 0
 
-            print("Cada cambio de Vela de " + str(self.candle_min)  + " min")
+            #print("Cada cambio de Vela de " + str(self.candle_min)  + " min")
             #print(self.data1.low[0])
             
             # low  = self.datas[1].low[0]
@@ -327,7 +335,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
 
             # en produccion ya tiene los datos cargados con historial
             # llama a buscar los indicadores ya estan cargados los lags.
-            if ENV == PRODUCTION:
+            if ENV == PRODUCTION or self.STANDALONE == True:
                 self.lagsReady = True
             else:
                 ## si son 20 frames en la ventana de analisis, necesita al menos 21 para hacer la prediccion. 
@@ -335,7 +343,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
                     self.lagsReady = True
             
             if (self.lagsReady):
-                print("Ready para mandar datos!")
+                #print("Ready para mandar datos!")
                 #print(len(self.data1.low))
                 self.updateIndicatorsEnsambleLinearModels()
                 self.indicators_ready = True

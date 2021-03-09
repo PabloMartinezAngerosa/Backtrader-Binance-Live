@@ -75,10 +75,10 @@ def print_sqn(analyzer):
     print('SQN: {}'.format(sqn))
 
 
-def send_telegram_message(message=""):
+def send_telegram_message(message="", force=False):
     if ENV != "production":
         return
-    if TESTING_PRODUCTION == False:
+    elif TESTING_PRODUCTION == False or force == True:
         telegram_send.send(messages=[message])
     return True
     #base_url = "https://api.telegram.org/bot%s" % TELEGRAM.get("bot")

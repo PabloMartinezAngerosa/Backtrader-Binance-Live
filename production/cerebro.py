@@ -78,6 +78,9 @@ class CerebroProduction:
         self.strategy.broker = self._broker
         return True
     
+    def get_wallet_balance(self):
+        return self.strategy.acum_capital
+    
     def addNextFrame(self, indexData, datetime, open, low, high, close, vloume, next= True):
         '''
         Adds next ``tick``  to strategy.
