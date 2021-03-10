@@ -105,7 +105,7 @@ class ElasticLowBandOverlapHighFuerzaBruta():
                                         "touch_high_cota" : range_touch_high_cota
                                     })
                                     counter = counter + 1
-                                    send_telegram_message("El maximo hasta el momento es " + str(max(results)) + " , el actual es " +  str(final_capital)+ ", " + str((counter*100) /total_fields))
+                                    #send_telegram_message("El maximo hasta el momento es " + str(max(results)) + " , el actual es " +  str(final_capital)+ ", " + str((counter*100) /total_fields))
                                     print( str((counter*100) /total_fields) + "%" )
 
         print(fields)

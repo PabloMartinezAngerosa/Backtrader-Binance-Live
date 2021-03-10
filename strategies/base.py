@@ -85,7 +85,7 @@ class StrategyBase(bt.Strategy):
         lags = self.ensambleIndicatorsLags
         lengths_frames = self.ensambleIndicatorsLengthFrames
         candle_min = self.candle_min
-        self.ensambleIndicators.get_indicators(dataset, datetime, lags, lengths_frames, candle_min, stand_alone=True)
+        self.ensambleIndicators.get_indicators(dataset, datetime, lags, lengths_frames, candle_min, stand_alone=self.STANDALONE)
         if self.STANDALONE == False:
             self.jsonParser.create_json_file(self.ensambleIndicators)
 
@@ -168,12 +168,13 @@ class StrategyBase(bt.Strategy):
         # leverage x125
         self.acum_capital_leverage125 = self.get_leverage_profit(125, buy_price, sell_price, self.acum_capital_leverage125)
 
-    def get_leverage_profit(leverage, buy_price, sell_price, acum_capital):
+    def get_leverage_profit(self, leverage, buy_price, sell_price, acum_capital):
         if acum_capital <= 0:
             return 0
-        buy_bitcoin = ((self.acum_capital * leverage) / buy_price) * (1 - 0.001)
+        buy_bitcoin = ((acum_capital * leverage) / buy_price) * (1 - 0.001)
         sell_bitcoin = (buy_bitcoin * sell_price) * (1-0.001)
-        self.acum_capital = sell_bitcoin - ((self.acum_capital * leverage) - self.acum_capital)
+        acum_capital = sell_bitcoin - ((acum_capital * leverage) - acum_capital)
+        return acum_capital
         
 
     def short(self):

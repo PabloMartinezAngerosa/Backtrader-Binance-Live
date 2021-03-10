@@ -51,10 +51,7 @@ class BrokerProduction:
             self.simulate_binance_socket()
     
     def simulate_binance_socket(self, data_tick= None):
-        try:
-            data_tick # does a exist in the current namespace
-            print("Datatick se envia a simulate binance socket")
-        except NameError:
+        if self.STANDALONE == False:
             data_tick = self.sql_cache.get_ticks_realtime(TESTING_PRODUCTION_DATE.get("from"), TESTING_PRODUCTION_DATE.get("to"))
         # obtiene con datos del config los ticks correspondientes
         for index, tick in data_tick.iterrows():
@@ -70,6 +67,10 @@ class BrokerProduction:
             candle["T"] = tick["timestamp_close"]
             message["k"] = candle
             self.on_message(None, json.dumps(message))
+        
+        print("Finaliza con los siguientes resultados:")
+        print(self.cerebro.get_wallet_balance())
+        print(self.cerebro.get_wallet_balance_leverage())
         # genera el json_message simulando lo que envia Binance desde el API
         # llama on_message 
 

@@ -202,7 +202,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
         if self.order:  # waiting for pending order
             return
 
-        #self.log('Actual Price: %.3f %% '  % actual_price)
+        self.log('Actual Price: %.3f %% '  % actual_price)
         
         # self.log()
         # self.log("Compra",  to_ui = True, date = self.datetime[0])
@@ -343,7 +343,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
                     self.lagsReady = True
             
             if (self.lagsReady):
-                #print("Ready para mandar datos!")
+                print("Ready para mandar datos!")
                 #print(len(self.data1.low))
                 self.updateIndicatorsEnsambleLinearModels()
                 self.indicators_ready = True

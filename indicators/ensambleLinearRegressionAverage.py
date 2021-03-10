@@ -128,7 +128,7 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
         indicators = None
         is_in_database = False
 
-        if (ENV == DEVELOPMENT or TESTING_PRODUCTION or stand_alone == True):
+        if (ENV == DEVELOPMENT or TESTING_PRODUCTION == True or stand_alone == True):
             #print("bsuca en la BD si existen, deberian!")
             #print(datetime)
             result = self.sqlCache.check_estimators(datetime, candle_min, lags, lengths_frames)

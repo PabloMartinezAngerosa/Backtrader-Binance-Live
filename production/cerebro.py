@@ -80,6 +80,17 @@ class CerebroProduction:
     
     def get_wallet_balance(self):
         return self.strategy.acum_capital
+
+    def get_wallet_balance_leverage(self):
+        return {
+            "x2":self.strategy.acum_capital_leverage2,
+            "x5":self.strategy.acum_capital_leverage5,
+            "x10":self.strategy.acum_capital_leverage10,
+            "x20":self.strategy.acum_capital_leverage20,
+            "x50":self.strategy.acum_capital_leverage50,
+            "x100":self.strategy.acum_capital_leverage100,
+            "x125":self.strategy.acum_capital_leverage125
+        }
     
     def addNextFrame(self, indexData, datetime, open, low, high, close, vloume, next= True):
         '''

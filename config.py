@@ -24,8 +24,8 @@ WINDOWS = False
  # gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5
 
 TESTING_PRODUCTION_DATE = {
-  "from":1615165199999,
-  "to":1615182300035
+  "from":1615145399999,
+  "to":1615150800172
 }
 
 BINANCE = BINANCE_CREDENTIALS
@@ -43,10 +43,10 @@ SQL = {
 STRATEGY = {
   "length_frames": 20,
   "lags": 5,
-  "candle_min":15,
-  "kline_interval": "KLINE_INTERVAL_15MINUTE",
-  "mean_tick_prod":434,
-  "mean_tick_dev":434
+  "candle_min":1,
+  "kline_interval": "KLINE_INTERVAL_1MINUTE",
+  "mean_tick_prod":26,
+  "mean_tick_dev":26
 }
 
 # for standalone and test
