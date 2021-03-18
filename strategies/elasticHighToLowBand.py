@@ -9,7 +9,7 @@ import asyncio
 
 
 
-class ElasticLowBandOverlapHigh(StrategyBase):
+class ElasticHighToLowBand(StrategyBase):
 
     # Moving average parameters
     # params = (('pfast',20),('pslow',50),)
@@ -26,12 +26,12 @@ class ElasticLowBandOverlapHigh(StrategyBase):
         self.ensambleIndicatorsLengthFrames = STRATEGY.get("length_frames")
         self.candle_min = STRATEGY.get("candle_min")
 
-        self.log("Using Elastic-Low-Band-Overlap-high")
+        self.log("Using ElasticHighToLowBand")
         self.lendata1 = 0
         self.lagsReady = False
         
         self.order = None
-        self.name = "ElasticLowBandOverlapHigh"
+        self.name = "ElasticHighToLowBand"
         
         # parametros se modifican por fuerza bruta #
         self.check_buy_conditions_buy_conditions_value_high = 60
@@ -304,7 +304,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
                             self.low_active =  True
                         elif filter_price["value"] > (self.low_upper + self.cota_superior_low + self.elastic_margin_low) and self.low_active == True:
                             if self.minimum_profit_estimation(actual_price, self.index_high_estimation) == True:
-                                message = "Estuvo en la franja de minimos y ahora marca tendencia alcista, compra!"
+                                message = "Estuvo en la franja de minimos y ahora marca tendencia alcista, Vende!"
                                 #self.check_buy_conditions = True
                                 self.orderActive =  True
                                 self.buy_price_close = actual_price 
@@ -432,31 +432,22 @@ class ElasticLowBandOverlapHigh(StrategyBase):
 
                 #dynamic high limit # first version sin filtro #
                 if self.last_operation != "SELL":
-                    if (filter_price["value"] - self.buy_price_close > self.min_gain_dynamic):
+                    if (self.buy_price_close - filter_price["value"]  > self.min_gain_dynamic):
                         if self.first_time_min_gain == False:
                             self.first_time_min_gain = True
-                        self.min_gain_dynamic = filter_price["value"] - self.buy_price_close
+                        self.min_gain_dynamic =  self.buy_price_close - filter_price["value"]
                 
                     if self.first_time_min_gain == True:
-                        if ( self.buy_price_close + self.min_gain_dynamic ) -  filter_price["value"]  > self.delta_stop_loss_high:
-                            message = "Bajo desde la ultima ganancia dinamica  " + str(self.buy_price_close + self.min_gain_dynamic) + " bajo diferencia de " + str(self.delta_stop_loss_high) + " y vende!"
+                        if filter_price["value"] - ( self.buy_price_close -  self.min_gain_dynamic )   > self.delta_stop_loss_high:
+                            message = "Bajo desde la ultima ganancia dinamica  " + str(self.buy_price_close - self.min_gain_dynamic) + " bajo diferencia de " + str(self.delta_stop_loss_high) + " y vende!"
                             self.do_short(message)
                     
                 # stop loss filter average este es en caso que desde la compra no actualiza y va a perdida
                 if self.last_operation != "SELL":
-                    if self.buy_price_close - filter_price["value"] >= self.stoploss:
-                        message = "Llego a un stop loss de $" + str(self.buy_price_close - filter_price["value"]) + ". Vende con perdida."
+                    if filter_price["value"] - self.buy_price_close >= self.stoploss:
+                        message = "Llego a un stop loss de $" + str(filter_price["value"] - self.buy_price_close) + ". Compra con perdida con perdida."
                         self.do_short(message)
                         
-                # el patron busca subidas estrepitosas, si dado un tiempo considerado no se marca una tendencia alsista fuerte,
-                # se prefiere cortar para evitar perdiar, empatar el trade con minima ganancia o no llegar al stop loss si se puede evitar
-                
-                '''
-                if self.last_operation != "SELL":
-                    if self.actual_tick - self.buy_tick_time > self.max_tick_without_action and filter_price["value"] - self.buy_price_close  <= self.min_gain_without_action:
-                        message = "Se alcanzaron la cantidad de ticks  " + str(self.max_tick_without_action) + " y no se llego a una ganancia minima. Vende con minima perdida."
-                        self.do_short(message)
-                '''
                 '''
                 if self.last_operation != "SELL":
                     # elastic high stop loss filtered una vez que toca al menos un active_elastic_high
@@ -473,7 +464,7 @@ class ElasticLowBandOverlapHigh(StrategyBase):
 
                 if self.last_operation != "SELL":
                     if self.actual_tick >= (self.mean_tick - 10):
-                        message = "esta llegando close y no toco high. ejecuta venta"
+                        message = "esta llegando close y no toco low. ejecuta compra"
                         self.do_short(message)
         
         if len(self.data1.low) > self.lendata1:

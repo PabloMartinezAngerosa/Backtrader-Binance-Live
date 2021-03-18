@@ -33,20 +33,23 @@ class OverlapHighEstimators(StrategyBase):
 
         self.indicators_ready = False
 
-        self.tickMax = 0.70 # 75% de los ticks de la vela deja ejecutar
-        self.highDeltaSup = 25 # cuanto se agrega al tercer estimador mas alto para asegurar suba y ejecutar compra
+        self.tickMax = 0.20 # 75% de los ticks de la vela deja ejecutar
+        self.highDeltaSup = 30 # cuanto se agrega al tercer estimador mas alto para asegurar suba y ejecutar compra
         self.delta_tick = 20 # cantidad de ticks permitidos para certificar suba acelerada
         self.stop_loss = 50 # cuanto se deja bajar desde la compra
         self.min_gain = 160 # ganancia minima empieza dinamico
         self.delta_stop_loss_high = 30 # cuanto deja bajar en el high dinamico
+        self.max_gain_dynamic = 240 # desde este punto realiza las acciones de vender sin filtro
 
         self.high1 = {"value":0, "touch": False, "tick":0}
         self.high2 = {"value":0, "touch": False, "tick":0}
         self.high3 = {"value":0, "touch": False, "tick":0}
         self.high_cota_sup = {"value":0, "touch": False, "tick":0}
         self.buy_price = 0
+        self.buy_price_unfilt = 0
         self.min_gain_dynamic = self.min_gain
         self.made_trade = False
+        self.first_time_min_gain = False
 
         self.orderActive  = False
 
@@ -56,12 +59,13 @@ class OverlapHighEstimators(StrategyBase):
         self.mean_filter_ticks = [] 
 
     def refreshOverlapHighEstimatorsValues(self):
-        self.high1["value"] = self.ensambleIndicators.indicatorsHigh[3]
-        self.high2["value"] = self.ensambleIndicators.indicatorsHigh[2]
-        self.high3["value"] = self.ensambleIndicators.indicatorsHigh[1]
-        self.high_cota_sup["value"] = self.ensambleIndicators.indicatorsHigh[1] + self.highDeltaSup
+        self.high1["value"] = self.ensambleIndicators.mediaEstimadorHigh_iterada3
+        self.high2["value"] = self.ensambleIndicators.mediaEstimadorHigh_iterada2
+        self.high3["value"] = self.ensambleIndicators.mediaEstimadorHigh
+        self.high_cota_sup["value"] = self.ensambleIndicators.mediaEstimadorHigh + self.highDeltaSup
         self.min_gain_dynamic = self.min_gain
         self.made_trade = False
+        self.first_time_min_gain = False
 
     def update_overlap(self, high_ref, price, tick):
         if price >= high_ref["value"]:
@@ -95,7 +99,7 @@ class OverlapHighEstimators(StrategyBase):
         
         return False
 
-    def check_sell_operation(self, price, tick):
+    def check_stop_loss(self, price, tick):
 
         # stop loss
         if self.buy_price - price >= self.stop_loss:
@@ -121,13 +125,16 @@ class OverlapHighEstimators(StrategyBase):
         #     return
         actual_price  = self.datas[0].close[0]
         actual_price_unfilt = actual_price
+
         self.mean_filter_ticks.append(actual_price)
         if  len(self.mean_filter_ticks) == self.mean_filter_lag:
             actual_price = sum(self.mean_filter_ticks) / self.mean_filter_lag
+            self.jsonParser.add_average_tick(self.datetime[0], actual_price)
             # clean for memory 
             self.mean_filter_ticks.pop(0)
+
         self.actual_tick = self.actual_tick + 1
-        self.jsonParser.addTick(self.datetime[0], actual_price)
+        self.jsonParser.addTick(self.datetime[0], actual_price_unfilt)
         
         if self.order:  # waiting for pending order
             return
@@ -138,20 +145,44 @@ class OverlapHighEstimators(StrategyBase):
         if self.indicators_ready == True and self.made_trade == False:
             if self.last_operation != "BUY" and  self.actual_tick < (self.mean_tick * self.tickMax):
                 if self.check_high_estimator_overlap(actual_price, self.actual_tick) == True:
-                    print("tres seguidos mas el delta, esto es suba! compra!")
-                    self.buy_price = actual_price_unfilt
+                    self.log("tres seguidos mas el delta, esto es suba! compra!",  to_ui = True, date = self.datetime[0])
+                    self.buy_price = actual_price # compara siempre con el precio filtrado
+                    self.buy_price_unfilt = actual_price_unfilt
                     self.long()
             
             if self.last_operation != "SELL":
-                if self.check_sell_operation(actual_price, self.actual_tick) == True:
+                if self.check_stop_loss(actual_price, self.actual_tick) == True:
+                    self.log("Supero el stop loss y realiza compra en " + str(self.stop_loss),  to_ui = True, date = self.datetime[0])
                     self.short()
                     self.made_trade = True
                 # va al close, pro ticks antes para q permanezca en
                 # la misma vela con el lag posible de la ejecucion d orden.
                 if self.actual_tick >= (self.mean_tick - 10):
-                    print("esta llegando close y no toco high. ejecuta compra")
+                    self.log("Esta llegando close y no toco high. ejecuta compra ",  to_ui = True, date = self.datetime[0])
                     self.short()
                     self.made_trade = True
+
+                # en caso de superar maxima, se vuelfe mas sensible y no usa el filtro
+                buy_price_dynamic = self.buy_price
+                actual_price_high_dynamic = actual_price
+
+                if (actual_price_unfilt - self.buy_price_unfilt) > self.max_gain_dynamic:
+                    actual_price_high_dynamic = actual_price_unfilt
+                    buy_price_dynamic = self.buy_price_unfilt
+                
+                #dynamic high limit
+                if (actual_price_high_dynamic - buy_price_dynamic > self.min_gain_dynamic):
+                    if self.first_time_min_gain == False:
+                        self.first_time_min_gain = True
+                    self.min_gain_dynamic = actual_price_high_dynamic - buy_price_dynamic
+            
+                if self.first_time_min_gain == True:
+                    if ( buy_price_dynamic + self.min_gain_dynamic )- actual_price_high_dynamic  > self.delta_stop_loss_high:
+                        self.log("Bajo desde la ultima ganancia dinamica  " + str(buy_price_dynamic + self.min_gain_dynamic) + " bajo diferencia de " + str(self.delta_stop_loss_high) + " y vende!",  to_ui = True, date = self.datetime[0])
+                        self.short()
+                        self.made_trade = True
+
+
 
 
         

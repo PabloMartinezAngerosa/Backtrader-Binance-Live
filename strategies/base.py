@@ -23,7 +23,8 @@ class StrategyBase(bt.Strategy):
     params = {'bufferSize':50}
     
     def __init__(self, stand_alone=False):
-        
+        # se cambia cuando la estrategia es sell and buy
+        self.sell_and_buy_strategy = True
         # Para configurar lags y ancho de ventana de analisis  
         # default values. Se actualiza en cada estrategia
         self.STANDALONE = stand_alone
@@ -148,10 +149,15 @@ class StrategyBase(bt.Strategy):
             self.log("LIVE DATA - Ready to trade")
 
     def actualize_long_short_strategy_profit(self, buy_price, sell_price):
-        # estima compra con Binance feed
-        buy_bitcoin = (self.acum_capital / buy_price) * (1 - 0.001)
-        sell_bitcoin = (buy_bitcoin * sell_price) * (1-0.001)
-        self.acum_capital = sell_bitcoin
+        if self.sell_and_buy_strategy == False:
+            # estima compra con Binance feed
+            buy_bitcoin = (self.acum_capital / buy_price) * (1 - 0.001)
+            sell_bitcoin = (buy_bitcoin * sell_price) * (1-0.001)
+            self.acum_capital = sell_bitcoin
+        else:
+            sell_usdt = (self.acum_capital * buy_price)* (1 - 0.001)
+            buy_bitcoin = (sell_usdt / sell_price )* (1-0.001)
+            self.acum_capital = buy_bitcoin
 
         # leverage x2
         self.acum_capital_leverage2 = self.get_leverage_profit(2, buy_price, sell_price, self.acum_capital_leverage2)
@@ -168,12 +174,24 @@ class StrategyBase(bt.Strategy):
         # leverage x125
         self.acum_capital_leverage125 = self.get_leverage_profit(125, buy_price, sell_price, self.acum_capital_leverage125)
 
+
+
     def get_leverage_profit(self, leverage, buy_price, sell_price, acum_capital):
-        if acum_capital <= 0:
-            return 0
-        buy_bitcoin = ((acum_capital * leverage) / buy_price) * (1 - 0.001)
-        sell_bitcoin = (buy_bitcoin * sell_price) * (1-0.001)
-        acum_capital = sell_bitcoin - ((acum_capital * leverage) - acum_capital)
+        interes_USDT = 0.001 # si es Bitcoin el interes es 0.0003
+        interes_BTC = 0.0003
+        tiempo_interes = 1/24 # se mide en dias, minimo es 1 hora
+        if self.sell_and_buy_strategy == False:
+            if acum_capital <= 0:
+                return 0
+            buy_bitcoin = ((acum_capital * leverage) / buy_price) * (1 - 0.001)
+            sell_bitcoin = (buy_bitcoin * sell_price) * (1-0.001)
+            acum_capital = sell_bitcoin - ((acum_capital * leverage) - acum_capital) * (1+ interes_USDT)**(tiempo_interes)
+        else:
+            if acum_capital <= 0:
+                return 0
+            sell_usdt = ((acum_capital * leverage) * buy_price)* (1 - 0.001)
+            buy_bitcoin = (sell_usdt / sell_price )* (1-0.001)
+            acum_capital = buy_bitcoin - ((acum_capital * leverage) - acum_capital) * (1+ interes_BTC)**(tiempo_interes)
         return acum_capital
         
 
@@ -193,12 +211,22 @@ class StrategyBase(bt.Strategy):
                                 self.sell_price_close, 
                                 0, 
                                 0)
-            delta_order = self.sell_price_close - self.buy_price_close
+            
             self.jsonParser.addTrade(self.sell_price_close - self.buy_price_close, 0)
-            if delta_order > 0:
-                send_telegram_message(" \U0001F44C El trade fue exitoso! Con delta de : $%.2f" % delta_order)
+
+            if self.sell_and_buy_strategy == False:
+                delta_order = self.sell_price_close - self.buy_price_close
+                if delta_order > 0:
+                    send_telegram_message(" \U0001F44C El trade fue exitoso! Con delta de : $%.2f" % delta_order)
+                else:
+                    send_telegram_message(" \U0001F44E El trade fue erroneo. Con delta de : $%.2f" % delta_order)
             else:
-                send_telegram_message(" \U0001F44E El trade fue erroneo. Con delta de : $%.2f" % delta_order)
+                delta_order = self.buy_price_close - self.sell_price_close 
+                if delta_order > 0:
+                    send_telegram_message(" \U0001F44C El trade fue exitoso! Con delta de : $%.2f" % delta_order)
+                else:
+                    send_telegram_message(" \U0001F44E El trade fue erroneo. Con delta de : $%.2f" % delta_order)
+
             self.actualize_long_short_strategy_profit(self.buy_price_close, self.sell_price_close)
             self.reset_sell_indicators()
             self.reset_buy_indicators()

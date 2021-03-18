@@ -3,7 +3,7 @@ from config import BINANCE
 from binance.enums import *
 
 TRADE_SYMBOL = 'BTCUSDT'
-TRADE_QUANTITY = 0.000293
+TRADE_QUANTITY = 0.001734
 client = Client(BINANCE.get("key"), BINANCE.get("secret"))
 
 
@@ -13,8 +13,8 @@ balances = account["balances"]
 print(balances)
 # get balance
 for balance in balances:
-    if balance["asset"] == "BTC":
-        print("El balance de Bitcoin es:")
+    if balance["asset"] == "BTCUSDT":
+        print("El balance de BTCUSDT es:")
         print(balance["free"])
         break
 
@@ -34,6 +34,6 @@ def order(side, quantity, symbol,  order_type = ORDER_TYPE_MARKET):
         return False
     return True
 
-order_status = order(SIDE_BUY, TRADE_QUANTITY, TRADE_SYMBOL)
+order_status = order(SIDE_SELL, TRADE_QUANTITY, TRADE_SYMBOL)
 
-print("Se realizo la primer compra con estatus" + str(order_status))
+print("Se realizo la venta  con estatus" + str(order_status))
