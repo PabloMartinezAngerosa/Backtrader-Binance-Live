@@ -129,8 +129,8 @@ class SimpleHighToLowMean3FuerzaBruta():
     
         optimal_values =  {
             "balance": max_balance, 
-            "media_high_reference" : max(media_high_reference),
-            "media_low_reference" : max(media_low_reference)
+            "media_high_reference" : max(media_high_reference, key=media_high_reference.count),
+            "media_low_reference" : max(media_low_reference, key=media_low_reference.count)
         }
         print("----------------------------------------------")
         print("optimal values last strategy:")
