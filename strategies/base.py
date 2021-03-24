@@ -200,15 +200,16 @@ class StrategyBase(bt.Strategy):
             return
         self.sell_price_close = self.data0.close[0]
         self.timestamp_sell = self.datetime[0]
-        self.log("Sell ordered: $%.2f" % self.data0.close[0])
         if ENV == DEVELOPMENT and self.STANDALONE== False:
             return self.sell()
         if ENV == PRODUCTION and self.STANDALONE== False:
             # TODO momentaneo. Pensar mas abstracto para venta compra
             if self.sell_and_buy_strategy == False:
                 send_telegram_message(" \U0001F4E3 Orden de venta a : $%.2f" % self.data0.close[0])
+                self.log("Sell ordered: $%.2f" % self.data0.close[0])
             else:
                 send_telegram_message(" \U0001F4E3 Orden de compra a : $%.2f" % self.data0.close[0])
+                self.log("Buy ordered: $%.2f" % self.data0.close[0])
             self.last_operation = "SELL"
             self.jsonParser.addSellOperation(self.timestamp_sell, 
                                 self.sell_price_close, 
@@ -250,7 +251,7 @@ class StrategyBase(bt.Strategy):
         if self.last_operation == "BUY":
             return
 
-        self.log("Buy ordered: $%.2f" % self.data0.close[0], True)
+        
         self.buy_price_close = self.data0.close[0]
         self.timestamp_buy = self.datetime[0]
         price = self.data0.close[0]
@@ -261,8 +262,10 @@ class StrategyBase(bt.Strategy):
         if ENV == PRODUCTION and self.STANDALONE == False:
             if self.sell_and_buy_strategy == False:
                 send_telegram_message(" \U0001F4E3 Orden de compra a : $%.2f" % self.data0.close[0])
+                self.log("Buy ordered: $%.2f" % self.data0.close[0])
             else:
                 send_telegram_message(" \U0001F4E3 Orden de venta a : $%.2f" % self.data0.close[0])
+                self.log("Sell ordered: $%.2f" % self.data0.close[0])
             self.last_operation = "BUY"
             self.jsonParser.addBuyOperation(self.timestamp_buy, 
                                 self.buy_price_close, 
