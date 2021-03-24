@@ -233,13 +233,24 @@ chart.subscribeCrosshairMove((param) => {
 		const price = param.seriesPrices.get(areaSeries);
 		const estimatorDelta = showEstimatorDetailNear(areaSeries.coordinateToPrice(param.point.y), price);
 		firstRow.innerText = 'Price $' + '  ' + price.toFixed(2) + " , delta $" + (areaSeries.coordinateToPrice(param.point.y) - price ).toFixed(2) + estimatorDelta;
+		firstRow.innerText = firstRow.innerText + " . En Leverage x100 la ganancia venta compra es " + doubleTradingSellBuy(price, areaSeries.coordinateToPrice(param.point.y));
 	}
   else {
   	firstRow.innerText = '';
   }
 });
 
-
+function doubleTradingSellBuy(sellPrice, actualPrice){
+	//var interes_USDT = 0.001 // si es Bitcoin el interes es 0.0003
+    var interes_BTC = 0.0003;
+	var leverage = 100;
+	var tiempo_interes = 1/24;
+	var acum_capital = 1;
+	var sell_usdt = ((acum_capital * leverage) * sellPrice)* (1 - 0.001)
+    var buy_bitcoin = (sell_usdt / actualPrice )* (1-0.001)
+    var acum_capital = buy_bitcoin - ((acum_capital * leverage) - acum_capital) * (1+ interes_BTC)**(tiempo_interes)
+	return acum_capital;
+}
 
 var ACTUALINDEX = 0;
 var PREVINDEX = 0;

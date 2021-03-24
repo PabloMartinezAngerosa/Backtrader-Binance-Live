@@ -11,8 +11,8 @@ ENV = os.getenv("ENVIRONMENT", PRODUCTION)
 DEBUG = True
 PERSISTENCE_CONNECTION = True
 TESTING_PRODUCTION = True
-UPDATE_PARAMS_FUERZA_BRUTA = False
-LIVE = True # doble certificacion para operar en Binance. Production y LIVE. Puede estar Production pero en modo testing. 
+UPDATE_PARAMS_FUERZA_BRUTA = True
+LIVE = False # doble certificacion para operar en Binance. Production y LIVE. Puede estar Production pero en modo testing. 
 WINDOWS = False
 
 # TEST KEY
@@ -25,17 +25,18 @@ WINDOWS = False
  # gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5
 
 TESTING_PRODUCTION_DATE = {
-  "from":1615840200109,
-  "to":1615859100050
+  "from":1616110200018,
+  "to":1616171400207
 }
 
 BINANCE = BINANCE_CREDENTIALS
 
 TELEGRAM = {
-  "channel": "t.me/libertad_kamikaze_bot",
+  "channel": "-471648486",
   "bot": "1626640400:AAEJeXYbxMIsNiDu7okdHHHU7JuHsmn0swo"
 }
-
+#https://api.telegram.org/bot1626640400:AAEJeXYbxMIsNiDu7okdHHHU7JuHsmn0swo/getUpdates
+# group id 1626640400
 SQL = {
   "user" : "root",
   "pass" :  "libertad" 
@@ -44,10 +45,10 @@ SQL = {
 STRATEGY = {
   "length_frames": 20,
   "lags": 5,
-  "candle_min":15,
-  "kline_interval": "KLINE_INTERVAL_15MINUTE",
-  "mean_tick_prod":433,
-  "mean_tick_dev":433
+  "candle_min":30,
+  "kline_interval": "KLINE_INTERVAL_30MINUTE",
+  "mean_tick_prod":861,
+  "mean_tick_dev":861
 }
 
 # for standalone and test

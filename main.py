@@ -6,7 +6,7 @@ import backtrader as bt
 import datetime as dt
 
 from ccxtbt.ccxtstore import CCXTStore
-from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG, STRATEGY, TESTING_PRODUCTION
+from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG, STRATEGY, TESTING_PRODUCTION, LIVE
 from messages import MESSAGE_TELEGRAM
 
 from dataset.dataset import CustomDataset
@@ -15,8 +15,10 @@ from sizer.percent import FullMoney
 
 #from strategies.mediaEstimadoresDinamica import MediaEstimadoresDinamica
 #from strategies.elasticLowBandOverlapHigh import ElasticLowBandOverlapHigh
-from strategies.elasticHighToLowBand import ElasticHighToLowBand
-from strategies.elasticLowBandOverlapHighFuerzaBruta import ElasticLowBandOverlapHighFuerzaBruta
+#from strategies.elasticHighToLowBand import ElasticHighToLowBand
+from strategies.simpleHighToLowMean3 import SimpleHighToLowMean3
+##from strategies.elasticLowBandOverlapHighFuerzaBruta import ElasticLowBandOverlapHighFuerzaBruta
+from strategies.simpleHighToLowMean3FuerzaBruta import SimpleHighToLowMean3FuerzaBruta
 
 #from strategies.overlapHighEstimators import OverlapHighEstimators
 #from strategies.dynamicHighStopLossLong import DynamicHighStopLossLong
@@ -94,15 +96,15 @@ def main():
 
     # # Include Strategy
     if ENV == PRODUCTION:
-        strategy = ElasticHighToLowBand()
-        fuerza_bruta = ElasticLowBandOverlapHighFuerzaBruta()
+        strategy = SimpleHighToLowMean3()
+        fuerza_bruta = SimpleHighToLowMean3FuerzaBruta()
         strategy.elasticLowBandOverlapHighFuerzaBruta = fuerza_bruta
         #strategy = OverlapHighEstimators()
         cerebro.addstrategy(strategy)
         if TESTING_PRODUCTION == False:
             cerebro.getHistoricalData(kline_production,3)
     else:
-        cerebro.addstrategy(ElasticHighToLowBand)
+        cerebro.addstrategy(SimpleHighToLowMean3)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()
@@ -127,7 +129,15 @@ def main():
 
 if __name__ == "__main__":
     try:
-        main()        
+        if LIVE == True:
+            print("Las operaciones oficiales en Binance estan habilitadas, escribir 1 para contiunar.")
+            confirm_live = input()
+            if int(confirm_live) == 1:
+                main()
+            else:
+                print("Por favor cambiar la configuracion para ejcutar en otra modalidad.")
+        else:
+            main()        
     except KeyboardInterrupt:
         print("finished.")
         time = dt.datetime.now().strftime("%d-%m-%y %H:%M")

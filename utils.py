@@ -1,7 +1,7 @@
 import requests
 from distutils.dir_util import copy_tree
 
-from config import TELEGRAM, ENV, TESTING_PRODUCTION
+from config import TELEGRAM, ENV, TESTING_PRODUCTION, LIVE
 import json
 import os
 import telegram_send
@@ -77,9 +77,16 @@ def print_sqn(analyzer):
 
 def send_telegram_message(message="", force=False):
     if ENV != "production":
-        return
+        return False
     elif TESTING_PRODUCTION == False or force == True:
         telegram_send.send(messages=[message])
+        if LIVE == True:
+            base_url = "https://api.telegram.org/bot%s" % TELEGRAM.get("bot")
+            print(base_url)
+            return requests.get("%s/sendMessage" % base_url, params={
+            'chat_id': TELEGRAM.get("channel"),
+            'text': message
+            }).content
     return True
     #base_url = "https://api.telegram.org/bot%s" % TELEGRAM.get("bot")
     #print(base_url)

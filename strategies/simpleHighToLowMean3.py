@@ -9,7 +9,7 @@ import asyncio
 
 
 
-class ElasticHighToLowBand(StrategyBase):
+class SimpleHighToLowMean3(StrategyBase):
 
     # Moving average parameters
     # params = (('pfast',20),('pslow',50),)
@@ -37,6 +37,17 @@ class ElasticHighToLowBand(StrategyBase):
         self.name = "ElasticHighToLowBand"
         
         # parametros se modifican por fuerza bruta #
+        self.media_high_reference = 1 # 1: mean, 2: mean-2, 3: mean-3
+        self.media_low_reference = 1 # 1: mean, 2: mean-2, 3: mean-3
+        self.touch_low_cota = 30
+        self.max_ticks_to_operate = 0.35 # aggressive operation en inicio
+        self.min_gain = 180 # punto en el cual ejecuta dynamic
+        self.min_lost = 120
+        self.cota_inferior_high = 15 # necesita confirmar de menos 30 en los ticks correspondientes para dar el ok 
+        self.ticks_to_wait = 10 # ticks q espera para confirmar baja
+
+        self.delta_error_estimacion_high = 15
+        self.rmse_estimadores = 75
         self.check_buy_conditions_buy_conditions_value_high = 60
         self.check_buy_conditions_buy_conditions_value_low = 65
         self.fixed_limit_high = 500
@@ -49,11 +60,10 @@ class ElasticHighToLowBand(StrategyBase):
         self.index_high_estimation = 1
         self.minimum_profit_proyected = 206.66666666666666
         self.mean_filter_lag = 7
-        self.touch_high_cota = 48.333333333333336
-        self.min_gain = 180 # punto en el cual activa high dynamic
+        
         self.min_gain_dynamic = self.min_gain 
         self.low_by_bands = True
-        self.max_ticks_to_operate = 0.25 # aggressive operation en inicio
+        
         self.stoploss_lower = 50
         self.cota_superior_low = 28.10810810810811
         self.delta_stop_loss_high = 30 # cuanto permite perder antes de cerra venta en high dinamico
@@ -94,7 +104,7 @@ class ElasticHighToLowBand(StrategyBase):
         self.filter_ready = False
         self.mean_filter_ticks = []
         self.active_elastic_high = 0
-        self.touch_high = False
+        self.touch_low = False
         self.active_lower = False
         self.low_band_active_value = 0
         self.low_band_active = False
@@ -103,6 +113,8 @@ class ElasticHighToLowBand(StrategyBase):
         self.previous_candle_last_tick_date = 0
         self.first_time_min_gain = False
         self.buy_tick_time = 0
+        self.active_high_mean3 = False
+        self.active_tick = 0
         
         
     
@@ -111,7 +123,7 @@ class ElasticHighToLowBand(StrategyBase):
         # se busca el valor mas chico
         high_low = 0
         for low_estimation in self.ensambleIndicators.indicatorsLow:
-            if low_estimation > high_low and low_estimation < self.open_candle + self.cota_superior_open:
+            if low_estimation > high_low and low_estimation < self.open_candle:
                 high_low = low_estimation
         return high_low
 
@@ -167,13 +179,15 @@ class ElasticHighToLowBand(StrategyBase):
         # volver este a 0 por vela implicar esperar al menos 1 tick para poder hacer los calculos
         # y considerarlo en la estrategia.
         self.filter_price_candle = []
-        self.touch_high = False
+        self.touch_low = False
         self.low_band_active = False
         self.low_band_active_value = 0
         self.check_buy_conditions = False
         self.min_gain_dynamic = self.min_gain
         self.first_time_min_gain = False
         self.buy_tick_time = 0
+        self.active_high_mean3 = False
+        self.active_tick = 0
     
     def sell_order(self):
         self.short()
@@ -186,6 +200,26 @@ class ElasticHighToLowBand(StrategyBase):
             sum = sum + tick["value"]
         mean = sum / self.mean_filter_lag
         return {"value":mean,"date":date}
+    
+    def get_mean_low_reference(self):
+        if self.media_low_reference ==1:
+            return self.ensambleIndicators.mediaEstimadorLow 
+        elif self.media_low_reference ==2:
+            return self.ensambleIndicators.mediaEstimadorLow_iterada2
+        elif self.media_low_reference ==3:
+            return self.ensambleIndicators.mediaEstimadorLow_iterada3
+        else:
+            return self.ensambleIndicators.mediaEstimadorLow
+    
+    def get_mean_high_reference(self):
+        if self.media_high_reference ==1:
+            return self.ensambleIndicators.mediaEstimadorHigh
+        elif self.media_high_reference ==2:
+            return self.ensambleIndicators.mediaEstimadorHigh_iterada2
+        elif self.media_high_reference ==3:
+            return self.ensambleIndicators.mediaEstimadorHigh_iterada3
+        else:
+            return self.ensambleIndicators.mediaEstimadorHigh
 
     '''
     def average_inflection_point(self, x_1, y_1, x_2, y_2):
@@ -203,7 +237,8 @@ class ElasticHighToLowBand(StrategyBase):
             if ENV == PRODUCTION and TESTING_PRODUCTION == False and LIVE == True and self.broker != None and self.STANDALONE == False:
                 TRADE_SYMBOL = 'BTCUSDT'
                 TRADE_QUANTITY = 0.000419
-                succces_trade = self.broker.order(SIDE_BUY, TRADE_QUANTITY, TRADE_SYMBOL)
+                #TODO DANGER cuidado esta alrevez solo para esta estrategia corregir DANGER
+                succces_trade = self.broker.order(SIDE_SELL, TRADE_QUANTITY, TRADE_SYMBOL)
             if succces_trade == True:
                 self.log(message,  to_ui = True, date = self.datetime[0])
                 self.long()
@@ -217,19 +252,18 @@ class ElasticHighToLowBand(StrategyBase):
             if ENV == PRODUCTION and TESTING_PRODUCTION == False and LIVE == True and self.broker != None and self.STANDALONE == False:
                 TRADE_SYMBOL = 'BTCUSDT'
                 TRADE_QUANTITY = 0.000419
-                succces_trade = self.broker.order(SIDE_SELL, TRADE_QUANTITY, TRADE_SYMBOL)
+                #TODO DANGER cuidado esta alrevez solo para esta estrategia corregir DANGER
+                succces_trade = self.broker.order(SIDE_BUY, TRADE_QUANTITY, TRADE_SYMBOL)
             if succces_trade == True:
                 self.log(message,  to_ui = True, date = self.datetime[0])
                 self.sell_order()
                 return True
         return False
 
-    def is_high(self, actual_price):
-        # no toma a cuenta al delta estiation
-        delta_high = self.ensambleIndicators.deltaMediaOpenHigh
-        for high_estimation in self.ensambleIndicators.indicatorsHigh:
-            if (high_estimation - self.touch_high_cota) <= actual_price and high_estimation > self.open_candle and high_estimation != delta_high:
-                return True
+    def is_low(self, actual_price):
+        #for low_estimation in self.ensambleIndicators.indicatorsLow:
+        if (self.ensambleIndicators.mediaEstimadorLow + self.rmse_estimadores) >= actual_price:
+            return True
         return False
 
     def minimum_profit_estimation(self, actual_price, index_high_estimation):
@@ -293,149 +327,68 @@ class ElasticHighToLowBand(StrategyBase):
             if (self.orderActive == False):
 
                 # certifica si no toco high
-                if self.touch_high == False:
-                    self.touch_high = self.is_high(actual_price)
-                    if self.touch_high == True:
-                        message = "Toca high antes que Low estimation en $ " + str(actual_price) + ". Ya no realiza trade."
+                if self.touch_low == False:
+                    self.touch_low = self.is_low(actual_price)
+                    if self.touch_low == True:
+                        message = "Toca low antes que High estimation en $ " + str(actual_price) + ". Ya no realiza trade. Dynamic Params high: " + str(self.media_high_reference) + ", low:"+ str(self.media_low_reference)
                         self.log(message,  to_ui = True, date = self.datetime[0])
 
-                if self.touch_high == False:
+                if self.touch_low == False:
+                    # pone en modo activo y deja pasar unos 15, 20 ticks. 
+                    # si no pasa 30 USD no ejecuta. Se vuelve a activar hasta tocar un low.
                     # upper low aggresive
                     if self.actual_tick <= (self.mean_tick * self.max_ticks_to_operate):
                         # elsastic band low, utiliza el filtro para asegurar q no son picos. 
-                        if filter_price["value"] < self.low_upper + self.cota_superior_low:
-                            self.low_active =  True
-                        elif filter_price["value"] > (self.low_upper + self.cota_superior_low + self.elastic_margin_low) and self.low_active == True:
-                            if self.minimum_profit_estimation(actual_price, self.index_high_estimation) == True:
-                                message = "Estuvo en la franja de minimos y ahora marca tendencia alcista, Vende!"
-                                #self.check_buy_conditions = True
-                                self.orderActive =  True
-                                self.buy_price_close = actual_price 
-                                self.buy_tick_time = self.actual_tick
-                                self.do_long(message)
-                            else:
-                                message = "Estuvo en la franja de minimos y ahora marca tendencia alcista, pero no alcanza la estimacion minima. No ejecuta trade"
-                                self.log(message,  to_ui = True, date = self.datetime[0])
-                                # no deja ejecutar mas en trade. es peligroso en general erra.
-                                self.touch_high = True
-                    
-                # overlap high estimation aggresive
-                # en este caso no importa si toca high
-                '''
-                if filter_price["value"] >= self.ensambleIndicators.mediaEstimadorHigh and self.high_active == False and self.actual_tick <= self.min_high_active_tick:
-                    self.high_active = True
-                    self.high_active_tick = self.actual_tick
-
-                if self.high_active == True:
-                    if filter_price["value"] - self.ensambleIndicators.mediaEstimadorHigh >= (self.elastic_margin_low * 2) and self.actual_tick - self.high_active_tick  < self.min_high_active_tick:
-                        message = "Estuvo parece una subida agresiva! Compra"
-                        #self.check_buy_conditions = True
-                        self.orderActive =  True
-                        self.buy_price_close = actual_price 
-                        self.buy_tick_time = self.actual_tick
-                        self.do_long(message)
-                '''
-                        
-                # otra estraegia se puede manejar independeinte
-                '''
-                if self.low_by_bands == True:
-                    do_operation_buy = self.check_low_bands(filter_price["value"])
-                    if do_operation_buy == True:
-                        message = "Cambio de banda en low. Bajo de banda y toco el top de la superior!"
-                        #self.check_buy_conditions = True
-                        self.orderActive =  True
-                        self.buy_price_close = actual_price
-                        self.do_long(message)
-                '''
-
-                '''
-                elif actual_price >= (self.high_upper + self.elastic_margin_high) and self.high_active == True:
-                    message = "Parece una subida estrepitosa paso todos los High! Compra"
-                    self.do_long(message)
-                '''
-                # esta estraegia no import si toco high
-                # en caso de que toco la minima estimacion low (sin contar delta)
-                # y el promedio subre, realiza compra
-                '''
-                if self.actual_tick <= (self.mean_tick * 0.6):
-                    if actual_price <= self.low_lowwer and self.active_lower == False:
-                        self.active_lower = True
-                    if self.active_lower == True:
-                        # actualiza el lower en caso de estar en baja
-                        if actual_price < self.low_lowwer:
-                            self.low_lowwer = actual_price
-                        elif filter_price["value"] >= self.low_lowwer + self.cota_superior_lower:
-                            message = "Toco el estimador mas chico, y sbuio. Compra agressive"
-                            succes_order = self.do_long(message)
-                            if succes_order == True:
-                                self.made_lower_buy = True
-                '''
+                        if actual_price >= self.get_mean_high_reference() - self.delta_error_estimacion_high:
+                            self.active_high_mean3 = True
+                            self.active_tick = self.actual_tick
                 
-            # busca venta
+                if self.active_high_mean3 == True:
+                    if self.actual_tick - self.active_tick >= self.ticks_to_wait:
+                        if actual_price <= self.get_mean_high_reference() - self.cota_inferior_high - self.delta_error_estimacion_high:
+                            message = "toco literalmente high mean 3 a la baja , Compra! Dynamic Params high: " + str(self.media_high_reference) + ", low:"+ str(self.media_low_reference)
+                            #self.check_buy_conditions = True
+                            self.orderActive =  True
+                            self.buy_price_close = actual_price 
+                            self.min_gain_dynamic = self.buy_price_close - self.get_mean_low_reference() 
+                            self.buy_tick_time = self.actual_tick
+                            self.do_long(message)
+                        else:
+                            message = "Pasaron los ticks y no alcanzo la baja suficiente. Vuelve a actualizar por si hay otra baja. Dynamic Params high: " + str(self.media_high_reference) + ", low:"+ str(self.media_low_reference)
+                            self.log(message,  to_ui = True, date = self.datetime[0])
+                            self.active_high_mean3 = False
+
+            # busca compra
             else:
-                # deja un lapso antes de ejecutar la compra
-                #if self.check_buy_conditions == True:
-                    # se asegura que no se toco high en este trayecto
-                    # certifica si no toco high
-                #    if self.touch_high == False:
-                #        self.touch_high = self.is_high(actual_price)
-                #        if self.touch_high == True:
-                #            message = "Dentro de la espera de verificacion para hacer el trade Toca high antes que Low estimation en $ " + str(actual_price) + ". Ya no realiza trade."
-                #            self.log(message,  to_ui = True, date = self.datetime[0])
-                #            self.refresh_variables()
-                    
-                #    if self.touch_high == False:
-                        # se asegura que al momento de hacer la compra la proyeccion minima supero lo esperado
-                #        if  self.minimum_profit_estimation(actual_price, self.check_buy_high) and (filter_price["value"] - self.buy_price_close) >= self.check_buy_conditions_buy_conditions_value_high and self.actual_tick <= (self.mean_tick * self.max_ticks_to_operate):
-                            # ahora si confirma compra.
-                #            self.check_buy_conditions = False
-                #            self.do_long(self.message)
-                #            self.log("Supero cota de check con " + str(filter_price["value"] - self.buy_price_close),  to_ui = True, date = self.datetime[0])
-                #        elif (self.buy_price_close - filter_price["value"] ) >= self.check_buy_conditions_buy_conditions_value_low:
-                #            self.check_buy_conditions = False
-                #            self.log("No supero cota de check con " + str(filter_price["value"] - self.buy_price_close) + " y no ejecuta",  to_ui = True, date = self.datetime[0])
-                #            self.refresh_variables()
-                
-                #else:       
-                    # si primero llega a una cota inferior negativa no la ejecuta y limpia todas las variables
-                    # si primero llega a una cota superior positiva y cumple los requerimientos de tiempo (touch high no, porque ya puede haber alcansado)
-                    # vende dinamico. Apunta a las crecidas marcadas y estrategia que funciona bien cuando el Bitcoin esta en suba.
-
-                    # lower strategy es agressive
-                '''
-                if self.last_operation != "SELL":
-                    if self.active_lower == True and self.made_lower_buy == True:
-                        if actual_price - self.buy_price_close >= self.fixed_limit_high_lower:
-                            message = "Llego minio high de $" + str(actual_price - self.buy_price_close) + ". Vende con ganancia minima! Lower strategy,  Lento pero seguro."
-                            self.do_short(message)
-                        elif self.buy_price_close - actual_price >= self.stoploss_lower:
-                            message = "Llego a un stop loss lower de $" + str(self.buy_price_close - actual_price) + ". Vende con perdida."
-                            self.do_short(message)
-                '''
-                # primer punto de inflexion con ganancia cierra
-                '''
-                if self.last_operation != "SELL":
-                    if self.filter_price_is_inflection == True:
-                        if filter_price["value"] > self.active_elastic_high: 
-                            self.active_elastic_high = filter_price["value"]
-                        if self.is_active_elastic_high == False:
-                            self.is_active_elastic_high = True
-                            if actual_price - self.buy_price_close > self.first_inflection_point_min_revenue:
-                                message = "El primer punto de inflexion es mayor que 100,   Vende!."
-                                self.do_short(message)
-                '''
-                # hard limit high
-                '''
-                if self.last_operation != "SELL":
-                    if actual_price - self.buy_price_close >= self.fixed_limit_high:
-                        message = "Llego minio high de $" + str(actual_price - self.buy_price_close) + ". Vende con ganancia minima! Lento pero seguro."
-                        self.do_short(message)
-                '''
 
 
                 #dynamic high limit # first version sin filtro #
                 if self.last_operation != "SELL":
-                    if (self.buy_price_close - filter_price["value"]  > self.min_gain_dynamic):
+                    if (self.buy_price_close - actual_price  > self.min_gain_dynamic):
+                        if self.first_time_min_gain == False:
+                            self.first_time_min_gain = True
+                        self.min_gain_dynamic = self.buy_price_close - actual_price
+                
+                    if self.first_time_min_gain == True:
+                        if filter_price["value"] - ( self.buy_price_close -  self.min_gain_dynamic )   > self.delta_stop_loss_high:
+                            message = "Bajo desde la ultima ganancia dinamica  " + str(self.buy_price_close - self.min_gain_dynamic) + " bajo diferencia de " + str(self.delta_stop_loss_high) + " y vende!"
+                            self.do_short(message)
+
+                # version 1 dura. Fija en +-180 o va al final 
+                
+                if self.last_operation != "SELL":
+                    '''
+                    if (self.buy_price_close - actual_price  >= self.min_gain):
+                        message = "Llego a un minimo fijo  " + str(self.buy_price_close - actual_price) + "  y vende!"
+                        self.do_short(message)
+                    
+                    '''
+                    if (actual_price - self.buy_price_close) >= self.min_lost:
+                        message = "Llego a un stoploos fijo  " + str(self.buy_price_close - actual_price) + "  y vende!"
+                        self.do_short(message)
+                '''
+                if self.last_operation != "SELL":
+                    if (self.buy_price_close - actual_price  >= self.min_gain_dynamic):
                         if self.first_time_min_gain == False:
                             self.first_time_min_gain = True
                         self.min_gain_dynamic =  self.buy_price_close - filter_price["value"]
@@ -444,12 +397,8 @@ class ElasticHighToLowBand(StrategyBase):
                         if filter_price["value"] - ( self.buy_price_close -  self.min_gain_dynamic )   > self.delta_stop_loss_high:
                             message = "Bajo desde la ultima ganancia dinamica  " + str(self.buy_price_close - self.min_gain_dynamic) + " bajo diferencia de " + str(self.delta_stop_loss_high) + " y vende!"
                             self.do_short(message)
+                '''
                     
-                # stop loss filter average este es en caso que desde la compra no actualiza y va a perdida
-                if self.last_operation != "SELL":
-                    if filter_price["value"] - self.buy_price_close >= self.stoploss:
-                        message = "Llego a un stop loss de $" + str(filter_price["value"] - self.buy_price_close) + ". Compra con perdida con perdida."
-                        self.do_short(message)
                         
                 '''
                 if self.last_operation != "SELL":
@@ -499,32 +448,21 @@ class ElasticHighToLowBand(StrategyBase):
                 self.updateIndicatorsEnsambleLinearModels()
                 self.indicators_ready = True
                 self.refresh_variables()
-                if ENV == PRODUCTION and  TESTING_PRODUCTION == False and self.STANDALONE == False and UPDATE_PARAMS_FUERZA_BRUTA == True:
+                if ENV == PRODUCTION and self.STANDALONE == False and UPDATE_PARAMS_FUERZA_BRUTA == True:
                     if self.second_candle == False:
                         self.second_candle = True
                         self.previous_candle_last_tick_date = self.datetime[0]
                     else:
                         asyncio.run(self.update_fuerza_bruta(self.previous_candle_last_tick_date, self.datetime[0]))
+                        self.previous_candle_last_tick_date = self.datetime[0]
                         
     async def update_fuerza_bruta(self, _from,_to):
         optimal_last_params = self.elasticLowBandOverlapHighFuerzaBruta.get_best_values(_from, _to)
         self.update_params_fuerza_bruta(optimal_last_params)
 
     def update_params_fuerza_bruta(self, params):
-        self.stoploss = params["stoploss"]
-        self.cota_superior_low = params["cota_superior_low"] 
-        self.elastic_margin_low = params["elastic_margin_low"]
-        self.fixed_limit_high = params["fixed_limit_high"] 
-        self.minimum_profit_proyected = self.fixed_limit_high
-        self.index_high_estimation = params["index_high_estimation"]
-        self.mean_filter_lag = params["mean_filter_lag"] 
-        self.touch_high_cota = params["touch_high_cota"] 
-        #Log
-        self.log("Actualiza parametros best strategy last -  stoploss: " + str(self.stoploss) + " - cota_superior_low: " + str(self.cota_superior_low),  to_ui = True, date = self.datetime[0])
-        self.log("elastic_margin_low:" + str(self.elastic_margin_low) + " - fixed_limit_high: " + str(self.fixed_limit_high),  to_ui = True, date = self.datetime[0])
-        self.log("index high estimation:" + str(self.index_high_estimation) + " - mean_filter_lag: " + str(self.mean_filter_lag),  to_ui = True, date = self.datetime[0])
-        self.log("touch_high_cota" + str(self.touch_high_cota) ,  to_ui = True, date = self.datetime[0])
-        self.log("El mejor balance de la vela anterior con estos parametros fue " + str(params["balance"]) ,  to_ui = True, date = self.datetime[0])
-
-
+        if params["balance"] > 1000:
+            self.media_high_reference = params["media_high_reference"]
+            self.media_low_reference = params["media_low_reference"] 
+        
 

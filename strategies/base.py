@@ -24,7 +24,7 @@ class StrategyBase(bt.Strategy):
     
     def __init__(self, stand_alone=False):
         # se cambia cuando la estrategia es sell and buy
-        self.sell_and_buy_strategy = True
+        self.sell_and_buy_strategy = False
         # Para configurar lags y ancho de ventana de analisis  
         # default values. Se actualiza en cada estrategia
         self.STANDALONE = stand_alone
@@ -204,7 +204,11 @@ class StrategyBase(bt.Strategy):
         if ENV == DEVELOPMENT and self.STANDALONE== False:
             return self.sell()
         if ENV == PRODUCTION and self.STANDALONE== False:
-            send_telegram_message(" \U0001F4E3 Orden de venta a : $%.2f" % self.data0.close[0])
+            # TODO momentaneo. Pensar mas abstracto para venta compra
+            if self.sell_and_buy_strategy == False:
+                send_telegram_message(" \U0001F4E3 Orden de venta a : $%.2f" % self.data0.close[0])
+            else:
+                send_telegram_message(" \U0001F4E3 Orden de compra a : $%.2f" % self.data0.close[0])
             self.last_operation = "SELL"
             self.jsonParser.addSellOperation(self.timestamp_sell, 
                                 self.sell_price_close, 
@@ -255,7 +259,10 @@ class StrategyBase(bt.Strategy):
             return self.buy()
         
         if ENV == PRODUCTION and self.STANDALONE == False:
-            send_telegram_message(" \U0001F4E3 Orden de compra a : $%.2f" % self.data0.close[0])
+            if self.sell_and_buy_strategy == False:
+                send_telegram_message(" \U0001F4E3 Orden de compra a : $%.2f" % self.data0.close[0])
+            else:
+                send_telegram_message(" \U0001F4E3 Orden de venta a : $%.2f" % self.data0.close[0])
             self.last_operation = "BUY"
             self.jsonParser.addBuyOperation(self.timestamp_buy, 
                                 self.buy_price_close, 
