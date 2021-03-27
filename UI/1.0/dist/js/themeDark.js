@@ -310,6 +310,19 @@ function agregarLogChart(log, date){
 	td2.classList.add("text-nowrap");
 	td2.classList.add("text-muted");
 	td2.innerText = date;
+	td2.date = date;
+	td2.onclick = function(){ 
+		AREA_MARKERS.push(
+			{
+				time: this.date,
+				position: 'aboveBar',
+				color: "blue",
+				shape: 'circle',
+				text: ''
+			}
+		);
+		areaSeries.setMarkers(AREA_MARKERS);
+	}
 	
 	tr.appendChild(td1);
 	tr.appendChild(td2);
@@ -564,7 +577,7 @@ function updateOrders(lowTime, highTime){
 					position: 'aboveBar',
 					color: color,
 					shape: 'arrowDown',
-					text: 'buy $' + orders[i].buy.price,
+					text: '$' + orders[i].buy.price,
 				}
 			);
 			orderCandle.push(
@@ -573,7 +586,7 @@ function updateOrders(lowTime, highTime){
 					position: 'belowBar',
 					color: color,
 					shape: 'arrowUp',
-					text: 'sell $' + orders[i].sell.price,
+					text: '$' + orders[i].sell.price,
 				}
 			);
 		}

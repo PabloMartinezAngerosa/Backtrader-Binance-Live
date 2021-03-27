@@ -63,6 +63,7 @@ class StrategyBase(bt.Strategy):
         self.subClass = None
         self.ensambleIndicators = EnsambleLinearRegressionAverage(self.ensambleIndicatorsLags,self.ensambleIndicatorsLengthFrames)
         self.jsonParser = JsonParser(self.ensambleIndicators)
+        self.order_ejecuted_fail = False
 
         if ENV == PRODUCTION or self.STANDALONE == True:
             self.datas = []
@@ -223,14 +224,18 @@ class StrategyBase(bt.Strategy):
                 delta_order = self.sell_price_close - self.buy_price_close
                 if delta_order > 0:
                     send_telegram_message(" \U0001F44C El trade fue exitoso! Con delta de : $%.2f" % delta_order)
+                    self.order_ejecuted_fail = False
                 else:
                     send_telegram_message(" \U0001F44E El trade fue erroneo. Con delta de : $%.2f" % delta_order)
+                    self.order_ejecuted_fail = True
             else:
                 delta_order = self.buy_price_close - self.sell_price_close 
                 if delta_order > 0:
                     send_telegram_message(" \U0001F44C El trade fue exitoso! Con delta de : $%.2f" % delta_order)
+                    self.order_ejecuted_fail = False
                 else:
                     send_telegram_message(" \U0001F44E El trade fue erroneo. Con delta de : $%.2f" % delta_order)
+                    self.order_ejecuted_fail = True
 
             self.actualize_long_short_strategy_profit(self.buy_price_close, self.sell_price_close)
             self.reset_sell_indicators()

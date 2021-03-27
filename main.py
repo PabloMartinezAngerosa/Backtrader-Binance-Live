@@ -16,7 +16,7 @@ from sizer.percent import FullMoney
 #from strategies.mediaEstimadoresDinamica import MediaEstimadoresDinamica
 #from strategies.elasticLowBandOverlapHigh import ElasticLowBandOverlapHigh
 #from strategies.elasticHighToLowBand import ElasticHighToLowBand
-from strategies.simpleHighToLowMean3 import SimpleHighToLowMean3
+from strategies.simpleHighToLowMean3V2 import SimpleHighToLowMean3V2
 ##from strategies.elasticLowBandOverlapHighFuerzaBruta import ElasticLowBandOverlapHighFuerzaBruta
 from strategies.simpleHighToLowMean3FuerzaBruta import SimpleHighToLowMean3FuerzaBruta
 
@@ -96,7 +96,7 @@ def main():
 
     # # Include Strategy
     if ENV == PRODUCTION:
-        strategy = SimpleHighToLowMean3()
+        strategy = SimpleHighToLowMean3V2()
         fuerza_bruta = SimpleHighToLowMean3FuerzaBruta()
         strategy.elasticLowBandOverlapHighFuerzaBruta = fuerza_bruta
         #strategy = OverlapHighEstimators()
@@ -104,7 +104,7 @@ def main():
         if TESTING_PRODUCTION == False:
             cerebro.getHistoricalData(kline_production,3)
     else:
-        cerebro.addstrategy(SimpleHighToLowMean3)
+        cerebro.addstrategy(SimpleHighToLowMean3V2)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()

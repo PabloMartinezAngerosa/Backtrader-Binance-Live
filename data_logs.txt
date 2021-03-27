@@ -245,3 +245,38 @@ from: 1616463000021 - to: 1616477400003
 from: 1616481000008 - to: 1616504400015 
 # esta calculada en intervalos de 30 minutos! media ticks 861.5365853658536
 
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM March 23, 2021, 10:30:00 PM
+# TO   March 24, 2021, 11:30:00 PM
+# First tick: 1616538602055 
+# From - to (con tick previo)
+from: 1616538600052 - to: 1616630400024 
+# esta calculada en intervalos de 30 minutos! media ticks 861.5365853658536
+
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM March 25, 2021, 01:00:00 AM
+# TO   March 25, 2021, 01:30:00 PM
+# First tick: 1616634002062 
+# From - to (con tick previo)
+from: 1616634000015 - to: 1616680800135 
+# esta calculada en intervalos de 30 minutos! media ticks 861.5365853658536
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM ]March 25, 2021, 04:00:00 PM
+# TO   March 25, 2021, 01:30:00 PM
+# First tick: 1616688002111 
+# From - to (con tick previo)
+from: 1616688000039 - to: 1616720400115 
+# esta calculada en intervalos de 30 minutos! media ticks 861.5365853658536
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM March 27, 2021, 05:30:00 AM
+# TO March 27, 2021, 05:00:00 PM
+# First tick: 1616823002349 
+# From - to (con tick previo)
+from: 1616822999999 - to: 1616866200047 
+# esta calculada en intervalos de 30 minutos! media ticks 861.5365853658536
+
+ 

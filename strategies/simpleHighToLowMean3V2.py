@@ -9,7 +9,7 @@ import asyncio
 
 
 
-class SimpleHighToLowMean3(StrategyBase):
+class SimpleHighToLowMean3V2(StrategyBase):
 
     # Moving average parameters
     # params = (('pfast',20),('pslow',50),)
@@ -40,13 +40,13 @@ class SimpleHighToLowMean3(StrategyBase):
         self.media_high_reference = 3 # 1: mean, 2: mean-2, 3: mean-3
         self.media_low_reference = 1 # 1: mean, 2: mean-2, 3: mean-3
         self.touch_low_cota = 30
-        self.max_ticks_to_operate = 0.35 # aggressive operation en inicio
+        self.max_ticks_to_operate = 0.50 # aggressive operation en inicio
         self.min_gain = 180 # punto en el cual ejecuta dynamic
-        self.min_lost = 120
+        self.min_lost = 450 #TODO con leverage x100 cuando se acaba una semilla
         self.cota_inferior_high = 15 # necesita confirmar de menos 30 en los ticks correspondientes para dar el ok 
         self.ticks_to_wait = 10 # ticks q espera para confirmar baja
 
-        self.delta_error_estimacion_high = 15
+        self.delta_error_estimacion_high = 60 # RMSE ALTO
         self.rmse_estimadores = 75
         self.check_buy_conditions_buy_conditions_value_high = 60
         self.check_buy_conditions_buy_conditions_value_low = 65
@@ -66,7 +66,7 @@ class SimpleHighToLowMean3(StrategyBase):
         
         self.stoploss_lower = 50
         self.cota_superior_low = 28.10810810810811
-        self.delta_stop_loss_high = 30 # cuanto permite perder antes de cerra venta en high dinamico
+        self.delta_stop_loss_high = 60 # cuanto permite perder antes de cerra venta en high dinamico
         self.min_gain_without_action = 100 # cuando se vencen los ticks, y no acelero lo esperado corta
         self.max_tick_without_action = 70 # ticks que deja pasar sin accion
         self.min_high_active_tick = 20 # para medir si la aceleracion es suficente
@@ -262,7 +262,7 @@ class SimpleHighToLowMean3(StrategyBase):
 
     def is_low(self, actual_price):
         #for low_estimation in self.ensambleIndicators.indicatorsLow:
-        if (self.ensambleIndicators.mediaEstimadorLow + self.rmse_estimadores) >= actual_price:
+        if (self.ensambleIndicators.mediaEstimadorLow_iterada3 + self.rmse_estimadores) >= actual_price:
             return True
         return False
 
@@ -327,18 +327,20 @@ class SimpleHighToLowMean3(StrategyBase):
             if (self.orderActive == False):
 
                 # certifica si no toco high
+                
                 if self.touch_low == False:
                     self.touch_low = self.is_low(actual_price)
                     if self.touch_low == True:
                         message = "Toca low antes que High estimation en $ " + str(actual_price) + ". Ya no realiza trade. Dynamic Params high: " + str(self.media_high_reference) + ", low:"+ str(self.media_low_reference)
                         self.log(message,  to_ui = True, date = self.datetime[0])
-
+                
+                # no presta atencion si toco o no low, accion
                 if self.touch_low == False:
                     # pone en modo activo y deja pasar unos 15, 20 ticks. 
                     # si no pasa 30 USD no ejecuta. Se vuelve a activar hasta tocar un low.
                     # upper low aggresive
                     if self.actual_tick <= (self.mean_tick * self.max_ticks_to_operate):
-                        # elsastic band low, utiliza el filtro para asegurar q no son picos. 
+                        # siempre es la mas baja high mean 3
                         if actual_price >= self.get_mean_high_reference() - self.delta_error_estimacion_high:
                             self.active_high_mean3 = True
                             self.active_tick = self.actual_tick
@@ -346,11 +348,11 @@ class SimpleHighToLowMean3(StrategyBase):
                 if self.active_high_mean3 == True:
                     if self.actual_tick - self.active_tick >= self.ticks_to_wait:
                         if actual_price <= self.get_mean_high_reference() - self.cota_inferior_high - self.delta_error_estimacion_high:
-                            message = "toco literalmente high mean 3 a la baja , Compra! Dynamic Params high: " + str(self.media_high_reference) + ", low:"+ str(self.media_low_reference)
+                            message = "toco literalmente high mean 3 a la baja , Vende! Dynamic Params high: " + str(self.media_high_reference) + ", low:"+ str(self.media_low_reference)
                             #self.check_buy_conditions = True
                             self.orderActive =  True
                             self.buy_price_close = actual_price 
-                            self.min_gain_dynamic = self.buy_price_close - self.get_mean_low_reference() 
+                            self.min_gain_dynamic = 220 #self.buy_price_close - self.get_mean_low_reference() # por hora fija en un cuarenta aprox leverate x100 380 self.get_mean_low_reference() 
                             self.buy_tick_time = self.actual_tick
                             self.do_long(message)
                         else:
@@ -371,7 +373,7 @@ class SimpleHighToLowMean3(StrategyBase):
                 
                     if self.first_time_min_gain == True:
                         if filter_price["value"] - ( self.buy_price_close -  self.min_gain_dynamic )   > self.delta_stop_loss_high:
-                            message = "Bajo desde la ultima ganancia dinamica  " + str(self.buy_price_close - self.min_gain_dynamic) + " bajo diferencia de " + str(self.delta_stop_loss_high) + " y vende!"
+                            message = "Bajo desde la ultima ganancia dinamica  " + str(self.buy_price_close - self.min_gain_dynamic) + " bajo diferencia de " + str(self.delta_stop_loss_high) + " y compra!"
                             self.do_short(message)
 
                 # version 1 dura. Fija en +-180 o va al final 
@@ -418,6 +420,13 @@ class SimpleHighToLowMean3(StrategyBase):
                     if self.actual_tick >= (self.mean_tick - 10):
                         message = "esta llegando close y no toco low. ejecuta compra"
                         self.do_short(message)
+                '''
+                if self.last_operation != "SELL":
+                    if self.actual_tick >= (self.mean_tick * 0.8):
+                        if actual_price - self.buy_price_close   >= 90:
+                            message = "llego al 80% y era negativo.ejecuta compra"
+                            self.do_short(message)
+                '''
         
         if len(self.data1.low) > self.lendata1:
             self.lendata1 += 1
@@ -448,6 +457,7 @@ class SimpleHighToLowMean3(StrategyBase):
                 self.updateIndicatorsEnsambleLinearModels()
                 self.indicators_ready = True
                 self.refresh_variables()
+                '''
                 if ENV == PRODUCTION and self.STANDALONE == False and UPDATE_PARAMS_FUERZA_BRUTA == True:
                     if self.second_candle == False:
                         self.second_candle = True
@@ -455,6 +465,7 @@ class SimpleHighToLowMean3(StrategyBase):
                     else:
                         asyncio.run(self.update_fuerza_bruta(self.previous_candle_last_tick_date, self.datetime[0]))
                         self.previous_candle_last_tick_date = self.datetime[0]
+                '''
                         
     async def update_fuerza_bruta(self, _from,_to):
         optimal_last_params = self.elasticLowBandOverlapHighFuerzaBruta.get_best_values(_from, _to)

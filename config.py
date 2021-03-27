@@ -10,9 +10,9 @@ COIN_REFER = "USDT"
 ENV = os.getenv("ENVIRONMENT", PRODUCTION)
 DEBUG = True
 PERSISTENCE_CONNECTION = True
-TESTING_PRODUCTION = True
-UPDATE_PARAMS_FUERZA_BRUTA = True
-LIVE = False # doble certificacion para operar en Binance. Production y LIVE. Puede estar Production pero en modo testing. 
+TESTING_PRODUCTION = False
+UPDATE_PARAMS_FUERZA_BRUTA = False
+LIVE = True # doble certificacion para operar en Binance. Production y LIVE. Puede estar Production pero en modo testing. 
 WINDOWS = False
 
 # TEST KEY
@@ -25,8 +25,8 @@ WINDOWS = False
  # gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5
 
 TESTING_PRODUCTION_DATE = {
-  "from":1616110200018,
-  "to":1616171400207
+  "from":1616723999999,
+  "to":1616725800026
 }
 
 BINANCE = BINANCE_CREDENTIALS

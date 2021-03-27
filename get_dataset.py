@@ -30,11 +30,11 @@ interval = KLINE_INTERVAL_1MINUTE
 
 client = Client(BINANCE.get("key"), BINANCE.get("secret"))
 
-N = 15
+N = 30*3
 date_N_days_ago = datetime.now() - timedelta(days=N)
 
 filename = "BTCUSDT-" + interval + ".csv"
-filedirectory = "./dataset/"
+filedirectory = "./dataset/databases/"
 
 print("Empieza a descargar cada " + interval )
 klines = client.get_historical_klines('BTCUSDT', interval, date_N_days_ago.strftime("%d %b %Y %H:%M:%S"))
