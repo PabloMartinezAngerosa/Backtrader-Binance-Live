@@ -24,7 +24,7 @@ from strategies.simpleHighToLowMean3FuerzaBruta import SimpleHighToLowMean3Fuerz
 #from strategies.dynamicHighStopLossLong import DynamicHighStopLossLong
 #from strategies.dynamicStopLossLong import DynamicStopLossLong
 # for test
-#from strategies.basic import Basic
+from strategies.basic import Basic
 
 from utils import print_trade_analysis, print_sqn, send_telegram_message, copy_UI_template
 
@@ -57,36 +57,36 @@ def main():
    
 
     else:  # Backtesting with CSV file
-        '''
-            data = CustomDataset(
-                name = COIN_TARGET,
-                dataname = "dataset/BTCUSDT-1m.csv",
-                timeframe = bt.TimeFrame.Minutes,
-                fromdate = datetime.datetime(2021, 1, 7),
-                todate = datetime.datetime(2021, 1, 10),
-                nullvalue = 0.0
-            )
-        '''
         
+        data = CustomDataset(
+            name = COIN_TARGET,
+            dataname = "dataset/databases/BTCUSDT-1m.csv",
+            timeframe = bt.TimeFrame.Minutes,
+            fromdate = datetime.datetime(2020, 12, 28),
+            todate = datetime.datetime(2021, 3, 26),
+            nullvalue = 0.0
+        )
+        
+        '''
         data = CustomDatasetLive(
             name = COIN_TARGET,
             dataname = "dataset/databases/BTCUSDT-milliseconds_1614320462088_1614348719999.csv",
             timeframe = bt.TimeFrame.Seconds,
             dtformat='%Y-%m-%d %H:%M:%S.%f',
             compression=2,
-            #fromdate = datetime.datetime(2021, 1, 7),
+            #fromdate = datetime.datetime(2020, 12, 28),
             #todate = datetime.datetime(2021, 1, 10),
             nullvalue = 0.0
         )
-        
+        '''
         cerebro.adddata(data)
         # Resample to have multiple data like Binance. Compression x30, x60, x240, min. 
-        second_time_frame = 300
-        cerebro.resampledata(data, timeframe=bt.TimeFrame.Seconds, 
+        second_time_frame = 30
+        cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, 
                              compression=second_time_frame)
         broker = cerebro.getbroker()
         broker.setcommission(commission=0.001, name=COIN_TARGET)  # Simulating exchange fee
-        broker.setcash(100000.0)
+        broker.setcash(1000.0)
         cerebro.addsizer(FullMoney)
 
     # Analyzers to evaluate trades and strategies
@@ -104,7 +104,7 @@ def main():
         if TESTING_PRODUCTION == False:
             cerebro.getHistoricalData(kline_production,3)
     else:
-        cerebro.addstrategy(SimpleHighToLowMean3V2)
+        cerebro.addstrategy(Basic)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()
@@ -112,7 +112,7 @@ def main():
     if ENV == PRODUCTION:
         message_init =  MESSAGE_TELEGRAM.get("init_session")
         send_telegram_message(message_init)
-    result = cerebro.run()
+    result = cerebro.run(stdstats=False)
 
     # if ENV == PRODUCTION:
     #     ws.run_forever()

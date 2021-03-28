@@ -7,12 +7,12 @@ DEVELOPMENT = "development"
 COIN_TARGET = "BTC"
 COIN_REFER = "USDT"
 
-ENV = os.getenv("ENVIRONMENT", PRODUCTION)
+ENV = os.getenv("ENVIRONMENT", DEVELOPMENT)
 DEBUG = True
 PERSISTENCE_CONNECTION = True
 TESTING_PRODUCTION = False
 UPDATE_PARAMS_FUERZA_BRUTA = False
-LIVE = True # doble certificacion para operar en Binance. Production y LIVE. Puede estar Production pero en modo testing. 
+LIVE = False # doble certificacion para operar en Binance. Production y LIVE. Puede estar Production pero en modo testing. 
 WINDOWS = False
 
 # TEST KEY

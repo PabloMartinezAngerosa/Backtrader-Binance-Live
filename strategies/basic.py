@@ -34,7 +34,9 @@ class Basic(StrategyBase):
             return
 
         close  = self.datas[0].close[0]
+        actual_price = close
         self.log('Close: %.3f %% '  % close)
+        self.jsonParser.addTick(self.datetime[0], actual_price)
         # self.log('Close: %.3f %% '  % float(self.data0.close[-1]))
         
         #  update stategy indicators 
@@ -65,7 +67,7 @@ class Basic(StrategyBase):
             if (self.lagsReady):
                 print("Ready para mandar datos!")
                 print(len(self.data1.low))
-                self.updateIndicatorsEnsambleLinearModels(self.data1)
+                self.updateIndicatorsEnsambleLinearModels()
                 self.indicators_ready = True
                 print("New Indicators Ready!")
 
