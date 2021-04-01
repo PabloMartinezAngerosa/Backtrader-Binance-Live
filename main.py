@@ -25,6 +25,7 @@ from strategies.simpleHighToLowMean3FuerzaBruta import SimpleHighToLowMean3Fuerz
 #from strategies.dynamicStopLossLong import DynamicStopLossLong
 # for test
 from strategies.basic import Basic
+from strategies.subidaEstrepitosaNeuralNetwork import SubidaEstrepitosaNeuralNetwork
 
 from utils import print_trade_analysis, print_sqn, send_telegram_message, copy_UI_template
 
@@ -62,8 +63,10 @@ def main():
             name = COIN_TARGET,
             dataname = "dataset/databases/BTCUSDT-1m.csv",
             timeframe = bt.TimeFrame.Minutes,
+            #fromdate = datetime.datetime(2020, 12, 28),
             fromdate = datetime.datetime(2020, 12, 28),
-            todate = datetime.datetime(2021, 3, 26),
+            todate = datetime.datetime(2021, 2, 28),
+            #todate = datetime.datetime(2021, 3, 26),
             nullvalue = 0.0
         )
         
@@ -104,7 +107,7 @@ def main():
         if TESTING_PRODUCTION == False:
             cerebro.getHistoricalData(kline_production,3)
     else:
-        cerebro.addstrategy(Basic)
+        cerebro.addstrategy(SubidaEstrepitosaNeuralNetwork)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()

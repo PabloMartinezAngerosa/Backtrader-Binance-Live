@@ -606,6 +606,9 @@ function updateCandleData(index){
 	
 	candle = data.candles[index];
 
+	// subida exacerbada para entrenar
+	setSubidaExacerbadaButton(candle);
+
 	console.log(candle.date)
 	document.getElementById("CandleDate").innerText = candle.date;
 
@@ -748,6 +751,180 @@ function logFirstLastTicksTime(dataset){
    console.log("-----------------------------")
 }
 
+/*
+  Esta funcion genera en consola la data de un csv para poder entrenar la red nueronal de clasificacion.
+  El clasificado se hace de forma manual, en este caso se buscan los patrones de 'subida exaservada'.
+*/
+function setSubidaExacerbadaButton(candle){
+	var element = document.getElementById("subidaExacerbadaButton");
+	if (candle["sbuidaExacerbada"] == 1){
+		element.style.backgroundColor = "green";
+
+	} else {
+		element.style.backgroundColor = "red";
+	}
+}
+function createCSVDataEtiquetadoManualSubidaExacerbada(){
+	var TICKS_TO_ADD = 30;
+	var CSV = "";
+	var CSV_LINE = "";
+	// para cada uno de los candles
+	var candles = data.candles;
+	var length = candles.length;
+	var totalSubidasExacerbadas = 0;
+	for(var i=0; i < length;i++){
+		CSV_LINE = "";
+		// toma los datos de los primeros X ticks
+		var candle = candles[i];
+		var ticks = candle.ticks;
+		if (ticks.length >= 30){		
+			for (var j=0; j < TICKS_TO_ADD; j++){
+				CSV_LINE = CSV_LINE + ticks[j].value + ",";
+			}
+			// toma los estimadores low
+			var estimators = candle.estimators;
+			CSV_LINE = CSV_LINE + estimators.low.media + "," + estimators.low.mediaIter2 + "," + estimators.low.mediaIter3 + "," + estimators.low.delta;
+			// toma los estimadores high
+			CSV_LINE = CSV_LINE + "," + estimators.high.media + "," + estimators.high.mediaIter2 + "," + estimators.high.mediaIter3 + "," + estimators.high.delta;
+			// si en el candle no existe subidaExacerbada pone False, si existe true pone True 
+			if (candle["sbuidaExacerbada"] == 1){
+				CSV_LINE = CSV_LINE + "," + "1\n";
+				totalSubidasExacerbadas = totalSubidasExacerbadas + 1;
+			} else {
+				CSV_LINE = CSV_LINE + "," + "0\n";
+			}
+			CSV = CSV + CSV_LINE;
+		} else {
+			console.log("Esta vela tiene " + ticks.length + " no se agrega");
+		} 
+	}
+	console.log(CSV);
+	alert("CSV ready in console!");
+	console.log("El total de subidas exacerbads es " + totalSubidasExacerbadas);
+	console.log("Se puede decir q en promedio hay una subida exacerbada cada " + (totalSubidasExacerbadas/length));
+	//format
+	// price1,... price30, low_media, low_media_iter2,low_media_iter3,low_delta,high_media, high_media_iter2, high_media_iter3,high_delta, subida_exa
+}
+
+function subidaExacerbada(element){
+	var candle = data.candles[ACTUALINDEX];
+	if (candle["sbuidaExacerbada"] == 1){
+		candle["sbuidaExacerbada"] = 0;
+		element.style.backgroundColor = "red";
+		alert("Se cambio propiedad subida exacerbada a 0!");
+
+	} else {
+		element.style.backgroundColor = "green";
+		candle["sbuidaExacerbada"] = 1;
+		alert("Se cambio propiedad subida exacerbada a 1!");
+	}
+}
+
+function checkTouchLowEstimators(value, candle_estimators){
+	if (value <= candle_estimators.low.media){
+		return true;
+	}
+ 	if (value <= candle_estimators.low.mediaIter2){
+		 return true;
+	 }
+	 if (value <= candle_estimators.low.mediaIter3){
+		return true;
+	}
+	if (value <= candle_estimators.low.delta){
+		return true;
+	}
+	return false;
+	
+}
+
+function checkTouchHighEstimators(value, candle_estimators){
+	if (value <= candle_estimators.high.media){
+		return true;
+	}
+ 	if (value <= candle_estimators.high.mediaIter2){
+		 return true;
+	 }
+	 if (value <= candle_estimators.high.mediaIter3){
+		return true;
+	}
+	if (value <= candle_estimators.high.delta){
+		return true;
+	}
+	return false;
+	
+}
+
+function checkPassHighEstimators(ticks, MAX_TICKS, candle_estimators){
+	var low_value = ticks[0].value;
+	for(var i=0;i<MAX_TICKS;i++){
+		if (ticks[i].value < low_value){
+			low_value = ticks[i].value;
+		}		
+	}
+	if (low_value >= candle_estimators.high.media){
+		return false;
+	}
+ 	if (low_value >= candle_estimators.high.mediaIter2){
+		 return false;
+	 }
+	 if ( low_value >= candle_estimators.high.mediaIter3){
+		return false;
+	}
+	/*if (low_value >= candle_estimators.high.delta){
+		return false;
+	}*/
+	return true;
+}
+// console.log(createCSVDataEtiquetadoManualSubidaExacerbada(data));
+function testStrategy() {
+	
+	var MAX_TICKS = 6;
+	var MINIMO_INDEX = 5;
+	var candles = data.candles;
+	var length = candles.length;
+	var totalSubidasExacerbadas = 0;
+	
+	for(var i=0; i < length;i++){
+		var candle = candles[i];
+		//var candle = data.candles[ACTUALINDEX];
+		var ticks = candle.ticks;
+		// toma los datos de los primeros X ticks
+		if (ticks.length > MAX_TICKS){
+			for (var j=0;j<MAX_TICKS;j++){
+				// si toco algun estimador low literal en los primeros 12, no se ejecuta
+				// si alguno de los estimadores low es mayor o igual q el valor, retorna false
+				if (checkTouchLowEstimators(ticks[j].value, candle.estimators)) {
+					candle["sbuidaExacerbada"] = 0;
+					break;
+				}
+
+				
+			}
+		}
+
+		// si no toco algun estimador high primeros MINIMO_INDEX, no se ejecuta.
+		// si alguno de los estimadores low es mayor o igual q el valor, retorna false
+		if (checkTouchHighEstimators(ticks[MINIMO_INDEX].value, candle.estimators)) {
+			candle["sbuidaExacerbada"] = 0;
+		}
+
+		// si alguno de los estimadores nunca fue alcanzado no se contabiliza
+		// puede ser que se permita el delta, pero las subidas exacervadas en su mayoria toman los cuatros
+		if (!checkPassHighEstimators(ticks, MAX_TICKS, candle.estimators)){
+			candle["sbuidaExacerbada"] = 0;
+		}
+	}
+
+	for(var i=0; i < length;i++){
+		var candle = candles[i];
+		if(candle["sbuidaExacerbada"] == 1){
+			totalSubidasExacerbadas = totalSubidasExacerbadas + 1;
+		}
+	}
+	console.log(" total " + totalSubidasExacerbadas);
+}
+
 checkCandleTicksLength(data);
 logFirstLastTicksTime(data);
 refreshDashBoard(data);
+// testStrategy(data);

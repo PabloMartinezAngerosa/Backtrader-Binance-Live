@@ -4,6 +4,7 @@ import backtrader as bt
 
 from config import ENV, PRODUCTION
 from strategies.base import StrategyBase
+from config import ENV, PRODUCTION, STRATEGY, TESTING_PRODUCTION, LIVE, UPDATE_PARAMS_FUERZA_BRUTA
 
 
 class Basic(StrategyBase):
@@ -17,6 +18,9 @@ class Basic(StrategyBase):
         self.log("Using RSI/EMA strategy")
         self.lendata1 = 0
         self.lagsReady = False
+        self.ensambleIndicatorsLags = STRATEGY.get("lags")
+        self.ensambleIndicatorsLengthFrames = STRATEGY.get("length_frames")
+        self.candle_min = STRATEGY.get("candle_min")
         #self.dataclose = self.datas[0].close
         self.order = None
         self.name = "BasicStrategy"

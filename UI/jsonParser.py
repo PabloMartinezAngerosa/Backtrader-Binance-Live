@@ -14,6 +14,14 @@ class JsonParser():
         self.activeCandle = None
         self.inflectionPoints = []
         self.ensambleIndicators = ensambleIndicators
+        self.subida_estrepitosa = 0
+        self.subida_estrepitosa_buffer = None
+
+    def set_subida_estrepitosa(self, value):
+        self.subida_estrepitosa = value
+
+    def set_subida_estrepitosa_buffer(self, scale_ticks, coef, intercept, r_squared, index, delta):
+        self.subida_estrepitosa_buffer = {"scale_ticks":scale_ticks, "coef":coef, "intercept":intercept, "r_squared":r_squared, "index":index, "delta":delta}
 
     def add_strategy_name(self, name):
           self.data["strategyName"] = name
@@ -82,6 +90,9 @@ class JsonParser():
         # agrega logs
         self.activeCandle["logs"] = self.logs
         self.activeCandle["inflectionPoints"] = self.inflectionPoints
+        self.activeCandle["sbuidaExacerbada"] = self.subida_estrepitosa
+        if self.subida_estrepitosa == 1:
+            self.activeCandle["sbuidaExacerbadaBuffer"] = self.subida_estrepitosa_buffer
         # agrega ordenes acumuladas
         # agrega invests results generados
         # guarda en candles
@@ -92,6 +103,8 @@ class JsonParser():
         self.ticks_average = []
         self.logs = []
         self.inflectionPoints = []
+        self.subida_estrepitosa_buffer = None
+        self.subida_estrepitosa = 0
 
     def parseData(self):
         # agrega trades acumulados
