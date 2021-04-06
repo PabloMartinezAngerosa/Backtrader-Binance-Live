@@ -243,13 +243,23 @@ class SubidaEstrepitosaNeuralNetwork(StrategyBase):
                     scaled_ticks = self.scale_ticks(self.ticks_aceleration_momentum_delta)
                     # generate linear regression coeficients
                     reg = linear_model.LinearRegression()
-                    X, Y = self.get_linear_regresion_data(self.ticks_aceleration_momentum_delta)
+                    X, Y = self.get_linear_regresion_data(scaled_ticks)
                     reg.fit(X, Y)
                     coef = reg.coef_[0]
                     intercept = reg.intercept_
                     r_squared = reg.score(X,Y)
                     self.log("El scope es " + str(coef) + " , el r cuadrado " + str(r_squared),  to_ui = True, date = self.datetime[0])
-                    self.jsonParser.set_subida_estrepitosa_buffer(scaled_ticks, coef, intercept, r_squared, self.index_buffer, self.delta_buffer)
+                    if coef < 0.1:
+                        self.log("El scope es menor q 1, no se ejecuta la compra! ",  to_ui = True, date = self.datetime[0])
+                    else:
+                        last_index = len(self.ticks_aceleration_momentum_delta) - 1
+                        if self.ticks_aceleration_momentum_delta[last_index] <= self.ensambleIndicators.mediaEstimadorHigh:
+                            self.log("El scope es positivo, pero el ultimo valor es menor que el estimador media high. No realiza compra! ",  to_ui = True, date = self.datetime[0])
+                        else:
+                            self.log("El scope es positivo, y el ultimo valor es mayor que el estimador media high. Realiza compra! " + str(self.ticks_aceleration_momentum_delta[last_index]) + " <" + str(self.ensambleIndicators.mediaEstimadorHigh),  to_ui = True, date = self.datetime[0])
+                            self.jsonParser.set_subida_estrepitosa_buffer(scaled_ticks, coef, intercept, r_squared, self.index_buffer, self.delta_buffer)
+
+
         
         if len(self.data1.low) > self.lendata1:
             self.lendata1 += 1

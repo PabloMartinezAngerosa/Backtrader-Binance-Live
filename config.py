@@ -48,7 +48,7 @@ STRATEGY = {
   "candle_min":30,
   "kline_interval": "KLINE_INTERVAL_30MINUTE",
   "mean_tick_prod":861,
-  "mean_tick_dev":861
+  "mean_tick_dev":30
 }
 
 # for standalone and test

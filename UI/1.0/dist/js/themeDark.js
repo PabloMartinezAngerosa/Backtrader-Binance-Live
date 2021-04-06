@@ -716,11 +716,35 @@ function updateActualNextPrevIndex(index){
 }
 
 function goNext(){
-	updateCandleData(NEXTINDEX);
+	var lengthData = data.candles.length;
+	var isNext = false;
+	for(var i=NEXTINDEX; i<lengthData;i++){
+		if (data.candles[i]["sbuidaExacerbada"] == 1){
+			NEXTINDEX = i;
+			isNext = true;
+			break;
+		}
+	}
+	if (isNext)
+		updateCandleData(NEXTINDEX);
 }
-
+/*
 function goPrev(){
 	updateCandleData(PREVINDEX);
+}
+*/
+function goPrev(){
+	var lengthData = data.candles.length;
+	var isNext = false;
+	for(var i=PREVINDEX; i>=0;i--){
+		if (data.candles[i]["sbuidaExacerbada"] == 1){
+			PREVINDEX = i;
+			isNext = true;
+			break;
+		}
+	}
+	if (isNext)
+		updateCandleData(PREVINDEX);
 }
 
 function checkCandleTicksLength(dataset){
