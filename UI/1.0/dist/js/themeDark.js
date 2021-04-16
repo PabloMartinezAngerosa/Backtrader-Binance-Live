@@ -608,6 +608,7 @@ function updateCandleData(index){
 
 	// subida exacerbada para entrenar
 	setSubidaExacerbadaButton(candle);
+	setToTrainButton(candle);
 
 	console.log(candle.date)
 	document.getElementById("CandleDate").innerText = candle.date;
@@ -715,24 +716,16 @@ function updateActualNextPrevIndex(index){
 	}
 }
 
-function goNext(){
-	var lengthData = data.candles.length;
-	var isNext = false;
-	for(var i=NEXTINDEX; i<lengthData;i++){
-		if (data.candles[i]["sbuidaExacerbada"] == 1){
-			NEXTINDEX = i;
-			isNext = true;
-			break;
-		}
-	}
-	if (isNext)
-		updateCandleData(NEXTINDEX);
-}
 /*
+function goNext(){
+	updateCandleData(NEXTINDEX);
+}
 function goPrev(){
 	updateCandleData(PREVINDEX);
 }
 */
+
+
 function goPrev(){
 	var lengthData = data.candles.length;
 	var isNext = false;
@@ -746,7 +739,19 @@ function goPrev(){
 	if (isNext)
 		updateCandleData(PREVINDEX);
 }
-
+function goNext(){
+	var lengthData = data.candles.length;
+	var isNext = false;
+	for(var i=NEXTINDEX; i<lengthData;i++){
+		if (data.candles[i]["sbuidaExacerbada"] == 1){
+			NEXTINDEX = i;
+			isNext = true;
+			break;
+		}
+	}
+	if (isNext)
+		updateCandleData(NEXTINDEX);
+}
 function checkCandleTicksLength(dataset){
 	var length = dataset.candles.length;
 	var totalLength = 0;
@@ -788,6 +793,32 @@ function setSubidaExacerbadaButton(candle){
 		element.style.backgroundColor = "red";
 	}
 }
+
+function setToTrainButton(candle){
+	var element = document.getElementById("forNeuralNetworkButton");
+	if (candle["forNeuralNetworkTrain"] == 1){
+		element.style.backgroundColor = "green";
+
+	} else {
+		element.style.backgroundColor = "red";
+	}
+}
+// todas las q este marcadas como subidas exacerbadas las marca para entrenamiento
+function checkAllSubidasExacerbadaTrain(){
+	var candles = data.candles;
+	var length = candles.length;
+	var totalSubidasExacerbadas = 0;
+	for(var i=0; i < length;i++){
+		// toma los datos de los primeros X ticks
+		var candle = candles[i];
+		if (candle["sbuidaExacerbada"] == 1){
+			totalSubidasExacerbadas++;
+			candle["forNeuralNetworkTrain"] = 1;
+		}
+	}
+	console.log("El total de velas subidas exacervadas es " + totalSubidasExacerbadas);
+}
+
 function createCSVDataEtiquetadoManualSubidaExacerbada(){
 	var TICKS_TO_ADD = 30;
 	var CSV = "";
@@ -800,27 +831,31 @@ function createCSVDataEtiquetadoManualSubidaExacerbada(){
 		CSV_LINE = "";
 		// toma los datos de los primeros X ticks
 		var candle = candles[i];
-		var ticks = candle.ticks;
-		if (ticks.length >= 30){		
-			for (var j=0; j < TICKS_TO_ADD; j++){
-				CSV_LINE = CSV_LINE + ticks[j].value + ",";
-			}
-			// toma los estimadores low
-			var estimators = candle.estimators;
-			CSV_LINE = CSV_LINE + estimators.low.media + "," + estimators.low.mediaIter2 + "," + estimators.low.mediaIter3 + "," + estimators.low.delta;
-			// toma los estimadores high
-			CSV_LINE = CSV_LINE + "," + estimators.high.media + "," + estimators.high.mediaIter2 + "," + estimators.high.mediaIter3 + "," + estimators.high.delta;
-			// si en el candle no existe subidaExacerbada pone False, si existe true pone True 
-			if (candle["sbuidaExacerbada"] == 1){
-				CSV_LINE = CSV_LINE + "," + "1\n";
-				totalSubidasExacerbadas = totalSubidasExacerbadas + 1;
+		if (candle["forNeuralNetworkTrain"] == 1){
+			var ticks = candle.ticks;
+			if (ticks.length >= 30){		
+				for (var j=0; j < TICKS_TO_ADD; j++){
+					CSV_LINE = CSV_LINE + ticks[j].value + ",";
+				}
+				// toma los estimadores low
+				var estimators = candle.estimators;
+				CSV_LINE = CSV_LINE + estimators.low.media + "," + estimators.low.mediaIter2 + "," + estimators.low.mediaIter3 + "," + estimators.low.delta;
+				// toma los estimadores high
+				CSV_LINE = CSV_LINE + "," + estimators.high.media + "," + estimators.high.mediaIter2 + "," + estimators.high.mediaIter3 + "," + estimators.high.delta;
+				// si en el candle no existe subidaExacerbada pone False, si existe true pone True 
+				if (candle["sbuidaExacerbada"] == 1){
+					CSV_LINE = CSV_LINE + "," + "1";
+					totalSubidasExacerbadas = totalSubidasExacerbadas + 1;
+				} else {
+					CSV_LINE = CSV_LINE + "," + "0";
+				}
+				// agrega el indice de la subida exacerbda
+				CSV_LINE = CSV_LINE + "," + candle["subidaExacerbadaIndex"] + "\n"
+				CSV = CSV + CSV_LINE;
 			} else {
-				CSV_LINE = CSV_LINE + "," + "0\n";
-			}
-			CSV = CSV + CSV_LINE;
-		} else {
-			console.log("Esta vela tiene " + ticks.length + " no se agrega");
-		} 
+				console.log("Esta vela tiene " + ticks.length + " no se agrega");
+			} 
+		}
 	}
 	console.log(CSV);
 	alert("CSV ready in console!");
@@ -830,17 +865,28 @@ function createCSVDataEtiquetadoManualSubidaExacerbada(){
 	// price1,... price30, low_media, low_media_iter2,low_media_iter3,low_delta,high_media, high_media_iter2, high_media_iter3,high_delta, subida_exa
 }
 
+function forNeuralNetworkTrain(element){
+	var candle = data.candles[ACTUALINDEX];
+	if (candle["forNeuralNetworkTrain"] == 1){
+		candle["forNeuralNetworkTrain"] = 0;
+		element.style.backgroundColor = "red";
+	} else {
+		element.style.backgroundColor = "green";
+		candle["forNeuralNetworkTrain"] = 1;
+	}
+}
+
 function subidaExacerbada(element){
 	var candle = data.candles[ACTUALINDEX];
 	if (candle["sbuidaExacerbada"] == 1){
 		candle["sbuidaExacerbada"] = 0;
 		element.style.backgroundColor = "red";
-		alert("Se cambio propiedad subida exacerbada a 0!");
+		//alert("Se cambio propiedad subida exacerbada a 0!");
 
 	} else {
 		element.style.backgroundColor = "green";
 		candle["sbuidaExacerbada"] = 1;
-		alert("Se cambio propiedad subida exacerbada a 1!");
+		//alert("Se cambio propiedad subida exacerbada a 1!");
 	}
 }
 

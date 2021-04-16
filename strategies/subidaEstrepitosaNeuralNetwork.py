@@ -74,10 +74,10 @@ class SubidaEstrepitosaNeuralNetwork(StrategyBase):
         #                 period=self.params.pslow)
         # self.fast_sma = bt.indicators.MovingAverageSimple(self.datas[0], 
         #                 period=self.params.pfast)
-        state_dict = torch.load('dataset/neuralnetwork/subida_estrepitosa.pth')
+        #state_dict = torch.load('dataset/neuralnetwork/subida_estrepitosa.pth')
         # funciona con los primeros 12 ticks despues de las estimaciones
-        self.model = Model(20, 2, [200,100,50], p=0.4)
-        self.model.load_state_dict(state_dict)
+        #self.model = Model(20, 2, [200,100,50], p=0.4)
+        #self.model.load_state_dict(state_dict)
         self.start_tick_aceleration_momentum = False
         self.ticks_buffer = 0
         self.ticks_aceleration_momentum_delta = []
@@ -229,7 +229,7 @@ class SubidaEstrepitosaNeuralNetwork(StrategyBase):
                             self.jsonParser.set_subida_estrepitosa(0)
                             #print("No es subida estrepitosa")
                     '''
-                    self.jsonParser.set_subida_estrepitosa(1)
+                    self.jsonParser.set_subida_estrepitosa(1, self.index_buffer)
                 else:
                     self.jsonParser.set_subida_estrepitosa(0)
                     #print("No existe aceleracion!")
@@ -254,7 +254,7 @@ class SubidaEstrepitosaNeuralNetwork(StrategyBase):
                     else:
                         last_index = len(self.ticks_aceleration_momentum_delta) - 1
                         if self.ticks_aceleration_momentum_delta[last_index] <= self.ensambleIndicators.mediaEstimadorHigh:
-                            self.log("El scope es positivo, pero el ultimo valor es menor que el estimador media high. No realiza compra! ",  to_ui = True, date = self.datetime[0])
+                            self.log("El scope es positivo, pero el ultimo valor es menor que el estimador media high. No realiza compra!",  to_ui = True, date = self.datetime[0])
                         else:
                             self.log("El scope es positivo, y el ultimo valor es mayor que el estimador media high. Realiza compra! " + str(self.ticks_aceleration_momentum_delta[last_index]) + " <" + str(self.ensambleIndicators.mediaEstimadorHigh),  to_ui = True, date = self.datetime[0])
                             self.jsonParser.set_subida_estrepitosa_buffer(scaled_ticks, coef, intercept, r_squared, self.index_buffer, self.delta_buffer)

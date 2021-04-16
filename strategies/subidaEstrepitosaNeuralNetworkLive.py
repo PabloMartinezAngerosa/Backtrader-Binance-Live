@@ -68,7 +68,7 @@ class SubidaEstrepitosaNeuralNetworkLive(StrategyBase):
         self.dynamic_stoploss_high = 120
         self.dynamic_stoploss = 150
         #self.ticks_to_neuralNetowkr = 12
-        self.total_ticks_buffer = 9 # representa cinco para adelante, el primero es el valor final en la aceleracion 
+        self.total_ticks_buffer = 2 # representa cinco para adelante, el primero es el valor final en la aceleracion 
         self.numerical_data = []
         self.total_ticks = 0
         self.total_subidas_estrpitosas = 0
@@ -76,6 +76,18 @@ class SubidaEstrepitosaNeuralNetworkLive(StrategyBase):
         self.made_trade = False
         self.price_buy = 0
         self.aceleration_made = False
+        ##################
+        # strategy price #
+        ##################
+        self.leverage = 100
+        self.capital = 150
+        self.capital_interes_base = 150
+        self.balas = 4
+        self.precio_bala = self.capital / self.balas 
+        self.interes_compuesto = 1.4
+        self.stop_loss = 0
+
+
         # load the previous trainned neural network
         
         # Instantiate moving averages
@@ -85,7 +97,7 @@ class SubidaEstrepitosaNeuralNetworkLive(StrategyBase):
         #                 period=self.params.pfast)
         state_dict = torch.load('dataset/neuralnetwork/subida_estrepitosa.pth')
         # funciona con los primeros 12 ticks despues de las estimaciones
-        self.model = Model(20, 2, [200,100,50], p=0.4)
+        self.model = Model(23, 2, [400,200,100,50], p=0.4)
         self.model.load_state_dict(state_dict)
         self.start_tick_aceleration_momentum = False
         self.ticks_buffer = 0
@@ -93,6 +105,32 @@ class SubidaEstrepitosaNeuralNetworkLive(StrategyBase):
         self.index_buffer = 0 
         self.delta_buffer = 0
         
+
+    # strategy price
+    def refresh_capital(self, buy_price, sell_price):
+        bala_profit = self.get_trade_leverage(self.leverage, buy_price, sell_price, self.precio_bala)
+        total_capital = ( self.capital -  self.precio_bala ) + bala_profit
+        balas_actuales = total_capital / self.precio_bala
+        return balas_actuales, total_capital
+
+    def get_trade_leverage(self, leverage, buy_price, sell_price, acum_capital):
+        interes_USDT = 0.001 # si es Bitcoin el interes es 0.0003
+        tiempo_interes = 1/24 # se mide en dias, minimo es 1 hora
+        if acum_capital <= 0:
+            return 0
+        buy_bitcoin = ((acum_capital * leverage) / buy_price) * (1 - 0.001)
+        sell_bitcoin = (buy_bitcoin * sell_price) * (1-0.001)
+        acum_capital = sell_bitcoin - ((acum_capital * leverage) - acum_capital) * (1+ interes_USDT)**(tiempo_interes)
+        return acum_capital
+
+    # retorna a que precio hay que vender dado un precio de compra, para que el capital resultante sea capital_to_get
+    def get_stop_loss_leverage( self, leverage, buy_price, capital, capital_to_get):
+        interes_USDT = 0.001 # si es Bitcoin el interes es 0.0003
+        tiempo_interes = 1/24 # se mide en dias, minimo es 1 hora
+        buy_bitcoin = ((capital * leverage) / buy_price) * (1 - 0.001)
+        sell_price = (capital_to_get  + ((capital * leverage) - capital) * (1+ interes_USDT)**(tiempo_interes)) / (buy_bitcoin  * (1-0.001)) 
+        return sell_price
+
     def add_estimators_total_data(self):
         '''
         -------------------------
@@ -220,14 +258,37 @@ class SubidaEstrepitosaNeuralNetworkLive(StrategyBase):
             self.total_ticks = self.total_ticks + 1 
             self.numerical_data.append(actual_price)
 
+            # utiliza ultima red neuronal entrenada
+            if self.total_ticks == 15:
+                with torch.no_grad():
+                    # if the actual output is 0, the value at the index 0 should be higher than the value at index 1, and vice versa.
+                    self.add_estimators_total_data()
+                    tensor_numerical_data = self.get_tensor_numerical_data()
+                    self.model.eval()
+                    y_val = self.model(tensor_numerical_data)
+                    y_val = np.argmax(y_val, axis=1)
+                    if y_val == 1:
+                        #self.total_subidas_estrpitosas = self.total_subidas_estrpitosas + 1
+                        #self.jsonParser.set_subida_estrepitosa(1)
+                        #print("Es subida estrepitosa")
+                        self.log("************************",  to_ui = True, date = self.datetime[0])
+                        self.log("SI es aprobada por la red Neuronal",  to_ui = True, date = self.datetime[0])
+                        self.log("************************",  to_ui = True, date = self.datetime[0])
+                    else:
+                        #self.jsonParser.set_subida_estrepitosa(0)
+                        #print("No es subida estrepitosa")
+                        self.log("************************",  to_ui = True, date = self.datetime[0])
+                        self.log("NO es aprobada por la red Neuronal",  to_ui = True, date = self.datetime[0])
+                        self.log("************************",  to_ui = True, date = self.datetime[0])
 
             # solo cuando pasaron los ticks suficientes para mandar a la red neuronal
             # if (self.total_ticks == self.ticks_to_neuralNetowkr):
-            if self.total_ticks < 15 and self.start_tick_aceleration_momentum == False and self.aceleration_made == False:
+            if self.total_ticks < 13 and self.start_tick_aceleration_momentum == False and self.aceleration_made == False:
                 aceleration_momentum, self.index_buffer, self.delta_buffer = self.aceleration_momentum_condition(self.numerical_data)
                  
                 if aceleration_momentum == True:
                     self.start_tick_aceleration_momentum = True
+                    self.jsonParser.set_subida_estrepitosa(1)
                     '''
                     with torch.no_grad():
                         # if the actual output is 0, the value at the index 0 should be higher than the value at index 1, and vice versa.
@@ -253,8 +314,24 @@ class SubidaEstrepitosaNeuralNetworkLive(StrategyBase):
                 self.ticks_buffer = self.ticks_buffer + 1
                 self.ticks_aceleration_momentum_delta.append(actual_price)
                 if self.ticks_buffer == self.total_ticks_buffer:
+                    last_index = len(self.ticks_aceleration_momentum_delta) - 1
+                    if self.ticks_aceleration_momentum_delta[last_index] <= self.ensambleIndicators.mediaEstimadorHigh:
+                        self.log("El siguiente es mas bajo que Estimador Media High. No realiza la compra.",  to_ui = True, date = self.datetime[0])
+                        #self.jsonParser.set_subida_estrepitosa(0)
+                        self.aceleration_made = True
+                    else:
+                        #if self.last_operation != "BUY":
+                        #    self.long()
+                        self.log("El siguiente es mayor que Estimador Media High. Realiza compra! ",  to_ui = True, date = self.datetime[0])
+                            #self.jsonParser.set_subida_estrepitosa(1)
+                        self.aceleration_made = True
+                        self.price_buy = actual_price
+                        self.stop_loss = self.get_stop_loss_leverage( self.leverage, actual_price, self.precio_bala, self.precio_bala/2)
+                        self.log("Se fija un Stop loss de " + str(self.stop_loss),  to_ui = True, date = self.datetime[0])
+                        self.orderActive = True
                     # generate normalized data
                     #print(self.ticks_aceleration_momentum_delta)
+                    '''
                     scaled_ticks = self.scale_ticks(self.ticks_aceleration_momentum_delta)
                     # generate linear regression coeficients
                     reg = linear_model.LinearRegression()
@@ -266,28 +343,57 @@ class SubidaEstrepitosaNeuralNetworkLive(StrategyBase):
                     self.log("El scope es " + str(coef) + " , el r cuadrado " + str(r_squared),  to_ui = True, date = self.datetime[0])
                     if coef < 0.1:
                         self.log("El scope es menor q 1, no se ejecuta la compra! ",  to_ui = True, date = self.datetime[0])
-                        self.jsonParser.set_subida_estrepitosa(0)
+                        #self.jsonParser.set_subida_estrepitosa(0)
                         self.aceleration_made = True
                     else:
                         last_index = len(self.ticks_aceleration_momentum_delta) - 1
                         if self.ticks_aceleration_momentum_delta[last_index] <= self.ensambleIndicators.mediaEstimadorHigh:
                             self.log("El scope es positivo, pero el ultimo valor es menor que el estimador media high. No realiza compra! ",  to_ui = True, date = self.datetime[0])
-                            self.jsonParser.set_subida_estrepitosa(0)
+                            #self.jsonParser.set_subida_estrepitosa(0)
                             self.aceleration_made = True
                         else:
                             self.log("El scope es positivo, y el ultimo valor es mayor que el estimador media high. Realiza compra! " + str(self.ticks_aceleration_momentum_delta[last_index]) + " <" + str(self.ensambleIndicators.mediaEstimadorHigh),  to_ui = True, date = self.datetime[0])
-                            self.jsonParser.set_subida_estrepitosa(1)
+                            #self.jsonParser.set_subida_estrepitosa(1)
                             self.aceleration_made = True
                             # hace buy
-                            if self.last_operation != "BUY":
-                                self.long()
-                                self.orderActive = True
-                                self.price_buy = actual_price
-                                self.jsonParser.set_subida_estrepitosa_buffer(scaled_ticks, coef, intercept, r_squared, self.index_buffer, self.delta_buffer)
-            
+                            
+                            #if self.last_operation != "BUY":
+                            #    self.long()
+                            #    self.orderActive = True
+                            #    self.price_buy = actual_price
+                            #    self.jsonParser.set_subida_estrepitosa_buffer(scaled_ticks, coef, intercept, r_squared, self.index_buffer, self.delta_buffer)
+                    '''       
             if self.orderActive == True and self.made_trade==False:
             # si hizo buy
-                # si hay stop loss 
+                if actual_price <= self.stop_loss:
+                    balas_actuales, capital_actual = self.refresh_capital(self.price_buy, actual_price)
+                    self.capital = capital_actual
+                    self.made_trade = True
+                    #if self.last_operation != "SELL":
+                    #    self.short()
+                    self.log("Stop Loss. Balas actuales: {} - capital total: {}".format(balas_actuales, capital_actual),  to_ui = True, date = self.datetime[0]) 
+                else:
+                    if self.total_ticks >=  22 :
+                        # si es igual a 22 el stop loss ahora es costo y un minimo ganancia
+                        if self.total_ticks ==  25:
+                            self.stop_loss = self.get_stop_loss_leverage( self.leverage, self.price_buy, self.precio_bala, self.precio_bala * 1.1)
+
+                        if self.total_ticks == 29 and self.made_trade == False :
+                            #if self.last_operation != "SELL":
+                            #    self.short()
+                            self.made_trade = True
+                            balas_actuales, capital_actual = self.refresh_capital(self.price_buy, actual_price)
+                            capital_interes = self.capital_interes_base * self.interes_compuesto
+                            self.capital = capital_actual
+                            if capital_actual >= capital_interes :
+                                self.capital_interes_base = capital_actual 
+                                self.precio_bala = capital_actual / self.balas
+                                self.log("Interes Compuesto! Capital actual: {} - precio de bala {}".format(capital_actual, self.precio_bala),  to_ui = True, date = self.datetime[0])  
+                            else:
+                                self.log("Venta! Capital actual: {} - balas actuales: {} ".format(capital_actual, balas_actuales),  to_ui = True, date = self.datetime[0])
+                            
+                # si hay stop loss
+                ''' 
                 if self.price_buy - actual_price >= self.dynamic_stoploss:
                     if self.last_operation != "SELL":
                         self.short()
@@ -306,6 +412,7 @@ class SubidaEstrepitosaNeuralNetworkLive(StrategyBase):
                                 self.short()
                                 self.made_trade = True
                                 self.log("llego al final vende con ganancia!",  to_ui = True, date = self.datetime[0])
+                '''
                         
                 # compra con perdida
                     # si paso el 75%
