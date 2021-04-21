@@ -1,25 +1,39 @@
 import numpy as np
 import gym
-from trading_env import TradingEnv
+from trading_env_v3 import TradingEnv
 import pandas as pd
 from numpy import save
 from numpy import load
 import time
 
+'''
+En esta version se refuerza por vela.
+Cada vela significa el final de un episido.
+Se necesitan aproximadamente 3000 interaciones 
+para lograr que una vela sea succes.
+Por lo tanto si se entrentan ejemplo 20 candles... se necesitarian 3000*20 episodios = 60.000
+Igualmente se esta logrando una convergencia a una buena politica con 30.000 episodios.
+El espaco de entorno, esta compueto solo por los 3 estimadores high.
+Se le da una emplitud de 100 incremiento y se cropea. 
+El problema con la proporcionalidad e versiones previas, es que
+no se establece una relacion de los estimadores y en el nivel del precio donde estan pegando.
+Por lo cual se pierde informacion imporetante. Ejemplo se puede mantener la misma proporcion de estimadores,
+pero en distintos niveles del precio.
+'''
 
 
 #10000
 MAX_NUM_EPISODES = 30000
 # MAX_STEPS_PER_EPISODES = len(df.loc[:, 'price1'].values) * 30 
-MAX_STEPS_PER_EPISODES = 4800
+MAX_STEPS_PER_EPISODES = 90
 
 EPSILON_MIN = 0.05
 max_num_steps = MAX_NUM_EPISODES * MAX_STEPS_PER_EPISODES
 EPSILON_DECAY = 1  / max_num_steps
 ALPHA = 0.05
 GAMMA = 0.98 # clase del fri 16 abril 1/(1-gamma) = cantidad_pasos_agente_pretende_vivir mientras mas mas cercano a 0.99 mas datos requiere.
-NUM_DISCRETE_BINS = 10
-NUM_DISCRETE_BINS_ACTUAL = 20 # van de 20 usd desde el frame point que se habilita
+NUM_DISCRETE_BINS = 100
+NUM_DISCRETE_BINS_ACTUAL = 100 # van de 20 usd desde el frame point que se habilita
 
 class Qlearner():
     def __init__(self, environment):
@@ -32,19 +46,19 @@ class Qlearner():
         self.obs_bins_actual_price = NUM_DISCRETE_BINS_ACTUAL
         self.obs_actual_high = environment.observation_space["Actual"].high
         self.obs_actual_low = environment.observation_space["Actual"].low
-        self.obs_balance_high = environment.observation_space["Balance"].high
-        self.obs_balance_low = environment.observation_space["Balance"].low
+        #self.obs_balance_high = environment.observation_space["Balance"].high
+        #self.obs_balance_low = environment.observation_space["Balance"].low
         self.obs_estimators_high = environment.observation_space["Estimators"].high
         self.obs_estimators_low = environment.observation_space["Estimators"].low
         self.obs_actual_width = (self.obs_actual_high - self.obs_actual_low ) / self.obs_bins_actual_price
-        self.obs_balance_width = (self.obs_balance_high - self.obs_balance_low ) / self.obs_bins_actual_price 
+        #self.obs_balance_width = (self.obs_balance_high - self.obs_balance_low ) / self.obs_bins_actual_price 
         self.obs_estimators_width = (self.obs_estimators_high - self.obs_estimators_low ) / self.obs_bins
 
         self.action_shape = environment.action_space.n
-        # Matriz con 2 estimadores, precio actual cropeado, , profit _cropeado , quarter y action shape, is_ready
-        # 15*15*15*15*30*30*4*3*2
-        self.Q = np.zeros(( self.obs_bins + 1, self.obs_bins + 1,
-                            self.obs_bins_actual_price + 1, self.obs_bins_actual_price + 1,
+        # Matriz con 3 estimadores high, precio actual cropeado, profit _cropeado , quarter y action shape, is_ready
+        # 100*100*100*100*100*4*3*2
+        self.Q = np.zeros(( self.obs_bins + 1, self.obs_bins + 1, self.obs_bins + 1,
+                            self.obs_bins_actual_price + 1,
                             environment.observation_space["Quarters"].n, environment.observation_space["IsReady"].n, self.action_shape))
         self.alpha = ALPHA
         self.gamma = GAMMA
@@ -54,7 +68,7 @@ class Qlearner():
         tuple_list = []
         tuple_list = list(((obs["Estimators"]- self.obs_estimators_low) / self.obs_estimators_width).astype(int))
         tuple_list.extend(list(((obs["Actual"]- self.obs_actual_low) / self.obs_actual_width).astype(int))) # cropeado
-        tuple_list.extend(list(((obs["Balance"]- self.obs_balance_low) / self.obs_balance_width).astype(int))) # cropeado
+        #tuple_list.extend(list(((obs["Balance"]- self.obs_balance_low) / self.obs_balance_width).astype(int))) # cropeado
         tuple_list.append(obs["Quarters"]),
         tuple_list.append(obs["IsReady"])
         return tuple(tuple_list)
@@ -79,8 +93,8 @@ class Qlearner():
 
 
 def train(agent, env):
-    best_reward = -float("inf")
     start = time.time()
+    best_reward = -float("inf")
     count = 0
     for episode in range(MAX_NUM_EPISODES):
         done = False
@@ -95,7 +109,7 @@ def train(agent, env):
         if total_reward > best_reward:
             best_reward = total_reward
         count +=1
-        if count%100 == 0: 
+        if count%1000 == 0: 
             print("Episodio: {}, con recompensa: {}, mejor recompensa: {}, epsilon: {}, balance {}".format(episode, total_reward, best_reward, agent.epsilon, env.balance )) 
     end = time.time()
     # total time taken
@@ -121,14 +135,14 @@ def test(agent, env, policy):
 if __name__ == "__main__":
     df = pd.read_csv('BTC.csv')
     #df = df.sample(n=60)
-    df = df.iloc[0:160,:]
+    df = df.iloc[20:40,:]
     df = df.reset_index()
     env = TradingEnv(df)
     agent = Qlearner(env)
     print("Go to train! time to wait...")
     learned_policy = train(agent, env)
-    #print("Save Policy...")
-    save('policy.npy', learned_policy)
+    print("Save Policy...")
+    #save('policy.npy', learned_policy)
     #print(learned_policy)
     print("*********************************************************")
     print("Ajuste con la misma muestra.")
@@ -140,9 +154,9 @@ if __name__ == "__main__":
     print("Muestra aleatorio de testeo en la que algunos nunca vio.")
     df = pd.read_csv('BTC.csv')
     #df_test = df.sample(n=60)
-    df_test = df.iloc[160:190,:]
+    df_test = df.iloc[40:50,:]
     df_test = df_test.reset_index()
-    env = TradingEnv(df_test,30)
+    env = TradingEnv(df_test,10)
     env.debug = True
     agent = Qlearner(env)
     test(agent, env, learned_policy)

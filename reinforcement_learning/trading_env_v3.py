@@ -21,7 +21,7 @@ BINANCE_FEE = 1 - 0.001
 # MAX_NUM_EPISODES = 1000
 # MAX_STEPS_PER_EPISODES = len(df.loc[:, 'price1'].values) * 30 
 # MAX_STEPS_PER_EPISODES = 61
-MAX_CANDLE_PER_EPISODES = 160
+MAX_CANDLE_PER_EPISODES = 20
 
 class TradingEnv(gym.Env):
     """A stock trading environment for OpenAI gym"""
@@ -33,8 +33,8 @@ class TradingEnv(gym.Env):
         self.df = df
         self.max_candle_per_episodes = max_candle
         self.debug = False
-        self.delta_space_actual = 0.0007 * 15
-        self.delta_space_balance = 0.001 * 15
+        self.delta_space_actual = 0.0007 * 50
+        self.delta_space_balance = 0.001 * 50
         self.max_operation = 17 # operacion desde la mitad para adelante no se aceptan. Se deja 2 mas.
 
         #self.reward_range = (0, MAX_ACCOUNT_BALANCE)
@@ -48,9 +48,9 @@ class TradingEnv(gym.Env):
         self.observation_space = spaces.Dict({
             "IsReady": spaces.Discrete(2),
             "Quarters": spaces.Discrete(4),
-            "Estimators": spaces.Box(low=0, high=1, shape=(2,), dtype=np.float16),
-            "Actual": spaces.Box(low=self.delta_space_actual * -1 , high=self.delta_space_actual, shape=(1,), dtype=np.float16), # crop
-            "Balance": spaces.Box(low=self.delta_space_balance * -1, high=self.delta_space_balance, shape=(1,), dtype=np.float16) # crop
+            "Estimators": spaces.Box(low=self.delta_space_actual * -1, high=self.delta_space_actual, shape=(3,), dtype=np.float16),
+            "Actual": spaces.Box(low=self.delta_space_actual * -1 , high=self.delta_space_actual, shape=(1,), dtype=np.float16) # crop
+            #"Balance": spaces.Box(low=self.delta_space_balance * -1, high=self.delta_space_balance, shape=(1,), dtype=np.float16) # crop
         })
     
 
@@ -71,7 +71,7 @@ class TradingEnv(gym.Env):
         self.operation_candle_made = False
         self.is_buy = False
 
-        self.inicial_price = self._get_current_price(False)
+        self.inicial_price = self._get_initial_price()
 
         return self._next_observation()
     
@@ -109,33 +109,52 @@ class TradingEnv(gym.Env):
         #low_media = self.df.loc[self.current_candle,"low_media"]
         #low_media_iter2 = self.df.loc[self.current_candle,"low_media_iter2"]
         #low_media_iter3 = self.df.loc[self.current_candle,"low_media_iter3"]
-        #high_media = self.df.loc[self.current_candle,"high_media"]
+
+        high_media = self.df.loc[self.current_candle,"high_media"]
         high_media_iter2 = self.df.loc[self.current_candle,"high_media_iter2"]
         high_media_iter3 = self.df.loc[self.current_candle,"high_media_iter3"]
+
+
         estimators =  np.array([
             #self._normalize_delta_estimators(low_media),
             #self._normalize_delta_estimators(low_media_iter2),
             #self._normalize_delta_estimators(low_media_iter3),
-            #self._normalize_delta_estimators(high_media),
+            self._normalize_delta_estimators(high_media),
             self._normalize_delta_estimators(high_media_iter2),
             self._normalize_delta_estimators(high_media_iter3)
         ])
         return estimators
 
     def _normalize_delta_estimators(self, value):
-        min_estimator, delta_estimators = self._get_delta_estimators()
+        #min_estimator, delta_estimators = self._get_delta_estimators()
         # toma el minimo y el maximo de los estimadores
         # crea el delta del estimador
         # normaliza con el delta mediante regla d 3 proporcional 
         # ejemplo delta entre 15k y 12k y precio actuala norm 18k 
         # (18000 - 12000) / (15000-12000) = 2.0
-        return (value - min_estimator) / delta_estimators
+        # get actual data point
+        actual_price = value
+        # Actual price
+        delta_price = (actual_price / self._get_initial_price()) - 1
+        # CROP DELTA PRICE MAS 300 MIN -300
+        if delta_price > self.delta_space_actual:
+            delta_price = self.delta_space_actual
+        if delta_price < (self.delta_space_actual * -1):
+            delta_price = self.delta_space_actual * -1
+
+        return delta_price
     
     def _get_current_price(self, normalize = True):
         actual = self.df.loc[self.current_candle,self._get_row_candle_step()]
         if normalize == True:
             actual = self._normalize_delta_estimators(actual)
         return actual
+    
+    def _get_initial_price(self):
+        index_subida = self.df.loc[self.current_candle,"subida_exa_index"]
+        etiqueta = "price" + str(index_subida)
+        initial = self.df.loc[self.current_candle,etiqueta]
+        return initial
     
     def _make_buy_operation(self):
         # compra toda lo que tiene la cuenta en bitcoin al precio actual
@@ -168,7 +187,7 @@ class TradingEnv(gym.Env):
         # get actual data point
         actual_price = self._get_current_price(False)
         # Actual price
-        delta_price = (actual_price / self.inicial_price) - 1
+        delta_price = (actual_price / self._get_initial_price()) - 1
         # CROP DELTA PRICE MAS 300 MIN -300
         if delta_price > self.delta_space_actual:
             delta_price = self.delta_space_actual
@@ -192,8 +211,8 @@ class TradingEnv(gym.Env):
             "IsReady": self._get_is_ready(),
             "Quarters": self._get_cuarter(),
             "Estimators": self._get_estimators(),
-            "Actual": actual_price,
-            "Balance": balance
+            "Actual": actual_price
+            #"Balance": balance
         }
         return obs
 

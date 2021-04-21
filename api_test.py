@@ -3,7 +3,7 @@ from config import BINANCE
 from binance.enums import *
 
 TRADE_SYMBOL = 'BTCUSDT'
-TRADE_QUANTITY = 0.001689
+TRADE_QUANTITY = 0.004536
 
 client = Client(BINANCE.get("key"), BINANCE.get("secret"))
 
@@ -35,6 +35,6 @@ def order(side, quantity, symbol,  order_type = ORDER_TYPE_MARKET):
         return False
     return True
 
-order_status = order(SIDE_SELL, TRADE_QUANTITY, TRADE_SYMBOL)
+order_status = order(SIDE_BUY, TRADE_QUANTITY, TRADE_SYMBOL)
 
 print("Se realizo la compra  con estatus" + str(order_status))
