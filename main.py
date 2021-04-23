@@ -19,6 +19,7 @@ from sizer.percent import FullMoney
 from strategies.simpleHighToLowMean3V2 import SimpleHighToLowMean3V2
 ##from strategies.elasticLowBandOverlapHighFuerzaBruta import ElasticLowBandOverlapHighFuerzaBruta
 from strategies.simpleHighToLowMean3FuerzaBruta import SimpleHighToLowMean3FuerzaBruta
+from strategies.touchLowBeforeHighRL import TouchLowBeforeHighRL
 
 #from strategies.overlapHighEstimators import OverlapHighEstimators
 #from strategies.dynamicHighStopLossLong import DynamicHighStopLossLong
@@ -67,7 +68,7 @@ def main():
             #fromdate = datetime.datetime(2021, 2, 26),
             todate = datetime.datetime(2021, 2, 26),
             #todate = datetime.datetime(2021, 3, 26),
-            #todate = datetime.datetime(2021, 2, 26),
+            #todate = datetime.datetime(2021, 1, 2),
             nullvalue = 0.0
         )
         
@@ -108,7 +109,7 @@ def main():
         if TESTING_PRODUCTION == False:
             cerebro.getHistoricalData(kline_production,3)
     else:
-        cerebro.addstrategy(SubidaEstrepitosaNeuralNetwork)
+        cerebro.addstrategy(TouchLowBeforeHighRL)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()
