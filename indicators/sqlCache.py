@@ -52,6 +52,20 @@ class SqlCache:
             is_close = is_candle_closed
         )
         result_proxy = self.connection.execute(query)
+    
+    def insert_realtime_price_with_phemex(self, date, open, low, high, close, volume, datetime_closed, is_candle_closed, phemex_price):
+        query = sql.insert(self.table_realtime_price_miliseconds).values(
+            open = open,
+            low = low,
+            close = close,
+            high = high,
+            volume = volume,
+            timestamp = date,
+            timestamp_close = datetime_closed,
+            is_close = is_candle_closed,
+            phemex_close = phemex_price
+        )
+        result_proxy = self.connection.execute(query)
 
     def insert_estimators(self, date, candle_min, lags, length_frames, estimations):
 

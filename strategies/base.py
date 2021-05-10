@@ -67,15 +67,20 @@ class StrategyBase(bt.Strategy):
 
         if ENV == PRODUCTION or self.STANDALONE == True:
             self.datas = []
+            #TODO dinamico?
             self.data0 = None
             self.data1 = None
+            self.data2 = None
             self.datetime = []
 
             data1 = DataLive()
             data2 = DataLive()
+            data3 = DataLive()
+
             
             self.datas.append(data1)
             self.datas.append(data2)
+            self.datas.append(data3)
 
             self.update_data_internal()
     
@@ -132,6 +137,7 @@ class StrategyBase(bt.Strategy):
     def update_data_internal(self):
         self.data0 = self.datas[0]
         self.data1 = self.datas[1]
+        self.data2 = self.datas[2]
     
     def reset_sell_indicators(self):
         self.soft_sell = False

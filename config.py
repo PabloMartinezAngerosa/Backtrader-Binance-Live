@@ -7,14 +7,14 @@ DEVELOPMENT = "development"
 COIN_TARGET = "BTC"
 COIN_REFER = "USDT"
 
-ENV = os.getenv("ENVIRONMENT", DEVELOPMENT)
+ENV = os.getenv("ENVIRONMENT", PRODUCTION)
 DEBUG = True
 PERSISTENCE_CONNECTION = True
-TESTING_PRODUCTION = False
+TESTING_PRODUCTION = True
 UPDATE_PARAMS_FUERZA_BRUTA = False
 LIVE = False # doble certificacion para operar en Binance. Production y LIVE. Puede estar Production pero en modo testing. 
 WINDOWS = False
-
+PHEMEX_PRICE = True # si va a buscar precio en phemex desde automatizacion
 # TEST KEY
 # API Key: rrkkiKYpKfkk6iM88GEG7k6LlK0VX5a4JjfSKaQQQjCVTtRiB9GNUwWVbHiv0MBf
 # Secret Key: YvKlog7B5wlbUIPKLpPT9Aos12S92X0OJfsyCDGythVuN1fbmmNxiQmSNYH3nlgi
@@ -25,8 +25,8 @@ WINDOWS = False
  # gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5
 
 TESTING_PRODUCTION_DATE = {
-  "from":1616723999999,
-  "to":1616725800026
+  "from":1620538919999,
+  "to":1620568560034
 }
 
 BINANCE = BINANCE_CREDENTIALS
@@ -45,13 +45,20 @@ SQL = {
 STRATEGY = {
   "length_frames": 20,
   "lags": 5,
-  "candle_min":30,
-  "kline_interval": "KLINE_INTERVAL_30MINUTE",
-  "mean_tick_prod":861,
-  "mean_tick_dev":30
+  "candle_min":1,
+  "kline_interval": "KLINE_INTERVAL_1MINUTE",
+  "mean_tick_prod":29,
+  "mean_tick_dev":29
 }
 
+PHEMEX = {
+  "testnet_url" : "https://testnet.phemex.com/spot/trade/BTCUSDT",
+  "production_url" : "https://phemex.com/spot/trade/BTCUSDT"
+}
+
+PHEMEX_URL = PHEMEX.get("production_url")
+
 # for standalone and test
-SANDBOX_INITAL_CAPITAL = 1000
+SANDBOX_INITAL_CAPITAL = 100
 
 print("ENV = ", ENV)

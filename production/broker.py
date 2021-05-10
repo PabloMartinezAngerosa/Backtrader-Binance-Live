@@ -1,14 +1,15 @@
 from binance.client import Client
 from binance.enums import *
 import websocket, json, pprint, numpy
-from config import BINANCE, COIN_REFER, COIN_TARGET, PERSISTENCE_CONNECTION, TESTING_PRODUCTION, TESTING_PRODUCTION_DATE
+from config import BINANCE, COIN_REFER, COIN_TARGET, PERSISTENCE_CONNECTION, TESTING_PRODUCTION, TESTING_PRODUCTION_DATE, PHEMEX_PRICE
 from datetime import timedelta, datetime
 import pandas as pd
 import math
 from indicators.sqlCache import  SqlCache
+from production.automation_phemex import Automation
 
 class BrokerProduction:
-    def __init__(self, info, interval, stand_alone = False):
+    def __init__(self, info, interval, phemex_automation, stand_alone = False):
         self.comminfo = info
         self.interval = {
             'KLINE_INTERVAL_1MINUTE': '1m',
@@ -38,6 +39,8 @@ class BrokerProduction:
         if self.STANDALONE == False: 
             self.client = Client(BINANCE.get("key"), BINANCE.get("secret"))
         self.sql_cache = SqlCache()
+        # automation phemex
+        self.phemex_automation = phemex_automation
 
     def run(self):
         if TESTING_PRODUCTION == False:
@@ -66,6 +69,7 @@ class BrokerProduction:
             candle["v"] = tick["volume"]
             candle["T"] = tick["timestamp_close"]
             message["k"] = candle
+            message["phemex"] = tick["phemex_close"]
             self.on_message(None, json.dumps(message))
         
         print("Finaliza con los siguientes resultados:")
@@ -106,6 +110,15 @@ class BrokerProduction:
             datetime_closed = candle["T"]
             # no ejecuta next frame
             self.cerebro.addNextFrame(1, datetime, open,  low, high, close, volume, False)
+        
+        # si esta en config PHEMEX_PRICE
+        if PHEMEX_PRICE == True:
+            if TESTING_PRODUCTION == True:
+                phemex_price = json_message['phemex']
+            else:
+                phemex_price = self.phemex_automation.get_current_price()
+            # addNextFrame con indice 2  en close los demas 0, False
+            self.cerebro.addNextFrame(2,datetime, 0, 0, 0, phemex_price, 0, False)    
 
         self.cerebro.addNextFrame(0,datetime, open, low, high, close, volume, True)
         # agrega el precio realtime a la BD
@@ -113,7 +126,11 @@ class BrokerProduction:
         # si hay problema en la BD evita que se corte el flujo del bot.
         #try:
         if TESTING_PRODUCTION == False and self.STANDALONE == False:
-            self.sql_cache.insert_realtime_price(datetime, open, low, high, close, volume, datetime_closed,  is_closed)
+            if PHEMEX_PRICE == True:
+                # agrega el price pero con el precio phemex
+                self.sql_cache.insert_realtime_price_with_phemex(datetime, open, low, high, close, volume, datetime_closed,  is_closed, phemex_price)
+            else:
+                self.sql_cache.insert_realtime_price(datetime, open, low, high, close, volume, datetime_closed,  is_closed)
         #except:
         #    print("Problema en guardar en la BD el tick en realtime.")
 

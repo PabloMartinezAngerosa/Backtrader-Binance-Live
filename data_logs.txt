@@ -278,5 +278,84 @@ from: 1616688000039 - to: 1616720400115
 # From - to (con tick previo)
 from: 1616822999999 - to: 1616866200047 
 # esta calculada en intervalos de 30 minutos! media ticks 861.5365853658536
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM April 30, 2021, 05:20:00 AM
+# TO April 30, 2021, 05:40:00 AM
+# First tick: 1619760002037 
+# From - to (con tick previo)
+from: 1619759999999 - to: 1619761500001 
+# esta calculada en intervalos de 5 minutos! media ticks 143.8
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM April 30, 2021, 06:05:00 AM
+# TO April 30, 2021, 03:10:00 PM
+# First tick: 1619762702678 
+# From - to (con tick previo)
+from: 1619762699999 - to: 1619795700019 
+# esta calculada en intervalos de 5 minutos! media ticks 143.8
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM May 01, 2021, 03:30:00 AM
+# TO AMay 01, 2021, 03:50:00 PM
+# First tick: 1619839802122 
+# From - to (con tick previo)
+from: 1619839799999 - to: 1619884500087 
+# esta calculada en intervalos de 5 minutos! media ticks 143.8
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM May 05, 2021, 05:44:00 AM
+# TO May 05, 2021, 02:37:00 PM
+# First tick: 1620193442046 
+# From - to (con tick previo)
+from: 1620193439999 - to: 1620225480018 
+# esta calculada en intervalos de 1 minutos! media ticks 29.39 
+# PHEMEX_PRICE = True
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM May 06, 2021, 05:21:00 AM
+# TO May 06, 2021, 10:34:00 AM
+# First tick: 1620278462037 
+# From - to (con tick previo)
+from: 1620278459999 - to: 1620297300028 
+# esta calculada en intervalos de 1 minutos! media ticks 29.15 
+# PHEMEX_PRICE = True
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM May 07, 2021, 05:59:00 AM
+# TO May 07, 2021, 04:19:00 PM
+# First tick: 1620367142074 
+# From - to (con tick previo)
+from: 1620367139999 - to: 1620404400054 
+# esta calculada en intervalos de 1 minutos! media ticks 29.15 
+# PHEMEX_PRICE = True
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM May 08, 2021, 06:25:00 AM
+# TO May 08, 2021, 03:20:00 PM
+# First tick: 1620455102065 
+# From - to (con tick previo)
+from: 1620455099999 - to: 1620487260064 
+# esta calculada en intervalos de 1 minutos! media ticks 29.15 
+# PHEMEX_PRICE = True
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM May May 09, 2021, 05:42:00 AM
+# TO May 09, 2021, 01:55:00 PM
+# First tick: 1620538922110 
+# From - to (con tick previo)
+from: 1620538919999 - to: 1620568560034 
+# esta calculada en intervalos de 1 minutos! media ticks 29.15 
+# PHEMEX_PRICE = True
 
- 
+
+Fecha primer candle es:
+themeDark.js:783 
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1620538922110
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1620568560034
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 May 09, 2021, 01:55:00 PM
+
+

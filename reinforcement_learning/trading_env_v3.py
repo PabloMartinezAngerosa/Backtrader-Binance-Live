@@ -33,9 +33,9 @@ class TradingEnv(gym.Env):
         self.df = df
         self.max_candle_per_episodes = max_candle
         self.debug = False
-        self.delta_space_actual = 0.0007 * 50
-        self.delta_space_balance = 0.001 * 50
-        self.max_operation = 17 # operacion desde la mitad para adelante no se aceptan. Se deja 2 mas.
+        self.delta_space_actual = 0.0007 * 30
+        self.delta_space_balance = 0.001 * 30
+        self.max_operation = 29 # operacion desde la mitad para adelante no se aceptan. Se deja 2 mas.
 
         #self.reward_range = (0, MAX_ACCOUNT_BALANCE)
 

@@ -6,6 +6,7 @@ class JsonParser():
         self.firstEstimation = False
         self.ticks = []
         self.ticks_average = []
+        self.ticks_phemex = []
         self.logs = []
         self.trades = []
         self.sell = None
@@ -43,6 +44,10 @@ class JsonParser():
     def addTick(self, date_time, value):
         if self.firstEstimation == True:
             self.ticks.append({"time":date_time, "value":value})
+    
+    def addTickPhemex(self, date_time, value):
+        if self.firstEstimation == True:
+            self.ticks_phemex.append({"time":date_time, "value":value})
     
     def add_average_tick(self, date_time, value):
         if self.firstEstimation == True:
@@ -89,6 +94,7 @@ class JsonParser():
         # agrega ticks acumulados
         self.activeCandle["ticks"] = self.ticks
         self.activeCandle["averageTicks"] = self.ticks_average
+        self.activeCandle["ticksPhemex"] = self.ticks_phemex
         # agrega logs
         self.activeCandle["logs"] = self.logs
         self.activeCandle["inflectionPoints"] = self.inflectionPoints
@@ -104,6 +110,7 @@ class JsonParser():
         self.activeCandle = None
         self.ticks = []
         self.ticks_average = []
+        self.ticks_phemex = []
         self.logs = []
         self.inflectionPoints = []
         self.subida_estrepitosa_buffer = None

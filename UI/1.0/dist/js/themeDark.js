@@ -48,6 +48,7 @@ areaSeries.applyOptions({
 });
 
 var lineSeries = chart.addLineSeries();
+var lineSeriesPhemex = chart.addLineSeries();
 
  // const priceLine = areaSeries.createPriceLine({
     // price: 26.5,
@@ -233,13 +234,17 @@ chart.subscribeCrosshairMove((param) => {
 		const price = param.seriesPrices.get(areaSeries);
 		const estimatorDelta = showEstimatorDetailNear(areaSeries.coordinateToPrice(param.point.y), price);
 		firstRow.innerText = 'Price $' + '  ' + price.toFixed(2) + " , delta $" + (areaSeries.coordinateToPrice(param.point.y) - price ).toFixed(2) + estimatorDelta;
-		firstRow.innerText = firstRow.innerText + " . En Leverage x100 la ganancia venta compra es " + doubleTradingSellBuy(price, areaSeries.coordinateToPrice(param.point.y));
+		firstRow.innerText = firstRow.innerText + " El porcentaje de ganancia without fee es " + createProfitWithoutFee(price,areaSeries.coordinateToPrice(param.point.y) );
+		//firstRow.innerText = firstRow.innerText + " . En Leverage x100 la ganancia venta compra es " + doubleTradingSellBuy(price, areaSeries.coordinateToPrice(param.point.y));
 	}
   else {
   	firstRow.innerText = '';
   }
 });
 
+function createProfitWithoutFee(buyPrice, actualPrice){
+	return actualPrice/buyPrice;
+}
 function doubleTradingSellBuy(sellPrice, actualPrice){
 	//var interes_USDT = 0.001 // si es Bitcoin el interes es 0.0003
     var interes_BTC = 0.0003;
@@ -649,6 +654,7 @@ function updateCandleData(index){
 
 	// agrega line serie con los precios en promedio hechos en python
 	createAverageLineSerie(candle.averageTicks);
+	createPhemexLineSerie(candle.ticksPhemex);
 	// var averageTicks = createAverageLineSerie(index, 15);
 	createPendienteZeroAverageTicks(candle.inflectionPoints);
 	
@@ -688,6 +694,10 @@ function createAverageLineSerie(bufferTicks) {
 	lineSeries.setData(bufferTicks);
 }
 
+function createPhemexLineSerie(bufferTicks){
+	lineSeriesPhemex.setData(bufferTicks);
+}
+
 function createPendienteZeroAverageTicks(ticks){
 
 	for (var i =0; i < ticks.length;i++){
@@ -716,15 +726,16 @@ function updateActualNextPrevIndex(index){
 	}
 }
 
-/*
+
+
 function goNext(){
 	updateCandleData(NEXTINDEX);
 }
 function goPrev(){
 	updateCandleData(PREVINDEX);
 }
-*/
 
+/*
 
 function goPrev(){
 	var lengthData = data.candles.length;
@@ -752,6 +763,7 @@ function goNext(){
 	if (isNext)
 		updateCandleData(NEXTINDEX);
 }
+*/
 function checkCandleTicksLength(dataset){
 	var length = dataset.candles.length;
 	var totalLength = 0;

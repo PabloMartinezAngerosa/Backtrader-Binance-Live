@@ -23,9 +23,9 @@ pero en distintos niveles del precio.
 
 
 #10000
-MAX_NUM_EPISODES = 30000
+MAX_NUM_EPISODES = 10000
 # MAX_STEPS_PER_EPISODES = len(df.loc[:, 'price1'].values) * 30 
-MAX_STEPS_PER_EPISODES = 90
+MAX_STEPS_PER_EPISODES = 20*30
 
 EPSILON_MIN = 0.05
 max_num_steps = MAX_NUM_EPISODES * MAX_STEPS_PER_EPISODES
@@ -109,7 +109,7 @@ def train(agent, env):
         if total_reward > best_reward:
             best_reward = total_reward
         count +=1
-        if count%1000 == 0: 
+        if count%5000 == 0: 
             print("Episodio: {}, con recompensa: {}, mejor recompensa: {}, epsilon: {}, balance {}".format(episode, total_reward, best_reward, agent.epsilon, env.balance )) 
     end = time.time()
     # total time taken
@@ -123,9 +123,9 @@ def test(agent, env, policy):
     while not done:
         # action = policy[agent.discretize(obs)]
         action = np.argmax(policy[agent.discretize(obs)])
-        print(agent.discretize(obs))
+        #print(agent.discretize(obs))
         #print(policy[agent.discretize(obs)])
-        print(action)
+        #print(action)
         next_obs, reward, done, info = env.step(action)
         obs = next_obs
         total_reward += reward
@@ -133,33 +133,42 @@ def test(agent, env, policy):
     return env.balance, total_reward
 
 if __name__ == "__main__":
-    df = pd.read_csv('BTC.csv')
-    #df = df.sample(n=60)
-    df = df.iloc[20:40,:]
-    df = df.reset_index()
-    env = TradingEnv(df)
-    agent = Qlearner(env)
-    print("Go to train! time to wait...")
-    learned_policy = train(agent, env)
-    print("Save Policy...")
-    #save('policy.npy', learned_policy)
-    #print(learned_policy)
-    print("*********************************************************")
-    print("Ajuste con la misma muestra.")
-    env = TradingEnv(df)
-    env.debug = True
-    agent = Qlearner(env)
-    test(agent, env, learned_policy)
-    print("*********************************************************")
-    print("Muestra aleatorio de testeo en la que algunos nunca vio.")
-    df = pd.read_csv('BTC.csv')
-    #df_test = df.sample(n=60)
-    df_test = df.iloc[40:50,:]
-    df_test = df_test.reset_index()
-    env = TradingEnv(df_test,10)
-    env.debug = True
-    agent = Qlearner(env)
-    test(agent, env, learned_policy)
+    total_frames = 16
+    for i in range(total_frames):
+        cota_inf_train = i * 10
+        cota_sup_train = (i + 2) * 10
+        cota_inf_test = cota_sup_train
+        cota_sup_test = cota_inf_test + 10
+        print("Entrena con indices {}:{}".format(cota_inf_train, cota_sup_train))
+        df = pd.read_csv('BTC.csv')
+        #df = df.sample(n=60)
+        df = df.iloc[cota_inf_train:cota_sup_train,:]
+        df = df.reset_index()
+        env = TradingEnv(df)
+        agent = Qlearner(env)
+        print("Go to train! time to wait...")
+        learned_policy = train(agent, env)
+        print("Save Policy...")
+        #save('policy.npy', learned_policy)
+        #print(learned_policy)
+        print("*********************************************************")
+        print("Ajuste con la misma muestra.")
+        env = TradingEnv(df)
+        env.debug = True
+        agent = Qlearner(env)
+        balance, reward = test(agent, env, learned_policy)
+        print("*********************************************************")
+        print("Prueba con indices {}:{}".format(cota_inf_test, cota_sup_test))
+        df = pd.read_csv('BTC.csv')
+        #df_test = df.sample(n=60)
+        df_test = df.iloc[cota_inf_test:cota_sup_test,:]
+        df_test = df_test.reset_index()
+        env = TradingEnv(df_test,10)
+        env.debug = True
+        agent = Qlearner(env)
+        test(agent, env, learned_policy)
+        
+
 
 '''
 env = TradingEnv(df)

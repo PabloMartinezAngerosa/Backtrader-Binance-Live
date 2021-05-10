@@ -6,7 +6,7 @@ import backtrader as bt
 import datetime as dt
 
 from ccxtbt.ccxtstore import CCXTStore
-from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG, STRATEGY, TESTING_PRODUCTION, LIVE
+from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG, STRATEGY, TESTING_PRODUCTION, LIVE, PHEMEX_PRICE
 from messages import MESSAGE_TELEGRAM
 
 from dataset.dataset import CustomDataset
@@ -20,6 +20,7 @@ from strategies.simpleHighToLowMean3V2 import SimpleHighToLowMean3V2
 ##from strategies.elasticLowBandOverlapHighFuerzaBruta import ElasticLowBandOverlapHighFuerzaBruta
 from strategies.simpleHighToLowMean3FuerzaBruta import SimpleHighToLowMean3FuerzaBruta
 from strategies.touchLowBeforeHighRL import TouchLowBeforeHighRL
+from strategies.fastTradingNoFeeLowHigh import FastTradingNoFeeLowHigh
 
 #from strategies.overlapHighEstimators import OverlapHighEstimators
 #from strategies.dynamicHighStopLossLong import DynamicHighStopLossLong
@@ -33,6 +34,8 @@ from utils import print_trade_analysis, print_sqn, send_telegram_message, copy_U
 from production.cerebro import CerebroProduction
 from production.broker import BrokerProduction
 import websocket, json, pprint, numpy
+
+from production.automation_phemex import Automation
 
 
 def main():
@@ -50,7 +53,11 @@ def main():
             'apiKey': BINANCE.get("key"),
             'secret': BINANCE.get("secret")
         }
-        broker = BrokerProduction(broker_config,kline_production)
+        if PHEMEX_PRICE == True and TESTING_PRODUCTION == False:
+            phemex_automation = Automation()
+        else:
+            phemex_automation = None
+        broker = BrokerProduction(broker_config,kline_production, phemex_automation)
         cerebro.setbroker(broker)
 
         # hist_start_date = dt.datetime.utcnow() - dt.timedelta(minutes=30000)
@@ -64,10 +71,10 @@ def main():
             name = COIN_TARGET,
             dataname = "dataset/databases/BTCUSDT-1m.csv",
             timeframe = bt.TimeFrame.Minutes,
-            fromdate = datetime.datetime(2020, 12, 28),
-            #fromdate = datetime.datetime(2021, 2, 26),
-            todate = datetime.datetime(2021, 2, 26),
-            #todate = datetime.datetime(2021, 3, 26),
+            #fromdate = datetime.datetime(2020, 12, 28),
+            fromdate = datetime.datetime(2021, 2, 26),
+            #todate = datetime.datetime(2021, 2, 26),
+            todate = datetime.datetime(2021, 3, 26),
             #todate = datetime.datetime(2021, 1, 2),
             nullvalue = 0.0
         )
@@ -86,7 +93,7 @@ def main():
         '''
         cerebro.adddata(data)
         # Resample to have multiple data like Binance. Compression x30, x60, x240, min. 
-        second_time_frame = 30
+        second_time_frame = 5
         cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, 
                              compression=second_time_frame)
         broker = cerebro.getbroker()
@@ -101,15 +108,15 @@ def main():
 
     # # Include Strategy
     if ENV == PRODUCTION:
-        strategy = SimpleHighToLowMean3V2()
-        fuerza_bruta = SimpleHighToLowMean3FuerzaBruta()
-        strategy.elasticLowBandOverlapHighFuerzaBruta = fuerza_bruta
+        strategy = FastTradingNoFeeLowHigh(phemex_automation)
+        #fuerza_bruta = SimpleHighToLowMean3FuerzaBruta()
+        #strategy.elasticLowBandOverlapHighFuerzaBruta = fuerza_bruta
         #strategy = OverlapHighEstimators()
         cerebro.addstrategy(strategy)
         if TESTING_PRODUCTION == False:
             cerebro.getHistoricalData(kline_production,3)
     else:
-        cerebro.addstrategy(TouchLowBeforeHighRL)
+        cerebro.addstrategy(FastTradingNoFeeLowHigh)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()
@@ -117,7 +124,9 @@ def main():
     if ENV == PRODUCTION:
         message_init =  MESSAGE_TELEGRAM.get("init_session")
         send_telegram_message(message_init)
-    result = cerebro.run(stdstats=False)
+        cerebro.run()
+    else:
+        result = cerebro.run(stdstats=False)
 
     # if ENV == PRODUCTION:
     #     ws.run_forever()
