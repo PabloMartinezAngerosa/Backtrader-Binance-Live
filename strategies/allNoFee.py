@@ -1,14 +1,5 @@
 # #!/usr/bin/env python3
-'''
 
-Esta estrategia esta basada en estimar low, y vender en high fijo.
-Funcionaba bien hasta la bajada que comenzo a funcionar mejor la subida acrecentada.
-Esta pensanda para entorno sin Fee y con Phemex.
-Dado los desniveles entre Phemex y Binance, funcio bien en velas mas grande de 15/30 minutos.
-En medida que se agrandan las velas, el desfasaje se nota menos por la media de la volatiliad en la vela 
-la cual aumenta. 
-
-'''
 import backtrader as bt
 
 from config import ENV, PRODUCTION
@@ -18,7 +9,7 @@ from config import ENV, PRODUCTION, STRATEGY, TESTING_PRODUCTION, LIVE, UPDATE_P
 import numpy as np
 import pandas as pd
 
-class FastTradingNoFeeLowHigh(StrategyBase):
+class AllNoFee(StrategyBase):
 
     # Moving average parameters
     # params = (('pfast',20),('pslow',50),)
@@ -37,16 +28,16 @@ class FastTradingNoFeeLowHigh(StrategyBase):
         self.acum_capital = 100 
         self.acum_capital_binance = 100
 
-        self.RMSE_low = 120
+        self.RMSE_low = 10
         self.RMSE_high = 30
-        self.delta_aceleration_low = 3
+        self.delta_aceleration_low = 40
         
 
         self.mean_tick = STRATEGY.get("mean_tick_dev")
         if ENV == PRODUCTION:
             self.mean_tick = STRATEGY.get("mean_tick_prod")
 
-        self.max_ticks = self.mean_tick * 0.8
+        self.max_ticks = self.mean_tick * 0.45
         self.active_no_loss_profit = False
 
 
@@ -85,28 +76,35 @@ class FastTradingNoFeeLowHigh(StrategyBase):
         self.pre_sell_price = 0
     
     def is_touch_high_media_iterada_3(self, actual_price):
-        high_media_3 = self.ensambleIndicators.mediaEstimadorHigh_iterada3
-        if actual_price >= high_media_3 - self.RMSE_high:
+        #high_media_3 = self.ensambleIndicators.mediaEstimadorHigh_iterada3
+        high_media_3 = self.ensambleIndicators.mediaEstimadorLow_iterada3
+        #if actual_price >= high_media_3 - self.RMSE_high:
+        if actual_price <= high_media_3 + self.RMSE_high:
             self.touch_high_media_iterada_3 = True
             #self.log("Toco high media iterada 3 en price {} con delta de {}".format(actual_price, self.RMSE_high),  to_ui = True, date = self.datetime[0])
 
     def is_touch_media_low(self, actual_price):
-        low_media = self.ensambleIndicators.mediaEstimadorLow_iterada3
+        #low_media = self.ensambleIndicators.mediaEstimadorLow_iterada3
+        low_media = self.ensambleIndicators.mediaEstimadorHigh
         if actual_price <= low_media + self.RMSE_low and actual_price >= low_media - self.RMSE_low:
             self.touch_media_low = True
+            print("Toco estimador high")
             #self.log("Toco  media low en price {} con delta de {}".format(actual_price, self.RMSE_low),  to_ui = True, date = self.datetime[0])
 
     def is_touch_low_media_iterada_3(self, actual_price, filter_price):
-        low_media_3 = self.ensambleIndicators.mediaEstimadorLow_iterada3
+        #low_media_3 = self.ensambleIndicators.mediaEstimadorLow_iterada3
+        low_media_3 = self.ensambleIndicators.mediaEstimadorHigh
         if actual_price >= (low_media_3 - self.RMSE_low) and actual_price <= low_media_3 + self.RMSE_low:
             if self.touch_media_low_iterada_3 == False:
                 self.first_touch_filter = filter_price
             self.touch_media_low_iterada_3 = True
+            print("toco estimador high 2")
             #self.log("Toco  media low itereada 3  en price {} ".format(actual_price),  to_ui = True, date = self.datetime[0])
-        else:
-            self.touch_media_low_iterada_3 = False
+        #else:
+        #    self.touch_media_low_iterada_3 = False
     
     def is_delta_aceleration(self, actual_price):
+        #if actual_price - self.first_touch_filter >= self.delta_aceleration_low:
         if actual_price - self.first_touch_filter >= self.delta_aceleration_low:
             self.delta_aceleration =  True
             #self.log("Tuvo una aceleracion despues de media iterada en  {} con delta de {}".format(actual_price, self.delta_aceleration_low),  to_ui = True, date = self.datetime[0])
@@ -201,14 +199,14 @@ class FastTradingNoFeeLowHigh(StrategyBase):
                 profit = (actual_price / self.buy_price_actual ) - 1
                 profit_phemex = (actual_price_phemex / self.buy_price ) - 1
                 do_sell = False
-                if profit >= 0.0035:
-                    self.active_no_loss_profit = True
-                if profit <= 0.002 and  self.active_no_loss_profit == True:
+                #if profit >= 0.0035:
+                #    self.active_no_loss_profit = True
+                #if profit <= 0.002 and  self.active_no_loss_profit == True:
+                #    do_sell = True
+                if profit <= -0.002: # solo busca subidas acrecentadas es duro con los cortes.
                     do_sell = True
-                if profit <= -0.004:
-                    do_sell = True
-                if profit >= 0.008:
-                    do_sell = True
+                #if profit >= 0.008:
+                #    do_sell = True
                 if self.total_ticks >= (self.mean_tick - 10):
                     do_sell = True
 

@@ -74,7 +74,9 @@ class BrokerProduction:
         
         print("Finaliza con los siguientes resultados:")
         print(self.cerebro.get_wallet_balance())
-        print(self.cerebro.get_wallet_balance_leverage())
+        print("Binance profit")
+        print(self.cerebro.get_binance_wallet_balance())
+        # print(self.cerebro.get_wallet_balance_leverage())
         # genera el json_message simulando lo que envia Binance desde el API
         # llama on_message 
 

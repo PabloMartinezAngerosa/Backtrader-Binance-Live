@@ -25,8 +25,8 @@ PHEMEX_PRICE = True # si va a buscar precio en phemex desde automatizacion
  # gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5
 
 TESTING_PRODUCTION_DATE = {
-  "from":1620538919999,
-  "to":1620568560034
+  "from":1622517299999,
+  "to":1622563200230
 }
 
 BINANCE = BINANCE_CREDENTIALS
@@ -45,10 +45,10 @@ SQL = {
 STRATEGY = {
   "length_frames": 20,
   "lags": 5,
-  "candle_min":1,
-  "kline_interval": "KLINE_INTERVAL_1MINUTE",
-  "mean_tick_prod":29,
-  "mean_tick_dev":29
+  "candle_min":15,
+  "kline_interval": "KLINE_INTERVAL_15MINUTE",
+  "mean_tick_prod":424,
+  "mean_tick_dev":424
 }
 
 PHEMEX = {

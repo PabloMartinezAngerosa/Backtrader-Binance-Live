@@ -80,6 +80,9 @@ class CerebroProduction:
     
     def get_wallet_balance(self):
         return self.strategy.acum_capital
+    
+    def get_binance_wallet_balance(self):
+        return self.strategy.acum_capital_binance
 
     def get_wallet_balance_leverage(self):
         return {
