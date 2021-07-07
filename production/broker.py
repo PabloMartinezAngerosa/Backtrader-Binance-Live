@@ -74,6 +74,10 @@ class BrokerProduction:
         
         print("Finaliza con los siguientes resultados:")
         print(self.cerebro.get_wallet_balance())
+        print("History Balance:")
+        print(self.cerebro.get_history_balance())
+        print("History Profit por hora")
+        print(self.cerebro.get_history_profit())
         print("Binance profit")
         print(self.cerebro.get_binance_wallet_balance())
         # print(self.cerebro.get_wallet_balance_leverage())

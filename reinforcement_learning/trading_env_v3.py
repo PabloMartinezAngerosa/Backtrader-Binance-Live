@@ -13,7 +13,7 @@ MAX_STEPS = 20000
 
 # $USDT Dollars
 INITIAL_ACCOUNT_BALANCE = 1000
-BINANCE_FEE = 1 - 0.001 
+BINANCE_FEE = 1
 
 
 #df = pd.read_csv('BTC.csv')

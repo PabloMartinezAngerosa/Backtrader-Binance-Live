@@ -10,7 +10,7 @@ COIN_REFER = "USDT"
 ENV = os.getenv("ENVIRONMENT", PRODUCTION)
 DEBUG = True
 PERSISTENCE_CONNECTION = True
-TESTING_PRODUCTION = True
+TESTING_PRODUCTION = False
 UPDATE_PARAMS_FUERZA_BRUTA = False
 LIVE = False # doble certificacion para operar en Binance. Production y LIVE. Puede estar Production pero en modo testing. 
 WINDOWS = False
@@ -25,8 +25,8 @@ PHEMEX_PRICE = True # si va a buscar precio en phemex desde automatizacion
  # gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5
 
 TESTING_PRODUCTION_DATE = {
-  "from":1622517299999,
-  "to":1622563200230
+  "from":1624515299999,
+  "to":1625419800048
 }
 
 BINANCE = BINANCE_CREDENTIALS
@@ -43,12 +43,14 @@ SQL = {
 }
 
 STRATEGY = {
+  "max_profit": (130/100)**(1/60),
+  "min_profit": (80/100)**(1/60),
   "length_frames": 20,
   "lags": 5,
   "candle_min":15,
   "kline_interval": "KLINE_INTERVAL_15MINUTE",
-  "mean_tick_prod":424,
-  "mean_tick_dev":424
+  "mean_tick_prod":415,
+  "mean_tick_dev":415
 }
 
 PHEMEX = {

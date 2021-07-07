@@ -30,6 +30,8 @@ class StrategyBase(bt.Strategy):
         self.STANDALONE = stand_alone
         # capital initial for stand alone estimations and test
         self.acum_capital = SANDBOX_INITAL_CAPITAL
+        self.acum_capital_history = [self.acum_capital]
+
         # leverage x2
         self.acum_capital_leverage2 = SANDBOX_INITAL_CAPITAL
         # leverage x5
@@ -84,6 +86,10 @@ class StrategyBase(bt.Strategy):
 
             self.update_data_internal()
     
+    def set_acum_capital(self, value):
+        self.acum_capital_history.append(value)
+        self.acum_capital = value
+
     def updateIndicatorsEnsambleLinearModels(self):
         
         datetime = self.datetime[0]
@@ -369,3 +375,6 @@ class StrategyBase(bt.Strategy):
             self.jsonParser.add_log(txt, date)
         if send_telegram and self.STANDALONE == False:
             send_telegram_message(txt)
+
+    def get_wallet_balance(self):
+        return "El capital total es " + str(self.acum_capital)

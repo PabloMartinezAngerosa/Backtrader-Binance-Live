@@ -10,7 +10,9 @@ class Automation():
         self.driver.get(PHEMEX_URL)
         a = input()
     
-    def get_current_price(self):
+    def get_current_price(self): 
+        # mensaje cambio todo 
+        # /html/body/div[1]/div/div[2]/div[3]/div[1]/div  
         price = self.driver.find_element_by_xpath("/html/body/div[1]/div/div[1]/div[3]/div[1]/div")
         return float(price.get_attribute('innerText'))
     

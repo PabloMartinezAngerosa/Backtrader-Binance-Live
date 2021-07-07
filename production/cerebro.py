@@ -79,7 +79,7 @@ class CerebroProduction:
         return True
     
     def get_wallet_balance(self):
-        return self.strategy.acum_capital
+        return self.strategy.get_wallet_balance()
     
     def get_binance_wallet_balance(self):
         return self.strategy.acum_capital_binance
@@ -95,6 +95,12 @@ class CerebroProduction:
             "x125":self.strategy.acum_capital_leverage125
         }
     
+    def get_history_balance(self):
+        return self.strategy.acum_capital_history
+    
+    def get_history_profit(self):
+        return self.strategy.profit_history
+        
     def addNextFrame(self, indexData, datetime, open, low, high, close, vloume, next= True):
         '''
         Adds next ``tick``  to strategy.

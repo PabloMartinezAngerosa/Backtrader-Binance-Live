@@ -20,10 +20,13 @@ from strategies.simpleHighToLowMean3V2 import SimpleHighToLowMean3V2
 ##from strategies.elasticLowBandOverlapHighFuerzaBruta import ElasticLowBandOverlapHighFuerzaBruta
 from strategies.simpleHighToLowMean3FuerzaBruta import SimpleHighToLowMean3FuerzaBruta
 from strategies.touchLowBeforeHighRL import TouchLowBeforeHighRL
+#from strategies.simpleLowHighPhemex import SimpleLowHighPhemex
+from strategies.simpleLowHighPhemexStaticLoss import SimpleLowHighPhemexStaticLoss
 
 from strategies.fastTradingNoFeeLowHigh import FastTradingNoFeeLowHigh
+from strategies.fastTradingNoFeeHighLow import FastTradingNoFeeHighLow
 from strategies.allNoFee import AllNoFee
-
+from strategies.mixSubidaAcrecentadaFastNoFee import MixSubidaAcrecentadaFastNoFee
 #from strategies.overlapHighEstimators import OverlapHighEstimators
 #from strategies.dynamicHighStopLossLong import DynamicHighStopLossLong
 #from strategies.dynamicStopLossLong import DynamicStopLossLong
@@ -110,8 +113,10 @@ def main():
 
     # # Include Strategy
     if ENV == PRODUCTION:
+        strategy = SimpleLowHighPhemexStaticLoss(phemex_automation) 
         #strategy = AllNoFee(phemex_automation)
-        strategy = FastTradingNoFeeLowHigh(phemex_automation)
+        #strategy = FastTradingNoFeeHighLow(phemex_automation)
+        #strategy = FastTradingNoFeeLowHigh(phemex_automation)
         #fuerza_bruta = SimpleHighToLowMean3FuerzaBruta()
         #strategy.elasticLowBandOverlapHighFuerzaBruta = fuerza_bruta
         #strategy = OverlapHighEstimators()
@@ -119,7 +124,7 @@ def main():
         if TESTING_PRODUCTION == False:
             cerebro.getHistoricalData(kline_production,3)
     else:
-        cerebro.addstrategy(AllNoFee)
+        cerebro.addstrategy(SimpleLowHighPhemexStaticLoss)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()

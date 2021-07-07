@@ -1,4 +1,7 @@
 # #!/usr/bin/env python3
+'''
+Subida acrecentada sin fee adaptado a phemex.
+'''
 
 import backtrader as bt
 
@@ -88,7 +91,6 @@ class AllNoFee(StrategyBase):
         low_media = self.ensambleIndicators.mediaEstimadorHigh
         if actual_price <= low_media + self.RMSE_low and actual_price >= low_media - self.RMSE_low:
             self.touch_media_low = True
-            print("Toco estimador high")
             #self.log("Toco  media low en price {} con delta de {}".format(actual_price, self.RMSE_low),  to_ui = True, date = self.datetime[0])
 
     def is_touch_low_media_iterada_3(self, actual_price, filter_price):
@@ -98,7 +100,6 @@ class AllNoFee(StrategyBase):
             if self.touch_media_low_iterada_3 == False:
                 self.first_touch_filter = filter_price
             self.touch_media_low_iterada_3 = True
-            print("toco estimador high 2")
             #self.log("Toco  media low itereada 3  en price {} ".format(actual_price),  to_ui = True, date = self.datetime[0])
         #else:
         #    self.touch_media_low_iterada_3 = False
