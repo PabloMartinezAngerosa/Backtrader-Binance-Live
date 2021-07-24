@@ -30,6 +30,7 @@ class StrategyBase(bt.Strategy):
         self.STANDALONE = stand_alone
         # capital initial for stand alone estimations and test
         self.acum_capital = SANDBOX_INITAL_CAPITAL
+        self.acum_capital_binance = SANDBOX_INITAL_CAPITAL
         self.acum_capital_history = [self.acum_capital]
 
         # leverage x2
@@ -86,6 +87,39 @@ class StrategyBase(bt.Strategy):
 
             self.update_data_internal()
     
+    def set_acum_capital_all(self, values):
+        self.acum_capital = values.get("acum_capital")
+        self.acum_capital_binance = values.get("acum_capital_binance")
+        self.acum_capital_history = [values.get("acum_capital")]
+
+        # leverage x2
+        self.acum_capital_leverage2 = values.get("acum_capital_lx2")
+        # leverage x5
+        self.acum_capital_leverage5 = values.get("acum_capital_lx5")
+        # leverage x10
+        self.acum_capital_leverage10 = values.get("acum_capital_lx10")
+        # leverage x20
+        self.acum_capital_leverage20 = values.get("acum_capital_lx20")
+        # leverage x50
+        self.acum_capital_leverage50 = values.get("acum_capital_lx50")
+        # leverage x100
+        self.acum_capital_leverage100 = values.get("acum_capital_lx100")
+        # leverage x125
+        self.acum_capital_leverage125 = values.get("acum_capital_lx125")
+
+    def get_acum_capital_all(self):
+        return {
+            "acum_capital" : self.acum_capital,
+            "acum_capital_binance" : self.acum_capital_binance,
+            "acum_capital_lx2" : self.acum_capital_leverage2,
+            "acum_capital_lx5" :self.acum_capital_leverage5,
+            "acum_capital_lx10" :self.acum_capital_leverage10,
+            "acum_capital_lx20" :self.acum_capital_leverage20,
+            "acum_capital_lx50" :self.acum_capital_leverage50,
+            "acum_capital_lx100" :self.acum_capital_leverage100,
+            "acum_capital_lx125" :self.acum_capital_leverage125
+        }
+
     def set_acum_capital(self, value):
         self.acum_capital_history.append(value)
         self.acum_capital = value

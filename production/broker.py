@@ -1,7 +1,7 @@
 from binance.client import Client
 from binance.enums import *
 import websocket, json, pprint, numpy
-from config import BINANCE, COIN_REFER, COIN_TARGET, PERSISTENCE_CONNECTION, TESTING_PRODUCTION, TESTING_PRODUCTION_DATE, PHEMEX_PRICE
+from config import BINANCE, COIN_REFER, COIN_TARGET, PERSISTENCE_CONNECTION, TESTING_PRODUCTION,PHEMEX_PRICE
 from datetime import timedelta, datetime
 import pandas as pd
 import math
@@ -9,8 +9,9 @@ from indicators.sqlCache import  SqlCache
 from production.automation_phemex import Automation
 
 class BrokerProduction:
-    def __init__(self, info, interval, phemex_automation, stand_alone = False):
+    def __init__(self, info, interval, phemex_automation, testing_production_date = None, stand_alone = False):
         self.comminfo = info
+        self.testing_production_date = testing_production_date
         self.interval = {
             'KLINE_INTERVAL_1MINUTE': '1m',
             'KLINE_INTERVAL_3MINUTE': '3m',
@@ -38,7 +39,10 @@ class BrokerProduction:
         # ya hay uno funcionando si es en Live Production o se trate todo lo necesario de la BD. 
         if self.STANDALONE == False: 
             self.client = Client(BINANCE.get("key"), BINANCE.get("secret"))
-        self.sql_cache = SqlCache()
+        try:
+            self.sql_cache = SqlCache()
+        except:
+            self.sql_cache = SqlCache.getInstance()
         # automation phemex
         self.phemex_automation = phemex_automation
 
@@ -55,7 +59,7 @@ class BrokerProduction:
     
     def simulate_binance_socket(self, data_tick= None):
         if self.STANDALONE == False:
-            data_tick = self.sql_cache.get_ticks_realtime(TESTING_PRODUCTION_DATE.get("from"), TESTING_PRODUCTION_DATE.get("to"))
+            data_tick = self.sql_cache.get_ticks_realtime(self.testing_production_date.get("from"), self.testing_production_date.get("to"))
         # obtiene con datos del config los ticks correspondientes
         for index, tick in data_tick.iterrows():
             message = {}
@@ -80,6 +84,8 @@ class BrokerProduction:
         print(self.cerebro.get_history_profit())
         print("Binance profit")
         print(self.cerebro.get_binance_wallet_balance())
+        print("Binance Leverage")
+        print(self.cerebro.get_wallet_balance_leverage())
         # print(self.cerebro.get_wallet_balance_leverage())
         # genera el json_message simulando lo que envia Binance desde el API
         # llama on_message 

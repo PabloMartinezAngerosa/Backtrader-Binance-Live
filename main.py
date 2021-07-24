@@ -6,7 +6,7 @@ import backtrader as bt
 import datetime as dt
 
 from ccxtbt.ccxtstore import CCXTStore
-from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG, STRATEGY, TESTING_PRODUCTION, LIVE, PHEMEX_PRICE
+from config import BINANCE, ENV, PRODUCTION, DEVELOPMENT, COIN_TARGET, COIN_REFER, DEBUG, STRATEGY, TESTING_PRODUCTION, LIVE, PHEMEX_PRICE, MULTIPLE_INSTANCE, MULTIPLE_INSTANCE_DATE, TESTING_PRODUCTION_DATE, ACUM_CAPITAL_ALL, BUY_OPERATION_INFO
 from messages import MESSAGE_TELEGRAM
 
 from dataset.dataset import CustomDataset
@@ -62,7 +62,7 @@ def main():
             phemex_automation = Automation()
         else:
             phemex_automation = None
-        broker = BrokerProduction(broker_config,kline_production, phemex_automation)
+        broker = BrokerProduction(broker_config,kline_production, phemex_automation, TESTING_PRODUCTION_DATE)
         cerebro.setbroker(broker)
 
         # hist_start_date = dt.datetime.utcnow() - dt.timedelta(minutes=30000)
@@ -76,8 +76,8 @@ def main():
             name = COIN_TARGET,
             dataname = "dataset/databases/BTCUSDT-1m.csv",
             timeframe = bt.TimeFrame.Minutes,
-            #fromdate = datetime.datetime(2020, 12, 28),
-            fromdate = datetime.datetime(2021, 2, 26),
+            fromdate = datetime.datetime(2020, 12, 28),
+            #fromdate = datetime.datetime(2021, 2, 26),
             #todate = datetime.datetime(2021, 2, 26),
             todate = datetime.datetime(2021, 3, 26),
             #todate = datetime.datetime(2021, 1, 2),
@@ -98,7 +98,7 @@ def main():
         '''
         cerebro.adddata(data)
         # Resample to have multiple data like Binance. Compression x30, x60, x240, min. 
-        second_time_frame = 5
+        second_time_frame = 15
         cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, 
                              compression=second_time_frame)
         broker = cerebro.getbroker()
@@ -123,6 +123,10 @@ def main():
         cerebro.addstrategy(strategy)
         if TESTING_PRODUCTION == False:
             cerebro.getHistoricalData(kline_production,3)
+        if MULTIPLE_INSTANCE:
+            cerebro.strategy.set_acum_capital_all(ACUM_CAPITAL_ALL)
+            if BUY_OPERATION_INFO["is_order"] == True:
+                cerebro.strategy.set_buy_operation(BUY_OPERATION_INFO)
     else:
         cerebro.addstrategy(SimpleLowHighPhemexStaticLoss)
 
@@ -148,6 +152,11 @@ def main():
 
     if DEBUG and ENV == DEVELOPMENT:
         cerebro.plot()
+    
+    return {
+        "acum_capital_all":cerebro.strategy.get_acum_capital_all(),
+        "buy_operation_info": cerebro.strategy.get_buy_operation_info()
+    }
 
 if __name__ == "__main__":
     try:
@@ -159,7 +168,27 @@ if __name__ == "__main__":
             else:
                 print("Por favor cambiar la configuracion para ejcutar en otra modalidad.")
         else:
-            main()        
+            if MULTIPLE_INSTANCE == True:
+                for instance in MULTIPLE_INSTANCE_DATE:
+                    TESTING_PRODUCTION_DATE["from"] = instance[0]
+                    TESTING_PRODUCTION_DATE["to"] = instance[1]
+                    info = main()                    
+                    acum_capital_all = info["acum_capital_all"]
+                    buy_operation_info = info["buy_operation_info"]
+                    ACUM_CAPITAL_ALL["acum_capital"] = acum_capital_all["acum_capital"]
+                    ACUM_CAPITAL_ALL["acum_capital_binance"] =acum_capital_all["acum_capital_binance"]
+                    ACUM_CAPITAL_ALL["acum_capital_lx2"] = acum_capital_all["acum_capital_lx2"]
+                    ACUM_CAPITAL_ALL["acum_capital_lx5"] = acum_capital_all["acum_capital_lx5"]
+                    ACUM_CAPITAL_ALL["acum_capital_lx10"] = acum_capital_all["acum_capital_lx10"]
+                    ACUM_CAPITAL_ALL["acum_capital_lx20"] = acum_capital_all["acum_capital_lx20"]
+                    ACUM_CAPITAL_ALL["acum_capital_lx50"] = acum_capital_all["acum_capital_lx50"]
+                    ACUM_CAPITAL_ALL["acum_capital_lx100"] = acum_capital_all["acum_capital_lx100"]
+                    ACUM_CAPITAL_ALL["acum_capital_lx125"] = acum_capital_all["acum_capital_lx125"]
+                    #if buy_operation_info["is_order"] == True:
+                    BUY_OPERATION_INFO = buy_operation_info
+
+            else:
+                main()        
     except KeyboardInterrupt:
         print("finished.")
         time = dt.datetime.now().strftime("%d-%m-%y %H:%M")

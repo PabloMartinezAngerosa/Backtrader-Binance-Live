@@ -835,6 +835,198 @@ from: 1625286599999 - to: 1625329800034
 from: 1625377499999 - to: 1625419800048 
 # esta calculada en intervalos de 15 minutos! media ticks  410.7435897435897
 # PHEMEX_PRICE = True 
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM July 07, 2021, 04:45:00 AM
+# TO   July 07, 2021, 06:45:00 PM
+# First tick: 1625633102042 
+# From - to (con tick previo)
+from: 1625633099999 - to: 1625684400040 
+# esta calculada en intervalos de 15 minutos! media ticks  415.3061224489796
+# PHEMEX_PRICE = True 
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM July 08, 2021, 04:45:00 AM
+# TO July 08, 2021, 04:15:00 PM
+# First tick: 1625719502102 
+# From - to (con tick previo)
+from: 1625719499999 - to: 1625761800158 
+# esta calculada en intervalos de 15 minutos! media ticks  418.35897435897436
+# PHEMEX_PRICE = True
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM June 24, 2021, 06:15:00 AM
+# TO July 02, 2021, 03:15:00 PM
+# First tick: 1624515302257 
+# From - to (con tick previo)
+from: 1624515299999 - to: 1625239800227 
+# esta calculada en intervalos de 15 minutos! media ticks  419.9359756097561
+# PHEMEX_PRICE = True
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM July 09, 2021, 05:15:00 AM
+# TO July 09, 2021, 06:15:00 PM
+# First tick: 1625807702124 
+# From - to (con tick previo)
+from: 1625807699999 - to: 1625855400145 
+# esta calculada en intervalos de 15 minutos! media ticks  412.1333333333333
+# PHEMEX_PRICE = True
+
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM July 09, 2021, 05:15:00 AM
+# TO July 09, 2021, 06:15:00 PM
+# First tick: 1625896802031 
+# From - to (con tick previo)
+from: 1625896799999 - to: 1625951700255 
+# esta calculada en intervalos de 15 minutos! media ticks  402.8679245283019
+# PHEMEX_PRICE = True
+
+----------------------------------------------------------
+----------------------------------------------------------
+# FROM July 16, 2021, 03:30:00 AM
+# TO July 16, 2021, 04:00:00 PM
+# First tick: 1626406202071 
+# From - to (con tick previo)
+from: 1626406199999 - to: 1626459300088 
+# esta calculada en intervalos de 15 minutos! media ticks  413.6744186046512
+# PHEMEX_PRICE = True
 
 
 
+Media ticks por vela:
+themeDark.js:774 403.95348837209303
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 July 17, 2021, 03:15:00 AM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1626491702175
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1626537600112
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 July 17, 2021, 03:45:00 PM
+
+
+Media ticks por vela:
+themeDark.js:774 401.25531914893617
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 July 17, 2021, 06:45:00 PM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1626547502313
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1626590700095
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 July 18, 2021, 06:30:00 AM
+themeDark.js:792 -----------------------------
+themeDark.js:618 July 17, 2021, 06:45:00 PM
+themeDark.js:561 26.708212775428272
+
+Media ticks por vela:
+397.3488372093023
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 July 18, 2021, 07:00:00 AM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1626591602314
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1626630300464
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 July 18, 2021, 05:30:00 PM
+themeDark.js:792 -----------------------------
+themeDark.js:618 July 18, 2021, 07:00:00 AM 
+
+
+
+Media ticks por vela: Se hizo trade succes leverage x5 en binance controlado. 
+themeDark.js:774 407.5633802816901
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 July 19, 2021, 01:45:00 AM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1626659102549
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1626738300028
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 July 19, 2021, 11:30:00 PM
+themeDark.js:792 -----------------------------
+themeDark.js:618 July 19, 2021, 01:45:00 AM
+themeDark.js:561 44.60110604311981
+
+419.27272727272725
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 July 20, 2021, 01:00:00 AM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1626742802075
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1626752700014
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 July 20, 2021, 03:30:00 AM
+themeDark.js:792 -----------------------------
+themeDark.js:618 July 20, 2021, 01:00:00 AM
+themeDark.js:561 23.30608053778446
+
+Media ticks por vela:
+themeDark.js:774 413.0833333333333
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 July 20, 2021, 04:45:00 AM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1626756302005
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1626795900070
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 July 20, 2021, 03:30:00 PM
+themeDark.js:792 -----------------------------
+themeDark.js:618 July 20, 2021, 04:45:00 AM
+
+
+412.69565217391306
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 July 21, 2021, 01:45:00 AM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1626831902564
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1626880500016
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 July 21, 2021, 03:00:00 PM
+
+Media ticks por vela:
+themeDark.js:774 418.53846153846155
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 July 21, 2021, 04:30:00 PM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1626885002033
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1626915600283
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 July 22, 2021, 12:45:00 AM
+
+389.3333333333333
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 July 22, 2021, 08:15:00 PM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1626984902622
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1626987600085
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 July 22, 2021, 08:45:00 PM
+themeDark.js:792 -----------------------------
+themeDark.js:618 July 22, 2021, 08:15:00 PM
+themeDark.js:561 35.037788562319264
+
+
+420.1818181818182
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 July 23, 2021, 10:30:00 PM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1627079402164
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1627099200133
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 July 24, 2021, 03:45:00 AM

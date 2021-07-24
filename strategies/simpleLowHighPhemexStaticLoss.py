@@ -9,19 +9,21 @@ Tambien se establece un margen general, que es el que finaliza los trades de las
 '''
 import backtrader as bt
 
-from config import ENV, PRODUCTION
+from config import ENV, PRODUCTION, DEVELOPMENT
 from strategies.base import StrategyBase
 
-from config import ENV, PRODUCTION, STRATEGY, TESTING_PRODUCTION, LIVE, UPDATE_PARAMS_FUERZA_BRUTA
+from config import ENV, PRODUCTION, STRATEGY, TESTING_PRODUCTION, LIVE, UPDATE_PARAMS_FUERZA_BRUTA, MULTIPLE_INSTANCE
 import numpy as np
 import pandas as pd
+
+import math
 
 class SimpleLowHighPhemexStaticLoss(StrategyBase):
 
     # Moving average parameters
     # params = (('pfast',20),('pslow',50),)
 
-    def __init__(self, phemex_automation):
+    def __init__(self, phemex_automation = None):
         StrategyBase.__init__(self)
 
         self.log("Using FastTradingNoFeeLowHigh strategy")
@@ -35,7 +37,7 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
         # self.acum_capital = 100 se fija en base
         self.acum_capital_acrecentada = 100
         self.acum_capital_low_high = 100
-        self.acum_capital_binance = 100
+        
 
         self.acum_capital_previous = 100
         self.profit_history = []
@@ -47,6 +49,7 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
         self.RMSE_high_acrecentada = 30/3
         self.delta_aceleration_low = 20
         self.delta_aceleration_low_acrecentada = 40/3
+        self.max_profit_strategy = 0.012
         
 
         self.mean_tick = STRATEGY.get("mean_tick_dev")
@@ -60,9 +63,11 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
         self.max_ticks_acrecentada = self.mean_tick * 0.65
 
         self.active_no_loss_profit = False
+        self.tick_buy_time = 0
 
 
         #self.dataclose = self.datas[0].close
+
         self.mean_filter_ticks = []
         self.mean_filter_lag = 5
         self.order = None
@@ -79,12 +84,16 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
 
         self.count_mins = 0
 
+        self.buy_price_binance = 0
+
 
     def set_limit_profit_objectives(self):
         self.max_profit = STRATEGY.get("max_profit") * self.acum_capital
-        print("max profit es " + str(self.max_profit))
+        if MULTIPLE_INSTANCE == False:
+            print("max profit es " + str(self.max_profit))
         self.min_profit = STRATEGY.get("min_profit") * self.acum_capital
-        print("min profit indicual es " + str(self.min_profit))
+        if MULTIPLE_INSTANCE == False:
+            print("min profit indicual es " + str(self.min_profit))
         self.continue_acrecentada_strategy = True
         self.continue_low_to_high_strategy = True
 
@@ -206,7 +215,9 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
         self.jsonParser.addTrade(price - self.buy_price, 0)
         profit_ratio = price/self.buy_price
         dummy_acum_capital = self.acum_capital * profit_ratio
-        self.set_acum_capital(dummy_acum_capital)
+        
+        #self.set_acum_capital(dummy_acum_capital)
+
         self.acum_capital_low_high = self.acum_capital_low_high * profit_ratio
         message = "Profit: " + str(profit_ratio - 1) + " Acum Capital: " + str(self.acum_capital)
         self.log(message,  to_ui = True, date = self.datetime[0])
@@ -232,7 +243,7 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
         profit_ratio = price/self.buy_price_acrecentada
         self.acum_capital_acrecentada = self.acum_capital_acrecentada * profit_ratio
         dummy_acum_capital = self.acum_capital * profit_ratio
-        self.set_acum_capital(dummy_acum_capital)
+        #self.set_acum_capital(dummy_acum_capital)
         message = "Profit: " + str(profit_ratio - 1) + " Acum Capital : " + str(self.acum_capital)
         self.log(message,  to_ui = True, date = self.datetime[0])
         message = "Profit: " + str(profit_ratio - 1) + " Acum Capital acrecentada: " + str(self.acum_capital_acrecentada)
@@ -249,6 +260,7 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
     def do_binance_trade(self, buy_price, sell_price):
         profit_ratio = sell_price / buy_price
         self.acum_capital_binance = self.acum_capital_binance * profit_ratio * (1 - 0.001) * (1 - 0.001) 
+        self.actualize_long_short_strategy_profit(buy_price, sell_price)
 
     # sobreescrive retorno de wallet balance
     def get_wallet_balance(self):
@@ -262,13 +274,44 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
         if self.count_mins == (60/self.candle_min):
             self.count_mins = 0
             message = "Paso una hora, se restablecen objetivos"
-            self.log(message,  to_ui = True, date = self.datetime[0])
+            #self.log(message,  to_ui = True, date = self.datetime[0])
             self.set_limit_profit_objectives()
             profit = self.acum_capital / self.acum_capital_previous 
             message = "Profit de la hora " + str(profit)
-            self.log(message,  to_ui = True, date = self.datetime[0])
+            #self.log(message,  to_ui = True, date = self.datetime[0])
             self.acum_capital_previous = self.acum_capital 
             self.profit_history.append(profit)
+
+    def get_buy_operation_info(self):
+        return {
+            "is_order": self.is_order,
+            "buy_price_binance": self.buy_price_binance,
+            "buy_price": self.buy_price,
+            "buy_price_actual": self.buy_price_actual,
+            "last_actual_price": self.actual_price
+        }
+
+    def set_buy_operation(self,buy_operation_info):
+        self.do_binance_trade(buy_operation_info["buy_price_binance"],buy_operation_info["last_actual_price"] )
+        profit_ratio = buy_operation_info["last_actual_price"] / buy_operation_info["buy_price_binance"]
+        message = "Sell cierre 12 hs Profit: " + str(profit_ratio - 1) + " Acum Capital x5: " + str(self.acum_capital_leverage5)
+        self.log(message,  to_ui = True, date = "none")
+        #self.buy_price_binance = buy_operation_info["buy_price_binance"]
+        #self.buy_price = buy_operation_info["buy_price"]
+        #self.buy_price_actual = buy_operation_info["buy_price_actual"]
+        #self.is_order = True
+        #self.trade_made = False
+        #self.pre_sell = False
+    
+    # https://mathcracker.com/es/generador-grafico-funcion-exponencial#results
+    # tasa de cambio 0.02, funcion valor inicial 1, 1e ^0.02t
+    def dynamic_cota_high(self,t): 
+        total_tiempos = 12*(60/self.candle_min) # en 12 horas,el peor de los casos t es incremental entre 1 y 48 en peor de los casos
+        indice = math.e**(0.02*(total_tiempos - t)) / math.e**(0.02*total_tiempos) # normaliza entre 0 y 1
+        min = 0.004
+        max = self.max_profit_strategy
+        delta = max - min
+        return min + delta*indice
 
     def next(self):
         # if self.status != "LIVE" and ENV == PRODUCTION:  # waiting for live status in production
@@ -280,15 +323,21 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
         close  = self.datas[0].close[0]
         actual_price = close
 
-        actual_price_phemex = self.datas[2].close[0]
+        if MULTIPLE_INSTANCE == True:
+            self.actual_price = close
+        
+        if ENV == PRODUCTION:
+            actual_price_phemex = self.datas[2].close[0]
+        else:
+            actual_price_phemex = 0.01 
 
         #self.log('Close: %.3f %% '  % close)
         self.jsonParser.addTick(self.datetime[0], actual_price)
         self.jsonParser.addTickPhemex(self.datetime[0], actual_price_phemex)
         
-
-        self.log('Close: %.3f %% '  % float(close))
-        self.log('Close Phemex: %.3f %% '  % float(actual_price_phemex))
+        if MULTIPLE_INSTANCE == False:
+            self.log('Close: %.3f %% '  % float(close))
+            self.log('Close Phemex: %.3f %% '  % float(actual_price_phemex))
 
         self.mean_filter_ticks.append({"value":actual_price,"date":self.datetime[0]})
         if  len(self.mean_filter_ticks) == self.mean_filter_lag:
@@ -308,24 +357,28 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
                 # No le importa si toco high #
                 # self.is_touch_high_media_iterada_3(actual_price)
                 # se fija si toco "algun estimador high low media iterada 3"
-                if self.touch_media_low_iterada_3 == False:
-                    # Se activa cuando toca touch media iterada 3
-                    self.is_touch_low_media_iterada_3(actual_price, filter_price["value"])
-                else:
-                    if self.delta_aceleration == False:
-                        # tiene que superar un delta de aceleracion    
-                        self.is_delta_aceleration(filter_price["value"])
-                    else:                       
-                        if self.pre_buy == False and self.trade_made == False and self.delta_high_mean_3_succes(actual_price) == True:
-                            message = "Phemex pre-buy: " + str(actual_price_phemex) + " Delta Binance: " + str(actual_price - actual_price_phemex)
-                            self.log(message,  to_ui = True, date = self.datetime[0])
-                            self.pre_buy_price = actual_price_phemex
-                            self.pre_buy = True
-                            if ENV == PRODUCTION and TESTING_PRODUCTION == False and LIVE == True:
-                                self.phemex_automation.buy()
+                self.is_touch_high_media_iterada_3(actual_price)
+                if self.touch_high_media_iterada_3 == False:
+                    if self.touch_media_low_iterada_3 == False:
+                        # Se activa cuando toca touch media iterada 3
+                        self.is_touch_low_media_iterada_3(actual_price, filter_price["value"])
+                    else:
+                        if self.delta_aceleration == False:
+                            # tiene que superar un delta de aceleracion    
+                            self.is_delta_aceleration(filter_price["value"])
+                        else:                       
+                            if self.pre_buy == False and self.trade_made == False and self.delta_high_mean_3_succes(actual_price) == True:
+                                message = "Phemex pre-buy: " + str(actual_price_phemex) + " Delta Binance: " + str(actual_price - actual_price_phemex)
+                                self.log(message,  to_ui = True, date = self.datetime[0])
+                                self.pre_buy_price = actual_price_phemex
+                                self.buy_price_binance = actual_price
+                                self.pre_buy = True
+                                self.tick_buy_time = 0 
+                                if ENV == PRODUCTION and TESTING_PRODUCTION == False and LIVE == True:
+                                    self.phemex_automation.buy()
             
             if self.pre_buy == True and self.trade_made == False and self.is_order == False:
-                if self.pre_buy_price != actual_price_phemex:
+                if self.pre_buy_price != actual_price_phemex or ENV == DEVELOPMENT:
                     self.do_long(self.datetime[0], actual_price_phemex)
                     self.buy_price = actual_price_phemex
                     self.buy_price_actual = actual_price
@@ -334,23 +387,32 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
                     self.is_order = True
                     self.buy_tick = self.total_ticks
                     message = "Phemex buy: " + str(actual_price_phemex) + " Delta action phemex: " + str(actual_price_phemex - self.pre_buy_price)
-                    self.log(message,  to_ui = True, date = self.datetime[0])
+                    self.log(message,  to_ui = True, date = self.datetime[0], send_telegram=True)
                     self.jsonParser.set_subida_estrepitosa(1, self.total_ticks)
 
             if self.is_order == True and self.trade_made == False and self.pre_sell == False:
-                profit = (actual_price / self.buy_price ) - 1
+                if  ENV == PRODUCTION:
+                    profit = (actual_price / self.buy_price ) - 1
+                else:
+                    profit = (actual_price / self.buy_price_actual ) - 1
+                
+                
                 profit_filter = (filter_price["value"] / self.buy_price_actual ) - 1
                 profit_phemex = (actual_price_phemex / self.buy_price ) - 1
                 do_sell = False
+                dynamic_profit = self.dynamic_cota_high(self.tick_buy_time) # no cambio mucho... se puede precindir
+                # print("dynamic profit high es " + str(dynamic_profit) + " t=" + str(self.tick_buy_time))
                 #if profit_filter <= self.low_media_profit_limit:
                 #    do_sell = True
-                if profit >= 0.01:
+                if profit >= 0.03:
+                    do_sell = True
+                if profit <= -0.015:
                     do_sell = True
                 #if self.total_ticks >= (self.mean_tick - 10):
                 #    do_sell = True
 
                 if do_sell == True:
-                    self.do_binance_trade(self.buy_price_actual, actual_price) 
+                    self.do_binance_trade(self.buy_price_binance, actual_price) 
                     self.pre_sell = True
                     self.pre_sell_price = actual_price_phemex
                     message = "Phemex pre sell: " + str(actual_price_phemex) + " Delta Binance: " + str(actual_price - actual_price_phemex)
@@ -358,7 +420,7 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
                     if ENV == PRODUCTION and TESTING_PRODUCTION == False and LIVE == True:
                         self.phemex_automation.sell()
                 
-            if self.is_order == True and self.pre_sell == True and self.trade_made == False and self.pre_sell_price != actual_price_phemex:
+            if self.is_order == True and self.pre_sell == True and self.trade_made == False and (self.pre_sell_price != actual_price_phemex or ENV == DEVELOPMENT):
                 self.do_short(self.datetime[0], actual_price_phemex)
                 message = "Phemex sell: " + str(actual_price_phemex) + " Delta action phemex: " + str(actual_price - self.pre_sell_price)
                 self.log(message,  to_ui = True, date = self.datetime[0])
@@ -382,7 +444,10 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
             if (self.indicators_ready):
                 self.updateIndicatorsEnsambleLinearModels()
                 #self.indicators_ready = True
-                print("New Indicators Ready!")
+                if MULTIPLE_INSTANCE == False:
+                    print("New Indicators Ready!")
                 self.refresh()
                 self.clean_hour_objective()
+                self.tick_buy_time = self.tick_buy_time + 1 
+                    
 

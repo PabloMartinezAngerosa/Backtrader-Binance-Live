@@ -8,6 +8,7 @@ COIN_TARGET = "BTC"
 COIN_REFER = "USDT"
 
 ENV = os.getenv("ENVIRONMENT", PRODUCTION)
+MULTIPLE_INSTANCE = False
 DEBUG = True
 PERSISTENCE_CONNECTION = True
 TESTING_PRODUCTION = False
@@ -25,8 +26,8 @@ PHEMEX_PRICE = True # si va a buscar precio en phemex desde automatizacion
  # gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5
 
 TESTING_PRODUCTION_DATE = {
-  "from":1624515299999,
-  "to":1625419800048
+  "from":1625027399999,
+  "to":1625058000179
 }
 
 BINANCE = BINANCE_CREDENTIALS
@@ -49,8 +50,8 @@ STRATEGY = {
   "lags": 5,
   "candle_min":15,
   "kline_interval": "KLINE_INTERVAL_15MINUTE",
-  "mean_tick_prod":415,
-  "mean_tick_dev":415
+  "mean_tick_prod":418,
+  "mean_tick_dev":418
 }
 
 PHEMEX = {
@@ -64,3 +65,39 @@ PHEMEX_URL = PHEMEX.get("production_url")
 SANDBOX_INITAL_CAPITAL = 100
 
 print("ENV = ", ENV)
+
+ACUM_CAPITAL_ALL =  {
+  "acum_capital" : 100,
+  "acum_capital_binance" : 100,
+  "acum_capital_lx2" : 100,
+  "acum_capital_lx5" : 100,
+  "acum_capital_lx10" : 100,
+  "acum_capital_lx20" : 100,
+  "acum_capital_lx50" : 100,
+  "acum_capital_lx100" : 100,
+  "acum_capital_lx125" : 100
+}
+
+BUY_OPERATION_INFO = {
+  "is_order": False,
+  "buy_price_binance": 0,
+  "buy_price": 0,
+  "buy_price_actual": 0
+}
+# multiple instance testing
+MULTIPLE_INSTANCE_DATE = [
+  [1624515299999, 1624548600268],
+  [1624687199999,1624727700149],
+  [1624851899999, 1624902300138],
+  [1624946399999, 1624991400037],
+  [1625027399999, 1625058000179],
+  [1625114699999, 1625157900162],
+  [1625200199999,1625244300266],
+  [1625286599999,1625329800034],
+  [1625377499999,1625419800048],
+  [1625633099999,1625684400040],
+  [1625719499999,1625761800158],
+  [1625807699999,1625855400145],
+  [1625896799999,1625951700255]
+]
+

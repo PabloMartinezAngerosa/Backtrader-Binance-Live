@@ -12,7 +12,7 @@ class Automation():
     
     def get_current_price(self): 
         # mensaje cambio todo 
-        # /html/body/div[1]/div/div[2]/div[3]/div[1]/div  
+        # /html/body/div[1]/div/div[2]/div[3]/div[1]/div
         price = self.driver.find_element_by_xpath("/html/body/div[1]/div/div[1]/div[3]/div[1]/div")
         return float(price.get_attribute('innerText'))
     
