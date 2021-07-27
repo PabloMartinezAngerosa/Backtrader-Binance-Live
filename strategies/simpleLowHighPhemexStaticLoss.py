@@ -42,13 +42,16 @@ class SimpleLowHighPhemexStaticLoss(StrategyBase):
         self.acum_capital_previous = 100
         self.profit_history = []
 
-        self.RMSE_low = 15 # RMSE si toca estimador low, se busca preciso
-        self.min_high_prediction =  50
-        self.RMSE_high = 30*3 # RMSE si toca antes algun estimador high
-        self.RMSE_low_acrecentada = 10/3
-        self.RMSE_high_acrecentada = 30/3
-        self.delta_aceleration_low = 20
-        self.delta_aceleration_low_acrecentada = 40/3
+        # en media se origino en 32k. 
+        # ajuste precio en media 
+        ajuste = 1.18
+        self.RMSE_low = 15*ajuste # RMSE si toca estimador low, se busca preciso
+        self.min_high_prediction =  50 * ajuste
+        self.RMSE_high = 30*3*ajuste # RMSE si toca antes algun estimador high
+        self.RMSE_low_acrecentada = (10/3)*ajuste
+        self.RMSE_high_acrecentada = (30/3)*ajuste
+        self.delta_aceleration_low = 20*ajuste
+        self.delta_aceleration_low_acrecentada = (40/3) * ajuste
         self.max_profit_strategy = 0.012
         
 
