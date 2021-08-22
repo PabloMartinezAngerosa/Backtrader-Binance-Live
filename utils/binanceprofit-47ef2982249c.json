@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "binanceprofit",
+  "private_key_id": "47ef2982249c7e33ce1aa271c8e0f7091a800892",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDDqDagdrwpG+RS\ncrE8feNlWvOjxoAZRu6t7NTyNe/3hnUiVAlJiwnGOuYJHZs73IMEwCF9pdFm/k4q\nf5J3fkkHy7oeWxUpdtDj1BPCVmlhc6yNHoRuV4MEjq4hlnAOmxU7soc5QiMibP4g\nRKpl7ZArRNngxjPmcjZuS35jooH6EYqEt1gwoG4YFN0VWDLUjWFYOLORjiHnTVEd\ndaoWpaJ3rubTff+G19L+mHFcghWBRukYvyD7M40WZm3LAsYe9Ir93SROlKwKYjk2\nTYvGzxfOF61nfDKfbzmeyjZq/K+S+SsSfM9w+80XHRX7KXOPMxZaGbCp58YvrPux\n8Nvxgq57AgMBAAECggEAAIuzylt1L7ZP3fYqrWKBoU5QItWKU+hNdVbR3XvqiawQ\nx5bsLaLVYJdRoLJH9ialDhHWR9JfJkPx86riUDcip91pI1i8nbpc9I24aV65L02W\n4dgZUZsayftiHR1guqbvqcLhbk8iirvdwzkT6kzYjbjQd4Ula5EGSyGkUY7XbnTR\nvk3rJwABr4prTN4uLG5pkDMMHWOkW6ltlm03oSFLVKPzsVJ+U5GZMTOCvxvW9F/y\nllSN0YXO22tVt9NcUpdotXxxcW2sc6m4vTb206KqBbQV27+yX7iIg/tUTpCYJ7Vq\nEbHStum237JMiLuYmrNknwEbQ+7m+h2I//DPl3r0YQKBgQDyRf1uFhDDLslXqZQe\n98VazmWHt8vBudp3cZvajkBcN5rV5+aWxKktL+WkaOpe8ESm1md7s26NFrpxp0jL\nq2NjiY+ZR8HglnvEipKnCMv25K1xmMVW9Mow9SbhPWWaxLybrbmweSdUJeAhkrbR\nDVFx7nx7ZJKYRPOFstHtMBFZWwKBgQDOvhXsvRpgQv9AML4ZZa568TfpWgrk2eIb\n0C5FmwpFYwoDMXvDhrCERax+wB/N/5HGXuSozTNmp+WR4jms2qNiumH2W6u1yGAR\nWXO3GVnQyNLHEmVn5Xf5xVFku17knHjjtE8lbHBn10pbU4Zxz/G+MYFa4ElzozFC\nbZfaWJTpYQKBgCTlreQfLixbqsRUCj/xIjhjKKlTv49ge7onLkJJ2dlxin47VC3w\nA4fjPIkehVsyInJ6QsZfHF4WcQywGnESSA+3uovwlsFaibz0EcOonk+aoiOjzaIh\no81y+JnjHN9GSSc4fQg4W1oAbrMOQhNygM3mMUUlmwHftmrNQhVqdanzAoGBAIG6\nvb9EGlz1LX52F5OQPqBe5RrEqblZD40sYRzEYPmRYCMI1gSna/RUVB1lKY/2It87\nhHh36x0rld6o+lABEi1Nj1Mryt/S0JWScA4hFj7xBXJtlLxRPau5qY1wFeeWWDVq\nW4+8L/y5F6ufCeo49hTGs8j2nKC3cp2gb31PwIGBAoGAWq7FOrSifW3NBRy8W1aE\n/jkb5SPjhNx4Ww3MlTFJPRv3/OdvzvG9T2Kk/W9VO8VHmhigLgFcUmm023zVcqY6\nAXQluDf2mtV8SzdC/vDJKA/dQDa2wwl9YnzZbDqSzrpTzoxpWFTEbDv4l0qbWtst\nKsuC7Gv5oWbCqGXZxQk09Po=\n-----END PRIVATE KEY-----\n",
+  "client_email": "binance@binanceprofit.iam.gserviceaccount.com",
+  "client_id": "113492902176780039302",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/binance%40binanceprofit.iam.gserviceaccount.com"
+}

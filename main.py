@@ -21,7 +21,9 @@ from strategies.simpleHighToLowMean3V2 import SimpleHighToLowMean3V2
 from strategies.simpleHighToLowMean3FuerzaBruta import SimpleHighToLowMean3FuerzaBruta
 from strategies.touchLowBeforeHighRL import TouchLowBeforeHighRL
 #from strategies.simpleLowHighPhemex import SimpleLowHighPhemex
-from strategies.simpleLowHighPhemexStaticLoss import SimpleLowHighPhemexStaticLoss
+#from strategies.simpleLowHighPhemexStaticLoss import SimpleLowHighPhemexStaticLoss
+from strategies.simpleLowHighStaticLoss import SimpleLowHighStaticLoss
+from strategies.simpleLowHighHighLowStaticLoss import SimpleLowHighHighLowStaticLoss
 
 from strategies.fastTradingNoFeeLowHigh import FastTradingNoFeeLowHigh
 from strategies.fastTradingNoFeeHighLow import FastTradingNoFeeHighLow
@@ -113,7 +115,7 @@ def main():
 
     # # Include Strategy
     if ENV == PRODUCTION:
-        strategy = SimpleLowHighPhemexStaticLoss(phemex_automation) 
+        strategy = SimpleLowHighHighLowStaticLoss() 
         #strategy = AllNoFee(phemex_automation)
         #strategy = FastTradingNoFeeHighLow(phemex_automation)
         #strategy = FastTradingNoFeeLowHigh(phemex_automation)
@@ -128,7 +130,7 @@ def main():
             if BUY_OPERATION_INFO["is_order"] == True:
                 cerebro.strategy.set_buy_operation(BUY_OPERATION_INFO)
     else:
-        cerebro.addstrategy(SimpleLowHighPhemexStaticLoss)
+        cerebro.addstrategy(SimpleLowHighHighLowStaticLoss)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()

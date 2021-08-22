@@ -15,7 +15,7 @@ TESTING_PRODUCTION = False
 UPDATE_PARAMS_FUERZA_BRUTA = False
 LIVE = False # doble certificacion para operar en Binance. Production y LIVE. Puede estar Production pero en modo testing. 
 WINDOWS = False
-PHEMEX_PRICE = True # si va a buscar precio en phemex desde automatizacion
+PHEMEX_PRICE = False # si va a buscar precio en phemex desde automatizacion
 # TEST KEY
 # API Key: rrkkiKYpKfkk6iM88GEG7k6LlK0VX5a4JjfSKaQQQjCVTtRiB9GNUwWVbHiv0MBf
 # Secret Key: YvKlog7B5wlbUIPKLpPT9Aos12S92X0OJfsyCDGythVuN1fbmmNxiQmSNYH3nlgi
@@ -26,8 +26,8 @@ PHEMEX_PRICE = True # si va a buscar precio en phemex desde automatizacion
  # gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5
 
 TESTING_PRODUCTION_DATE = {
-  "from":1625027399999,
-  "to":1625058000179
+  "from":1627942499999,
+  "to":1627967700096
 }
 
 BINANCE = BINANCE_CREDENTIALS
