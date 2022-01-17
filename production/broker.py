@@ -117,7 +117,6 @@ class BrokerProduction:
 
         datetime_closed = datetime
         is_closed = 0
-        print(close)
         if (is_candle_closed):
             is_closed = 1
             # close candle time 
@@ -132,8 +131,7 @@ class BrokerProduction:
             else:
                 phemex_price = self.phemex_automation.get_current_price()
             # addNextFrame con indice 2  en close los demas 0, False
-            self.cerebro.addNextFrame(2,datetime, 0, 0, 0, phemex_price, 0, False)    
-
+            self.cerebro.addNextFrame(2,datetime, 0, 0, 0, phemex_price, 0, False)
         self.cerebro.addNextFrame(0,datetime, open, low, high, close, volume, True)
         # agrega el precio realtime a la BD
         # esto solo se llama en ENV = PRODUCTION

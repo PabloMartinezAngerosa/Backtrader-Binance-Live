@@ -51,7 +51,7 @@ class SurfingTheRandomWalk(StrategyBase):
         self.order = None
         self.len_frames = 0
         self.name = "Surfing the Random Walk" 
-        self.index = index
+        self.index = 0
         # Instantiate moving averages
         # self.slow_sma = bt.indicators.MovingAverageSimple(self.datas[0], 
         #                 period=self.params.pslow)
@@ -205,7 +205,6 @@ class SurfingTheRandomWalk(StrategyBase):
 
 
     def next(self):
-
         if self.order:  # waiting for pending order
             return
 
