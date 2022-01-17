@@ -20,11 +20,13 @@ open <- dataTrain$close[length(dataTrain$close)]
 mediaEstimadorLow <- mean(resultLow[resultLow <  open] )
 mediaEstimadorLow_iterada2 <- mean(resultLow[resultLow>mediaEstimadorLow & resultLow < open ] )
 mediaEstimadorLow_iterada3 <- mean(resultLow[resultLow>mediaEstimadorLow_iterada2 & resultLow < open ] )
+lowComboEstimations <- base::paste(resultLow, collapse=",")
 
 # Estimadores de precio por media iterada 
 mediaEstimadorHigh <- mean(resultHigh[resultHigh > open ] )
 mediaEstimadorHigh_iterada2 <- mean(resultHigh[resultHigh<mediaEstimadorHigh & resultHigh > open ] )
 mediaEstimadorHigh_iterada3 <- mean(resultHigh[resultHigh<mediaEstimadorHigh_iterada2 & resultHigh > open ] )
+highComboEstimations <- base::paste(resultHigh, collapse=",")
 
 # no se ejecutan trades mas chicos q esta media y un posible entorno
 low_sum <- 0
@@ -44,10 +46,11 @@ diferencia_media_open_high <- high_sum / (length(dataTrain$close) - 1)
 deltaMediaOpenHigh <- open +  diferencia_media_open_high
   
 mediaEstimadorClose <- mean(resultClose)
+closeComboEstimations <- base::paste(resultClose, collapse=",")
 
-returns <- base::paste(mediaEstimadorLow,mediaEstimadorLow_iterada2,mediaEstimadorLow_iterada3, deltaMediaOpenLow,
-                      mediaEstimadorHigh,mediaEstimadorHigh_iterada2,mediaEstimadorHigh_iterada3, deltaMediaOpenHigh,
-                      mediaEstimadorClose, sep = "_")
+returns <- base::paste(mediaEstimadorLow,mediaEstimadorLow_iterada2,mediaEstimadorLow_iterada3, deltaMediaOpenLow,lowComboEstimations,
+                      mediaEstimadorHigh,mediaEstimadorHigh_iterada2,mediaEstimadorHigh_iterada3, deltaMediaOpenHigh,highComboEstimations,
+                      mediaEstimadorClose,closeComboEstimations, sep = "_")
 
 # Cuidado devuelve en formato cast string
 # si es para certificar estructuras str(result) redonda 

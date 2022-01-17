@@ -29,15 +29,25 @@ interval = KLINE_INTERVAL_1MINUTE
 
 
 client = Client(BINANCE.get("key"), BINANCE.get("secret"))
-
-N = 13
+# 9 meses aprox
+N = 300 
 date_N_days_ago = datetime.now() - timedelta(days=N)
 
-filename = "BTCUSDT-" + interval + ".csv"
+#filename = "BTCUSDT-" + interval + ".csv"
+filename = "FUTURE-BTC-" + interval + ".csv"
 filedirectory = "../dataset/databases/"
 
 print("Empieza a descargar cada " + interval )
-klines = client.get_historical_klines('BTCUSDT', interval, date_N_days_ago.strftime("%d %b %Y %H:%M:%S"))
+
+#klines = client.get_historical_klines('BTCUSDT', interval, date_N_days_ago.strftime("%d %b %Y %H:%M:%S"))
+#klines = client.get_historical_klines('BTCUSDT', interval, date_N_days_ago.strftime("%d %b %Y %H:%M:%S"))
+klines = client.futures_historical_klines(
+    symbol='BTCUSDT',
+    interval=interval,  # can play with this e.g. '1h', '4h', '1w', etc.
+    start_str='2020-12-15',
+    end_str='2022-1-11'
+)
+
 data = pd.DataFrame(klines, columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'quote_av', 'trades', 'tb_base_av', 'tb_quote_av', 'ignore' ])
 data['timestamp'] = pd.to_datetime(data['timestamp'], unit='ms')
 # sort ascending

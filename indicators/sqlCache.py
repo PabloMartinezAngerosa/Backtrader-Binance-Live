@@ -74,18 +74,21 @@ class SqlCache:
         low_mean2 = estimations.mediaEstimadorLow_iterada2
         low_mean3 = estimations.mediaEstimadorLow_iterada3
         low_delta = estimations.deltaMediaOpenLow
+        low_combo = estimations.lowCombo
         # high values
         high_mean = estimations.mediaEstimadorHigh
         high_mean2 = estimations.mediaEstimadorHigh_iterada2
         high_mean3 = estimations.mediaEstimadorHigh_iterada3
         high_delta = estimations.deltaMediaOpenHigh
+        high_combo = estimations.highCombo
 
         close_mean = estimations.mediaEstimadorClose
+        close_combo = estimations.closeCombo
 
         query = sql.insert(self.table_combo_estimations).values(date=date, candle_min=candle_min, lags=lags, length_frames = length_frames,
-                           low_mean=low_mean, low_mean2 = low_mean2, low_mean3 = low_mean3, low_delta = low_delta,
-                           high_mean = high_mean, high_mean2=high_mean2, high_mean3=high_mean3, high_delta= high_delta,
-                           close_mean=close_mean) 
+                           low_mean=low_mean, low_mean2 = low_mean2, low_mean3 = low_mean3, low_delta = low_delta, low_combo = low_combo,
+                           high_mean = high_mean, high_mean2=high_mean2, high_mean3=high_mean3, high_delta= high_delta, high_combo = high_combo,
+                           close_mean=close_mean, close_combo = close_combo) 
         result_proxy = self.connection.execute(query)
 
     def create_real_time_price_csv(self, _from, _to):

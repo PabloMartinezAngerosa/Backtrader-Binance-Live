@@ -32,7 +32,9 @@ class BrokerProduction:
         self.STANDALONE = stand_alone
         self.klineInterval = interval
         self.cerebro = None
-        self.socket  = "wss://stream.binance.com:9443/ws/btcusdt@kline_" + self.interval[self.klineInterval]
+        # sin futuros wss://stream.binance.com:9443/ws/btcusdt@kline_
+        # con fuures wss://fstream.binance.com/ws/btcusdt@kline_
+        self.socket  = "wss://fstream.binance.com/ws/btcusdt@kline_" + self.interval[self.klineInterval]
         print(self.socket)
         self.symbol = COIN_TARGET + COIN_REFER
         # en la version stand alone, en fuerza bruto por ejemplo, no es necesario instanciar el Client.
@@ -115,7 +117,7 @@ class BrokerProduction:
 
         datetime_closed = datetime
         is_closed = 0
-
+        print(close)
         if (is_candle_closed):
             is_closed = 1
             # close candle time 

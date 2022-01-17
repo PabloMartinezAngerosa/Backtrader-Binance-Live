@@ -10,7 +10,7 @@ COIN_REFER = "USDT"
 ENV = os.getenv("ENVIRONMENT", PRODUCTION)
 MULTIPLE_INSTANCE = False
 DEBUG = True
-PERSISTENCE_CONNECTION = True
+PERSISTENCE_CONNECTION = False
 TESTING_PRODUCTION = False
 UPDATE_PARAMS_FUERZA_BRUTA = False
 LIVE = False # doble certificacion para operar en Binance. Production y LIVE. Puede estar Production pero en modo testing. 
@@ -46,10 +46,10 @@ SQL = {
 STRATEGY = {
   "max_profit": (130/100)**(1/60),
   "min_profit": (80/100)**(1/60),
-  "length_frames": 20,
+  "length_frames": 25,
   "lags": 5,
-  "candle_min":15,
-  "kline_interval": "KLINE_INTERVAL_15MINUTE",
+  "candle_min":60,
+  "kline_interval": "KLINE_INTERVAL_1HOUR",
   "mean_tick_prod":418,
   "mean_tick_dev":418
 }

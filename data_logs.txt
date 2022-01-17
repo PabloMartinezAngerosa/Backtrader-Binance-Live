@@ -1385,3 +1385,100 @@ themeDark.js:791 August 18, 2021, 04:00:00 PM
 themeDark.js:792 -----------------------------
 themeDark.js:618 August 17, 2021, 08:45:00 PM
 themeDark.js:561 86.61223876250143
+
+
+Media ticks por vela:
+themeDark.js:774 422.3181818181818
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 August 18, 2021, 10:30:00 PM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1629325802134
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1629494100012
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 August 20, 2021, 09:00:00 PM
+
+Media ticks por vela:
+themeDark.js:774 419.9642857142857
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 August 20, 2021, 11:15:00 PM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1629501302042
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1629584100001
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 August 21, 2021, 10:00:00 PM
+themeDark.js:792 -----------------------------
+themeDark.js:618 August 20, 2021, 11:15:00 PM
+themeDark.js:561 37.833091074705344
+
+415.0365853658537
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 August 21, 2021, 11:15:00 PM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1629587702178
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1629668700000
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 August 22, 2021, 09:30:00 PM
+
+
+423.08 * hay completo short de lost pero no se llaman por bugs. revisar. 
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 August 22, 2021, 10:00:00 PM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1629669602038
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1629692100005
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 August 23, 2021, 04:00:00 AM
+themeDark.js:792 -----------------------------
+themeDark.js:618 August 22, 2021, 10:00:00 PM
+themeDark.js:561 75.85305883687118
+
+424.30232558139534
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 August 23, 2021, 04:45:00 AM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1629693902156
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1629739800001
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 August 23, 2021, 05:15:00 PM
+themeDark.js:792 -----------------------------
+themeDark.js:618 August 23, 2021, 04:45:00 AM
+themeDark.js:561 69.84362725571616
+
+Media ticks por vela:
+themeDark.js:774 417.76
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 August 23, 2021, 05:45:00 PM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1629740702048
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1629822600005
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 August 24, 2021, 04:15:00 PM
+themeDark.js:792 -----------------------------
+themeDark.js:618 August 23, 2021, 05:45:00 PM
+themeDark.js:561 28.71358790068344
+
+421.2682926829268
+themeDark.js:781 -----------------------------
+themeDark.js:782 Fecha primer candle es:
+themeDark.js:783 August 24, 2021, 04:45:00 PM
+themeDark.js:784 Primer tick time es:
+themeDark.js:785 1629823502022
+themeDark.js:787 Segundo tick time es:
+themeDark.js:788 1629911700001
+themeDark.js:790 Fecha ultimo candle es:
+themeDark.js:791 August 25, 2021, 05:00:00 PM
+themeDark.js:792 -----------------------------
+themeDark.js:618 August 24, 2021, 04:45:00 PM
+themeDark.js:561 14.80597145122475

@@ -16,25 +16,28 @@ from sizer.percent import FullMoney
 #from strategies.mediaEstimadoresDinamica import MediaEstimadoresDinamica
 #from strategies.elasticLowBandOverlapHigh import ElasticLowBandOverlapHigh
 #from strategies.elasticHighToLowBand import ElasticHighToLowBand
-from strategies.simpleHighToLowMean3V2 import SimpleHighToLowMean3V2
+#from strategies.simpleHighToLowMean3V2 import SimpleHighToLowMean3V2
 ##from strategies.elasticLowBandOverlapHighFuerzaBruta import ElasticLowBandOverlapHighFuerzaBruta
-from strategies.simpleHighToLowMean3FuerzaBruta import SimpleHighToLowMean3FuerzaBruta
-from strategies.touchLowBeforeHighRL import TouchLowBeforeHighRL
+#from strategies.simpleHighToLowMean3FuerzaBruta import SimpleHighToLowMean3FuerzaBruta
+#from strategies.touchLowBeforeHighRL import TouchLowBeforeHighRL
 #from strategies.simpleLowHighPhemex import SimpleLowHighPhemex
 #from strategies.simpleLowHighPhemexStaticLoss import SimpleLowHighPhemexStaticLoss
-from strategies.simpleLowHighStaticLoss import SimpleLowHighStaticLoss
-from strategies.simpleLowHighHighLowStaticLoss import SimpleLowHighHighLowStaticLoss
+#from strategies.simpleLowHighStaticLoss import SimpleLowHighStaticLoss
 
-from strategies.fastTradingNoFeeLowHigh import FastTradingNoFeeLowHigh
-from strategies.fastTradingNoFeeHighLow import FastTradingNoFeeHighLow
-from strategies.allNoFee import AllNoFee
-from strategies.mixSubidaAcrecentadaFastNoFee import MixSubidaAcrecentadaFastNoFee
+from strategies.simpleLowHighHighLowStaticLoss import SimpleLowHighHighLowStaticLoss
+from strategies.frameMobileStrategyLongShort import FrameMobileStrategyLongShort
+from strategies.frameMobileStrategyShortAceleration import FrameMobileStrategyShortAceleration
+from strategies.surfingTheRandomWalk import SurfingTheRandomWalk
+#from strategies.fastTradingNoFeeLowHigh import FastTradingNoFeeLowHigh
+#from strategies.fastTradingNoFeeHighLow import FastTradingNoFeeHighLow
+#from strategies.allNoFee import AllNoFee
+#from strategies.mixSubidaAcrecentadaFastNoFee import MixSubidaAcrecentadaFastNoFee
 #from strategies.overlapHighEstimators import OverlapHighEstimators
 #from strategies.dynamicHighStopLossLong import DynamicHighStopLossLong
 #from strategies.dynamicStopLossLong import DynamicStopLossLong
 # for test
 from strategies.basic import Basic
-from strategies.subidaEstrepitosaNeuralNetwork import SubidaEstrepitosaNeuralNetwork
+#from strategies.subidaEstrepitosaNeuralNetwork import SubidaEstrepitosaNeuralNetwork
 
 from utils import print_trade_analysis, print_sqn, send_telegram_message, copy_UI_template
 
@@ -76,13 +79,13 @@ def main():
         
         data = CustomDataset(
             name = COIN_TARGET,
-            dataname = "dataset/databases/BTCUSDT-1m.csv",
+            dataname = "dataset/databases/FUTURE-BTC-1m.csv",
             timeframe = bt.TimeFrame.Minutes,
-            fromdate = datetime.datetime(2020, 12, 28),
-            #fromdate = datetime.datetime(2021, 2, 26),
-            #todate = datetime.datetime(2021, 2, 26),
-            todate = datetime.datetime(2021, 3, 26),
-            #todate = datetime.datetime(2021, 1, 2),
+            #fromdate = datetime.datetime(2021, 6, 2),
+            #todate = datetime.datetime(2021, 5, 4),
+            fromdate = datetime.datetime(2022, 1, 1),
+            #todate = datetime.datetime(2021, 9, 10),
+            todate = datetime.datetime(2022, 1, 10),
             nullvalue = 0.0
         )
         
@@ -100,7 +103,7 @@ def main():
         '''
         cerebro.adddata(data)
         # Resample to have multiple data like Binance. Compression x30, x60, x240, min. 
-        second_time_frame = 15
+        second_time_frame = 60
         cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, 
                              compression=second_time_frame)
         broker = cerebro.getbroker()
@@ -115,10 +118,10 @@ def main():
 
     # # Include Strategy
     if ENV == PRODUCTION:
-        strategy = SimpleLowHighHighLowStaticLoss() 
+        strategy = SurfingTheRandomWalk()
+        #strategy = SimpleLowHighHighLowStaticLoss() 
+        #strategy  = FrameMobileStrategyShortAceleration()
         #strategy = AllNoFee(phemex_automation)
-        #strategy = FastTradingNoFeeHighLow(phemex_automation)
-        #strategy = FastTradingNoFeeLowHigh(phemex_automation)
         #fuerza_bruta = SimpleHighToLowMean3FuerzaBruta()
         #strategy.elasticLowBandOverlapHighFuerzaBruta = fuerza_bruta
         #strategy = OverlapHighEstimators()
@@ -130,7 +133,8 @@ def main():
             if BUY_OPERATION_INFO["is_order"] == True:
                 cerebro.strategy.set_buy_operation(BUY_OPERATION_INFO)
     else:
-        cerebro.addstrategy(SimpleLowHighHighLowStaticLoss)
+        cerebro.addstrategy(SurfingTheRandomWalk)
+        #cerebro.addstrategy(FrameMobileStrategyShortAceleration)
 
     # # Starting backtrader bot
     # initial_value = cerebro.broker.getvalue()
@@ -151,6 +155,8 @@ def main():
     # print('Profit %.3f%%' % ((final_value - initial_value) / initial_value * 100))
     # #  print_trade_analysis(result[0].analyzers.ta.get_analysis())
     # #  print_sqn(result[0].analyzers.sqn.get_analysis())
+    print(cerebro.strategy.list_capital)
+
 
     if DEBUG and ENV == DEVELOPMENT:
         cerebro.plot()

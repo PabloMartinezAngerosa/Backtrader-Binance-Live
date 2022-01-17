@@ -22,7 +22,8 @@ class StrategyBase(bt.Strategy):
 
     params = {'bufferSize':50}
     
-    def __init__(self, stand_alone=False):
+    def __init__(self, stand_alone=False, index=0):
+        print("se incializa estrategia base con index " + str(index))
         # se cambia cuando la estrategia es sell and buy
         self.sell_and_buy_strategy = False
         # Para configurar lags y ancho de ventana de analisis  
@@ -47,7 +48,6 @@ class StrategyBase(bt.Strategy):
         self.acum_capital_leverage100 = SANDBOX_INITAL_CAPITAL
         # leverage x125
         self.acum_capital_leverage125 = SANDBOX_INITAL_CAPITAL
-        print("se incializa estrategia base con standalone " + str(self.STANDALONE))
         self.ensambleIndicatorsLags = STRATEGY.get("lags")
         self.ensambleIndicatorsLengthFrames = STRATEGY.get("length_frames")
         self.candle_min = STRATEGY.get("candle_min")
@@ -65,7 +65,8 @@ class StrategyBase(bt.Strategy):
         self.log("Base strategy initialized")
         self.subClass = None
         self.ensambleIndicators = EnsambleLinearRegressionAverage(self.ensambleIndicatorsLags,self.ensambleIndicatorsLengthFrames)
-        self.jsonParser = JsonParser(self.ensambleIndicators)
+        
+        self.jsonParser = JsonParser(self.ensambleIndicators, index)
         self.order_ejecuted_fail = False
 
         if ENV == PRODUCTION or self.STANDALONE == True:
@@ -133,6 +134,7 @@ class StrategyBase(bt.Strategy):
         lengths_frames = self.ensambleIndicatorsLengthFrames
         candle_min = self.candle_min
         self.ensambleIndicators.get_indicators(dataset, datetime, lags, lengths_frames, candle_min, stand_alone=self.STANDALONE)
+        print("indicadores")
         if self.STANDALONE == False:
             self.jsonParser.create_json_file(self.ensambleIndicators)
 

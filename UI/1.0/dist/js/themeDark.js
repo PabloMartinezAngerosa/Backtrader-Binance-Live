@@ -235,7 +235,7 @@ chart.subscribeCrosshairMove((param) => {
 		const estimatorDelta = showEstimatorDetailNear(areaSeries.coordinateToPrice(param.point.y), price);
 		firstRow.innerText = 'Price $' + '  ' + price.toFixed(2) + " , delta $" + (areaSeries.coordinateToPrice(param.point.y) - price ).toFixed(2) + estimatorDelta;
 		firstRow.innerText = firstRow.innerText + " El porcentaje de ganancia without fee es " + createProfitWithoutFee(price,areaSeries.coordinateToPrice(param.point.y) );
-		//firstRow.innerText = firstRow.innerText + " . En Leverage x100 la ganancia venta compra es " + doubleTradingSellBuy(price, areaSeries.coordinateToPrice(param.point.y));
+		firstRow.innerText = firstRow.innerText + " .  x100 ganancia es " + get_leverage_profit(price, areaSeries.coordinateToPrice(param.point.y));
 	}
   else {
   	firstRow.innerText = '';
@@ -245,14 +245,32 @@ chart.subscribeCrosshairMove((param) => {
 function createProfitWithoutFee(buyPrice, actualPrice){
 	return actualPrice/buyPrice;
 }
+
+function get_leverage_profit(buy_price, sell_price){
+	
+	var interes_USDT = 0.001; 
+	var interes_BTC = 0.0003;
+	var tiempo_interes = 1/24; 
+	var acum_capital = 100; // 10 usdt
+	var leverage = 10; // x100
+	
+	var buy_bitcoin = ((acum_capital * leverage) / buy_price) * (1 - 0.001)
+	var sell_bitcoin = (buy_bitcoin * sell_price) * (1-0.001)
+	
+	acum_capital = sell_bitcoin - ((acum_capital * leverage) - acum_capital) * (1+ interes_USDT)**(tiempo_interes)
+
+	return acum_capital;
+}
+
+
 function doubleTradingSellBuy(sellPrice, actualPrice){
 	//var interes_USDT = 0.001 // si es Bitcoin el interes es 0.0003
     var interes_BTC = 0.0003;
 	var leverage = 100;
 	var tiempo_interes = 1/24;
 	var acum_capital = 1;
-	var sell_usdt = ((acum_capital * leverage) * sellPrice)* (1 - 0.001)
-    var buy_bitcoin = (sell_usdt / actualPrice )* (1-0.001)
+	var sell_usdt = ((acum_capital * leverage) * sellPrice)
+    var buy_bitcoin = (sell_usdt / actualPrice )
     var acum_capital = buy_bitcoin - ((acum_capital * leverage) - acum_capital) * (1+ interes_BTC)**(tiempo_interes)
 	return acum_capital;
 }
@@ -464,7 +482,7 @@ function updateEstimadores(candle_estimators, low, high){
 	candle_estimators.low.mediaRef = agregarEstimador(candle_estimators.low.media, true, "low mean");
 	candle_estimators.low.media2Ref = agregarEstimador(candle_estimators.low.mediaIter2, true, "low mean 2");
 	candle_estimators.low.media3Ref = agregarEstimador(candle_estimators.low.mediaIter3, true, "low mean 3");
-	candle_estimators.low.deltaRef = agregarEstimador(candle_estimators.low.delta, true, "low delta");
+	candle_estimators.low.deltaRef = agregarEstimador(candle_estimators.close.media, true, "low delta");
 	
 	// add high estimators graphic
 	candle_estimators.high.mediaRef = agregarEstimador(candle_estimators.high.media, false, "high mean");
@@ -476,7 +494,7 @@ function updateEstimadores(candle_estimators, low, high){
 	document.getElementById("low_media_table").innerText = "$" + candle_estimators.low.media.toFixed(2);
 	document.getElementById("low_media2_table").innerText = "$" + candle_estimators.low.mediaIter2.toFixed(2);
 	document.getElementById("low_media3_table").innerText = "$" + candle_estimators.low.mediaIter3.toFixed(2);
-	document.getElementById("low_delta_table").innerText = "$" + candle_estimators.low.delta.toFixed(2);
+	document.getElementById("low_delta_table").innerText = "$" + candle_estimators.close.media.toFixed(2);
 	document.getElementById("low_table").innerText = "$" + low.toFixed(2);
 	
 	// update table estimators high

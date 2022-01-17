@@ -20,6 +20,9 @@ class EnsambleLinearIndicatorsClass():
         self.mediaEstimadorLow = sqlRow.low_mean
         self.mediaEstimadorLow_iterada2 = sqlRow.low_mean2
         self.mediaEstimadorLow_iterada3 = sqlRow.low_mean3
+        self.lowCombo = sqlRow.low_combo
+        self.highCombo = sqlRow.high_combo
+        self.closeCombo = sqlRow.close_combo
         self.deltaMediaOpenLow = sqlRow.low_delta
         self.mediaEstimadorHigh  = sqlRow.high_mean
         self.mediaEstimadorHigh_iterada2 = sqlRow.high_mean2
@@ -59,6 +62,11 @@ class EnsambleLinearIndicatorsClass():
         except:
             return 0
 
+    def decodeToFloatList(self, encoded_list):
+        string_list = encoded_list.split(",")
+        list_of_floats = [float(item) for item in string_list]
+        return list_of_floats
+
 
     def update(self, encode_values):
         '''
@@ -70,11 +78,14 @@ class EnsambleLinearIndicatorsClass():
         self.mediaEstimadorLow_iterada2 = self.checkValue(values[1])
         self.mediaEstimadorLow_iterada3 = self.checkValue(values[2])
         self.deltaMediaOpenLow = self.checkValue(values[3])
-        self.mediaEstimadorHigh  = self.checkValue(values[4])
-        self.mediaEstimadorHigh_iterada2 = self.checkValue(values[5])
-        self.mediaEstimadorHigh_iterada3 = self.checkValue(values[6])
-        self.deltaMediaOpenHigh = self.checkValue(values[7])
-        self.mediaEstimadorClose = self.checkValue(values[8])
+        self.lowCombo = values[4]
+        self.mediaEstimadorHigh  = self.checkValue(values[5])
+        self.mediaEstimadorHigh_iterada2 = self.checkValue(values[6])
+        self.mediaEstimadorHigh_iterada3 = self.checkValue(values[7])
+        self.deltaMediaOpenHigh = self.checkValue(values[8])
+        self.highCombo = values[9]
+        self.mediaEstimadorClose = self.checkValue(values[10])
+        self.closeCombo = values[11]
 
         self.updateIndicatorsList()
     

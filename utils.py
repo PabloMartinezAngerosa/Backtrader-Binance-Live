@@ -39,7 +39,7 @@ def print_trade_analysis(analyzer):
     for row in print_list:
         print(row_format.format('', *row))
 
-def createJsonFile(data):
+def createJsonFile(data, index=0):
     '''
     data = {}
     data['people'] = []
@@ -59,12 +59,15 @@ def createJsonFile(data):
         'from': 'Alabama'
     })
     '''
-
+    if index > 0:
+        index = str(index)
+    else:
+        index = ""
     #with open('data.json', 'w') as outfile:
     #    json.dump(data, outfile)
-    start = "var text = \'"
+    start = "var text" + index + " = \'"
     end = "\';"
-    f = open("./UI/1.0/data.js", "w")
+    f = open("./UI/1.0/data" + index + ".js", "w")
     #TODO cambiar cuando este finalizada 1.0 de javascript!
     #f = open("./sessions/template/data.js", "w")
     f.write(start + json.dumps(data) + end)

@@ -1,7 +1,7 @@
 from utils import createJsonFile
  
 class JsonParser():
-    def __init__(self, ensambleIndicators):
+    def __init__(self, ensambleIndicators, index):
         self.data = {}
         self.firstEstimation = False
         self.ticks = []
@@ -18,6 +18,7 @@ class JsonParser():
         self.subida_estrepitosa = 0
         self.subida_estrepitosa_buffer = None
         self.subida_estrepitosa_index = 0
+        self.index = index
 
     def set_subida_estrepitosa(self, value, index=0):
         self.subida_estrepitosa = value
@@ -121,5 +122,5 @@ class JsonParser():
         # agrega trades acumulados
         self.data["trades"] = self.trades
         self.data["candles"] = self.candles
-        createJsonFile(self.data)
+        createJsonFile(self.data, self.index)
 

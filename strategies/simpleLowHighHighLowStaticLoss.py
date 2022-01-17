@@ -1,10 +1,13 @@
 # #!/usr/bin/env python3
 '''
 
-Esta estraegia es un mix de fastTradingNoFeedLowHigh con allNoFee (subida acrecentada)
-Se manejan proyecciones de ganancia independiente para establecer un margen ganancia en cada una independeinte.
-Esto es para reducir el riesgo, muchas veces se alcanza a los objetivos en 12 hs pero por dejar mas, se baja.
-Tambien se establece un margen general, que es el que finaliza los trades de las 12 hs.
+Lista para produccion.
+Puede tener algunos bugs. 
+Se ejecuta en 15 minutos.
+Cuando cumple las condiciones, hace pre-aviso.
+Espera a un error de 0.0045% y ahi ejecuta el trade.
+Los objetivos son muchos mas grandes que en 15 minutos y es fijo en general 0.02 desde el precio. 
+Funciona muy bien en Leverage. Se   busca un acierto 4/5 , 5/5. Las ganancias duplican las perdidas. 
 
 '''
 import backtrader as bt
@@ -44,7 +47,7 @@ class SimpleLowHighHighLowStaticLoss(StrategyBase):
 
         # en media se origino en 32k. 
         # ajuste precio en media 
-        ajuste = 46/32
+        ajuste = 48/32
         self.RMSE_low = 15*ajuste # RMSE si toca estimador low, se busca preciso
         self.min_high_prediction =  50 * ajuste
         self.RMSE_high = 30*3*ajuste # RMSE si toca antes algun estimador high
