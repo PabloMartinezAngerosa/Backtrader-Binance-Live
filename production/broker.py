@@ -7,6 +7,7 @@ import pandas as pd
 import math
 from indicators.sqlCache import  SqlCache
 from production.automation_phemex import Automation
+import sys, os
 
 class BrokerProduction:
     def __init__(self, info, interval, phemex_automation, testing_production_date = None, stand_alone = False):
@@ -132,7 +133,12 @@ class BrokerProduction:
                 phemex_price = self.phemex_automation.get_current_price()
             # addNextFrame con indice 2  en close los demas 0, False
             self.cerebro.addNextFrame(2,datetime, 0, 0, 0, phemex_price, 0, False)
-        self.cerebro.addNextFrame(0,datetime, open, low, high, close, volume, True)
+        try:
+            self.cerebro.addNextFrame(0,datetime, open, low, high, close, volume, True)
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
         # agrega el precio realtime a la BD
         # esto solo se llama en ENV = PRODUCTION
         # si hay problema en la BD evita que se corte el flujo del bot.

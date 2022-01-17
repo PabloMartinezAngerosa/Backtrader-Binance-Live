@@ -134,7 +134,7 @@ class StrategyBase(bt.Strategy):
         lengths_frames = self.ensambleIndicatorsLengthFrames
         candle_min = self.candle_min
         self.ensambleIndicators.get_indicators(dataset, datetime, lags, lengths_frames, candle_min, stand_alone=self.STANDALONE)
-        print("indicadores")
+        
         if self.STANDALONE == False:
             self.jsonParser.create_json_file(self.ensambleIndicators)
 
