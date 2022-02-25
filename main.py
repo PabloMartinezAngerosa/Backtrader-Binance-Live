@@ -28,6 +28,7 @@ from strategies.simpleLowHighHighLowStaticLoss import SimpleLowHighHighLowStatic
 from strategies.frameMobileStrategyLongShort import FrameMobileStrategyLongShort
 from strategies.frameMobileStrategyShortAceleration import FrameMobileStrategyShortAceleration
 from strategies.surfingTheRandomWalk import SurfingTheRandomWalk
+from strategies.surfingTheRandomWalkScape import SurfingTheRandomWalkScape
 #from strategies.fastTradingNoFeeLowHigh import FastTradingNoFeeLowHigh
 #from strategies.fastTradingNoFeeHighLow import FastTradingNoFeeHighLow
 #from strategies.allNoFee import AllNoFee
@@ -83,9 +84,9 @@ def main():
             timeframe = bt.TimeFrame.Minutes,
             #fromdate = datetime.datetime(2021, 6, 2),
             #todate = datetime.datetime(2021, 5, 4),
-            fromdate = datetime.datetime(2022, 1, 1),
+            fromdate = datetime.datetime(2021, 1, 1),
             #todate = datetime.datetime(2021, 9, 10),
-            todate = datetime.datetime(2022, 1, 10),
+            todate = datetime.datetime(2022, 2, 14),
             nullvalue = 0.0
         )
         
@@ -103,7 +104,7 @@ def main():
         '''
         cerebro.adddata(data)
         # Resample to have multiple data like Binance. Compression x30, x60, x240, min. 
-        second_time_frame = 60
+        second_time_frame = 720
         cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, 
                              compression=second_time_frame)
         broker = cerebro.getbroker()
@@ -118,7 +119,7 @@ def main():
 
     # # Include Strategy
     if ENV == PRODUCTION:
-        strategy = SurfingTheRandomWalk()
+        strategy = SurfingTheRandomWalkScape()
         #strategy = SimpleLowHighHighLowStaticLoss() 
         #strategy  = FrameMobileStrategyShortAceleration()
         #strategy = AllNoFee(phemex_automation)
@@ -133,7 +134,7 @@ def main():
             if BUY_OPERATION_INFO["is_order"] == True:
                 cerebro.strategy.set_buy_operation(BUY_OPERATION_INFO)
     else:
-        cerebro.addstrategy(SurfingTheRandomWalk)
+        cerebro.addstrategy(SurfingTheRandomWalkScape)
         #cerebro.addstrategy(FrameMobileStrategyShortAceleration)
 
     # # Starting backtrader bot
