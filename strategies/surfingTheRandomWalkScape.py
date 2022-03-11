@@ -44,7 +44,7 @@ class SurfingTheRandomWalkScape(StrategyBase):
 
     def __init__(self, index=0, parent = None):
         StrategyBase.__init__(self, index=index)
-
+        self.do_update_martin_gala = False
         self.indicators_ready = False
         self.log("Using Surfing the Random Walk Scape")
         self.lendata1 = 0
@@ -78,7 +78,7 @@ class SurfingTheRandomWalkScape(StrategyBase):
         self.delta_aceleration_low = 10*self.ponderador
         self.base_martingala = 100
         self.min_high_prediction =  10*self.ponderador 
-        self.capital_acumulado = 2000 # capitla inicial
+        self.capital_acumulado = 2500 # capitla inicial
         self.parent = parent
         self.total_short_orders = ""
         self.total_long_orders = ""
@@ -87,7 +87,7 @@ class SurfingTheRandomWalkScape(StrategyBase):
         self.short_real_profit = []
         self.long_ticks_succes_active_order = []
         self.long_ticks_fail_active_order = []
-        self.acum_capital_martingala = 2000
+        self.acum_capital_martingala = 2500
         self.total_long_orders_filtered = ""
         self.total_fial_short = 0
         self.total_succes_short = 0
@@ -425,7 +425,7 @@ class SurfingTheRandomWalkScape(StrategyBase):
                         continue_limit = False # solo se fija en el close pirmariamente
                         if high >= self.long_profit and continue_limit == True:
                             martin_gala_capital = self.get_martin_gala_capital()
-                            self.capital_acumulado += (self.get_leverage_profit(100, self.long_price, high,martin_gala_capital) - martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, high,martin_gala_capital) - martin_gala_capital)
                             self.capital_list.append(self.capital_acumulado)
                             profit_long_succes = (high/self.long_price)-1
                             profit_long_succes = 0.01
@@ -501,7 +501,7 @@ class SurfingTheRandomWalkScape(StrategyBase):
                         if filter_price["value"] <= self.long_stop_loss:
                             martin_gala_capital = self.get_martin_gala_capital()
                             print(martin_gala_capital)
-                            self.capital_acumulado += (self.get_leverage_profit(100, self.long_price, actual_price,martin_gala_capital) - martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, actual_price,martin_gala_capital) - martin_gala_capital)
                             self.capital_list.append(self.capital_acumulado)
                             profit_long_lost = 1 - (low/self.long_price)
                             profit_long_lost = 0.04
@@ -579,26 +579,31 @@ class SurfingTheRandomWalkScape(StrategyBase):
 
                         if self.total_ticks >= 718:
                             # close
+                            
                             if actual_price <= self.long_stop_loss:
                                 self.lost_acum += 1
                                 self.succes_acum = 0
                                 self.total_long_orders = self.total_long_orders + "F" 
-                                do_update_martin_gala = False
+                                self.do_update_martin_gala = False
                             if actual_price >= self.long_profit:
                                 self.lost_acum = 0
                                 self.succes_acum += 1
                                 self.total_long_orders = self.total_long_orders + "T"
-                                do_update_martin_gala = True 
+                                self.do_update_martin_gala = True 
                             if actual_price < self.long_profit and actual_price > self.long_stop_loss:
                                 if actual_price > self.long_price + 80:
                                     self.total_long_orders = self.total_long_orders + "t"
+                                    self.do_update_martin_gala = True 
                                 else:
                                     self.total_long_orders = self.total_long_orders + "f"
+                                    self.do_update_martin_gala = False
                             self.log(self.total_long_orders,  to_ui = True, date = self.datetime[0], send_telegram=True)
                             martin_gala_capital = self.get_martin_gala_capital()
-                            self.capital_acumulado += (self.get_leverage_profit(100, self.long_price, actual_price, martin_gala_capital)-martin_gala_capital)
-                            if do_update_martin_gala == True:
-                                self.base_martingala = (self.capital_acumulado *100) / 2000
+                            self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, actual_price, martin_gala_capital)-martin_gala_capital)
+                            if self.do_update_martin_gala == True:
+                                self.base_martingala = (self.capital_acumulado *100) / 250
+                                if self.base_martingala >= 1000000:
+                                    self.base_martingala = 1000000
 
                             self.capital_list.append(self.capital_acumulado)
                             message = "Long Buy Close Acrecentada: " + str(self.capital_acumulado) 

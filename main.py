@@ -84,9 +84,9 @@ def main():
             timeframe = bt.TimeFrame.Minutes,
             #fromdate = datetime.datetime(2021, 6, 2),
             #todate = datetime.datetime(2021, 5, 4),
-            fromdate = datetime.datetime(2021, 1, 1),
+            fromdate = datetime.datetime(2020, 12, 20),
             #todate = datetime.datetime(2021, 9, 10),
-            todate = datetime.datetime(2022, 2, 14),
+            todate = datetime.datetime(2022, 2, 1),
             nullvalue = 0.0
         )
         
