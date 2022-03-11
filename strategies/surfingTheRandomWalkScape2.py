@@ -302,17 +302,17 @@ class SurfingTheRandomWalkScape2(StrategyBase):
         elif self.lost_acum == 1:
             return self.base_martingala
         elif self.lost_acum == 2:
-            return self.base_martingala
+            return self.base_martingala * 0.2
         elif self.lost_acum == 3:
-            return self.base_martingala
+            return self.base_martingala * 0.3
         elif self.lost_acum == 4:
-            return self.base_martingala
+            return self.base_martingala * 0.4
         elif self.lost_acum == 5:
-            return self.base_martingala
+            return self.base_martingala * 0.5
         elif self.lost_acum == 6:
-            return self.base_martingala
+            return self.base_martingala * 0.5
         elif self.lost_acum == 7:
-            return self.base_martingala
+            return self.base_martingala * 0.5
         elif self.lost_acum == 8:
             return self.base_martingala
         elif self.lost_acum == 9:
@@ -438,7 +438,7 @@ class SurfingTheRandomWalkScape2(StrategyBase):
                             martin_gala_capital = self.get_martin_gala_capital()
                             print(martin_gala_capital)
                             self.sell_and_buy_strategy = True
-                            self.capital_acumulado += (self.get_leverage_profit(100, self.short_price, actual_price,martin_gala_capital) - martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(10, self.short_price, actual_price,martin_gala_capital) - martin_gala_capital)
                             self.capital_list.append(self.capital_acumulado)
                             self.sell_and_buy_strategy = False
                             #message = "F Long Buy: " + self.parent.total_long_orders_filtered + " total capital " + str(self.parent.acum_capital_martingala) + " index mgl  " + str(index_martin_gala) + " ganancia " + str(profit) + " capital to " + str(capital_to)
@@ -514,10 +514,10 @@ class SurfingTheRandomWalkScape2(StrategyBase):
                             self.log(self.total_long_orders,  to_ui = True, date = self.datetime[0], send_telegram=True)
                             martin_gala_capital = self.get_martin_gala_capital()
                             self.sell_and_buy_strategy = True
-                            self.capital_acumulado += (self.get_leverage_profit(100, self.short_price, actual_price, martin_gala_capital)-martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(10, self.short_price, actual_price, martin_gala_capital)-martin_gala_capital)
                             self.sell_and_buy_strategy = False
                             if self.do_update_martin_gala == True:
-                                self.base_martingala = (self.capital_acumulado *100) / 2500
+                                self.base_martingala = (self.capital_acumulado *100) / 250
                                 if self.base_martingala >= 100000:
                                     self.base_martingala = 100000
                                     print("Limit Martin gala!")
@@ -551,7 +551,7 @@ class SurfingTheRandomWalkScape2(StrategyBase):
                         continue_limit = False # solo se fija en el close pirmariamente
                         if high >= self.long_profit and continue_limit == True:
                             martin_gala_capital = self.get_martin_gala_capital()
-                            self.capital_acumulado += (self.get_leverage_profit(100, self.long_price, high,martin_gala_capital) - martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, high,martin_gala_capital) - martin_gala_capital)
                             self.capital_list.append(self.capital_acumulado)
                             profit_long_succes = (high/self.long_price)-1
                             profit_long_succes = 0.01
@@ -628,7 +628,7 @@ class SurfingTheRandomWalkScape2(StrategyBase):
                             self.lost_canndle_count += 1
                             martin_gala_capital = self.get_martin_gala_capital()
                             print(martin_gala_capital)
-                            self.capital_acumulado += (self.get_leverage_profit(100, self.long_price, actual_price,martin_gala_capital) - martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, actual_price,martin_gala_capital) - martin_gala_capital)
                             self.capital_list.append(self.capital_acumulado)
                             profit_long_lost = 1 - (low/self.long_price)
                             profit_long_lost = 0.04
@@ -727,9 +727,9 @@ class SurfingTheRandomWalkScape2(StrategyBase):
                                     self.do_update_martin_gala = False
                             self.log(self.total_long_orders,  to_ui = True, date = self.datetime[0], send_telegram=True)
                             martin_gala_capital = self.get_martin_gala_capital()
-                            self.capital_acumulado += (self.get_leverage_profit(100, self.long_price, actual_price, martin_gala_capital)-martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, actual_price, martin_gala_capital)-martin_gala_capital)
                             if self.do_update_martin_gala == True:
-                                self.base_martingala = (self.capital_acumulado *100) / 2500
+                                self.base_martingala = (self.capital_acumulado *100) / 250
                                 if self.base_martingala >= 100000:
                                     self.base_martingala = 100000
 

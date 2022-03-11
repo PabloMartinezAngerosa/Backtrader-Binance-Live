@@ -109,6 +109,9 @@ class SurfingTheRandomWalkScape(StrategyBase):
         # ticks son cada 1 min aprox
         self.max_ticks = self.candle_min * 0.6 
         self.actual_month = 0
+        self.distribution_lost_until_succes = []
+        self.candle_repeat_list = []
+        self.candle_total_repeat = 0
         self.refresh()
     
     def delta_high_mean_3_succes(self, actual_price):
@@ -132,6 +135,11 @@ class SurfingTheRandomWalkScape(StrategyBase):
         self.first_touch_filter_short = 0
         self.delta_aceleration_short = False
         self.repeat = True
+        if self.candle_total_repeat > 0:
+            self.candle_repeat_list.append(self.candle_total_repeat)
+            print("candle repeat") 
+            print(self.candle_repeat_list)
+        self.candle_total_repeat = 0
     
     def create_filter_mean(self, filter_tikcs, date):
         sum = 0
@@ -293,13 +301,13 @@ class SurfingTheRandomWalkScape(StrategyBase):
                 return self.base_martingala * 8
 
         elif self.lost_acum == 1:
-            return self.base_martingala
+            return self.base_martingala*0.5 
         elif self.lost_acum == 2:
-            return self.base_martingala
+            return self.base_martingala *0.5
         elif self.lost_acum == 3:
-            return self.base_martingala
+            return self.base_martingala *0.5
         elif self.lost_acum == 4:
-            return self.base_martingala
+            return self.base_martingala *0.5
         elif self.lost_acum == 5:
             return self.base_martingala
         elif self.lost_acum == 6:
@@ -313,7 +321,7 @@ class SurfingTheRandomWalkScape(StrategyBase):
         elif self.lost_acum == 10:
             return self.base_martingala
         else:
-            return self.base_martingala
+            return self.base_martingala * 0.5
     
 
 
@@ -500,7 +508,6 @@ class SurfingTheRandomWalkScape(StrategyBase):
                             low = actual_price
                         if filter_price["value"] <= self.long_stop_loss:
                             martin_gala_capital = self.get_martin_gala_capital()
-                            print(martin_gala_capital)
                             self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, actual_price,martin_gala_capital) - martin_gala_capital)
                             self.capital_list.append(self.capital_acumulado)
                             profit_long_lost = 1 - (low/self.long_price)
@@ -543,7 +550,8 @@ class SurfingTheRandomWalkScape(StrategyBase):
                             self.log(sum(self.long_real_lost)/len(self.long_real_lost),  to_ui = True, date = self.datetime[0], send_telegram=True)
                             self.jsonParser.set_subida_estrepitosa(1, self.total_ticks)
                             
-                             # if lost try again//  make a new one in long
+                            # if lost try again//  make a new one in long
+                            
                             self.is_order_long = True
                             self.trade_made = True
                             #self.buy_tick = self.total_ticks
@@ -553,6 +561,7 @@ class SurfingTheRandomWalkScape(StrategyBase):
                             self.long_profit = actual_price * (1 + 0.01*1.4)
                             #self.long_profit = actual_price + self.get_delta_mean()
                             self.long_stop_loss = actual_price * (1 - (0.0035))
+                            self.candle_total_repeat += 1
                             '''
                             if self.repeat == True:
                                 self.repeat = False
@@ -586,6 +595,7 @@ class SurfingTheRandomWalkScape(StrategyBase):
                                 self.total_long_orders = self.total_long_orders + "F" 
                                 self.do_update_martin_gala = False
                             if actual_price >= self.long_profit:
+                                self.distribution_lost_until_succes.append(self.lost_acum)
                                 self.lost_acum = 0
                                 self.succes_acum += 1
                                 self.total_long_orders = self.total_long_orders + "T"
