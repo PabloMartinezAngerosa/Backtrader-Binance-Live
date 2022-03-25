@@ -45,7 +45,7 @@ klines = client.futures_historical_klines(
     symbol='BTCUSDT',
     interval=interval,  # can play with this e.g. '1h', '4h', '1w', etc.
     start_str='2020-12-15',
-    end_str='2022-2-14'
+    end_str='2022-3-13'
 )
 
 data = pd.DataFrame(klines, columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'quote_av', 'trades', 'tb_base_av', 'tb_quote_av', 'ignore' ])

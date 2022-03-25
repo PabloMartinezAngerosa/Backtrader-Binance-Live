@@ -551,7 +551,6 @@ class SurfingTheRandomWalkScape(StrategyBase):
                             self.jsonParser.set_subida_estrepitosa(1, self.total_ticks)
                             
                             # if lost try again//  make a new one in long
-                            
                             self.is_order_long = True
                             self.trade_made = True
                             #self.buy_tick = self.total_ticks
