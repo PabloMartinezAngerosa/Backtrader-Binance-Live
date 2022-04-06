@@ -84,9 +84,9 @@ def main():
             timeframe = bt.TimeFrame.Minutes,
             #fromdate = datetime.datetime(2021, 6, 2),
             #todate = datetime.datetime(2021, 5, 4),
-            fromdate = datetime.datetime(2021, 11, 5),
+            fromdate = datetime.datetime(2022, 2, 15),
             #todate = datetime.datetime(2021, 9, 10),
-            todate = datetime.datetime(2022, 1, 1),
+            todate = datetime.datetime(2022, 4, 4),
             nullvalue = 0.0
         )
         
@@ -104,7 +104,7 @@ def main():
         '''
         cerebro.adddata(data)
         # Resample to have multiple data like Binance. Compression x30, x60, x240, min. 
-        second_time_frame = 1440
+        second_time_frame = 720
         cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, 
                              compression=second_time_frame)
         broker = cerebro.getbroker()

@@ -744,7 +744,7 @@ function updateActualNextPrevIndex(index){
 	}
 }
 
-/*
+
 
 function goNext(){
 	updateCandleData(NEXTINDEX);
@@ -753,8 +753,9 @@ function goPrev(){
 	updateCandleData(PREVINDEX);
 }
 
-*/
 
+
+/*
 function goPrev(){
 	var lengthData = data.candles.length;
 	var isNext = false;
@@ -781,6 +782,7 @@ function goNext(){
 	if (isNext)
 		updateCandleData(NEXTINDEX);
 }
+*/
 
 function checkCandleTicksLength(dataset){
 	var length = dataset.candles.length;

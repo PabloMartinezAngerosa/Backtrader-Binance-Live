@@ -38,6 +38,24 @@ TELEGRAM = {
 }
 #https://api.telegram.org/bot1626640400:AAEJeXYbxMIsNiDu7okdHHHU7JuHsmn0swo/getUpdates
 # group id 1626640400
+'''
+  'KLINE_INTERVAL_1MINUTE': '1m',
+  'KLINE_INTERVAL_3MINUTE': '3m',
+  'KLINE_INTERVAL_5MINUTE': '5m',
+  'KLINE_INTERVAL_15MINUTE': '15m',
+  'KLINE_INTERVAL_30MINUTE': '30m',
+  'KLINE_INTERVAL_1HOUR': '1h',
+  'KLINE_INTERVAL_2HOUR': '2h',
+  'KLINE_INTERVAL_4HOUR': '4h',
+  'KLINE_INTERVAL_6HOUR': '6h',
+  'KLINE_INTERVAL_8HOUR': '8h',
+  'KLINE_INTERVAL_12HOUR': '12h',
+  'KLINE_INTERVAL_1DAY': '1d',
+  'KLINE_INTERVAL_3DAY': '3d',
+  'KLINE_INTERVAL_1WEEK': '1w',
+  'KLINE_INTERVAL_1MONTH': '1M'
+'''
+
 SQL = {
   "user" : "root",
   "pass" :  "libertad" 
@@ -48,8 +66,8 @@ STRATEGY = {
   "min_profit": (80/100)**(1/60),
   "length_frames": 25,
   "lags": 5,
-  "candle_min":1440,
-  "kline_interval": "KLINE_INTERVAL_1DAY",
+  "candle_min":720,
+  "kline_interval": "KLINE_INTERVAL_12HOUR",
   "mean_tick_prod":418,
   "mean_tick_dev":418
 }

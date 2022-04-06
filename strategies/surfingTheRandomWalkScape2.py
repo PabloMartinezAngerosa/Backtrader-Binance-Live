@@ -52,7 +52,7 @@ class SurfingTheRandomWalkScape2(StrategyBase):
         self.ensambleIndicatorsLags = STRATEGY.get("lags")
         self.ensambleIndicatorsLengthFrames = STRATEGY.get("length_frames")
         self.ponderador = 4 # original 4 hs x3 = 12 horas
-        self.candle_min = 1440
+        self.candle_min = 720
         self.is_order_long = False
         self.is_order_short = False
         self.long_ticks_order = 0
@@ -164,7 +164,7 @@ class SurfingTheRandomWalkScape2(StrategyBase):
         return self.ensambleIndicators.mediaEstimadorLow_iterada3 - self.ensambleIndicators.mediaEstimadorLow
     
     def is_touching_low_delta(self, actual_price):
-        low = self.ensambleIndicators.mediaEstimadorLow
+        low = self.ensambleIndicators.mediaEstimadorLow_iterada3
         if actual_price >= (low - self.RMSE_low) and actual_price <= low + self.RMSE_low:
             return True
         return False
@@ -554,16 +554,17 @@ class SurfingTheRandomWalkScape2(StrategyBase):
                             self.jsonParser.set_subida_estrepitosa(1, self.total_ticks)
                             
                             # if lost try again//  make a new one in long
-                            self.is_order_long = True
-                            self.trade_made = True
-                            #self.buy_tick = self.total_ticks
-                            self.long_price = actual_price
-                            #self.buffer_price_long = actual_price
-                            #self.long_profit = self.ensambleIndicators.mediaEstimadorHigh_iterada3
-                            self.long_profit = actual_price * (1 + 0.01*1.4)
-                            #self.long_profit = actual_price + self.get_delta_mean()
-                            self.long_stop_loss = actual_price * (1 - (0.0035))
-                            self.candle_total_repeat += 1
+                            if self.candle_total_repeat < 4:
+                                self.is_order_long = True
+                                self.trade_made = True
+                                #self.buy_tick = self.total_ticks
+                                self.long_price = actual_price
+                                #self.buffer_price_long = actual_price
+                                #self.long_profit = self.ensambleIndicators.mediaEstimadorHigh_iterada3
+                                self.long_profit = actual_price * (1 + 0.01*1.4)
+                                #self.long_profit = actual_price + self.get_delta_mean()
+                                self.long_stop_loss = actual_price * (1 - (0.0035))
+                                self.candle_total_repeat += 1
                             '''
                             if self.repeat == True:
                                 self.repeat = False
