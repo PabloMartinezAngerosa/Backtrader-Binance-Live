@@ -156,16 +156,19 @@ def main():
     # print('Profit %.3f%%' % ((final_value - initial_value) / initial_value * 100))
     # #  print_trade_analysis(result[0].analyzers.ta.get_analysis())
     # #  print_sqn(result[0].analyzers.sqn.get_analysis())
-    print(cerebro.strategy.list_capital)
+    # print(cerebro.strategy.list_capital)
 
 
     if DEBUG and ENV == DEVELOPMENT:
         cerebro.plot()
     
+    '''
     return {
         "acum_capital_all":cerebro.strategy.get_acum_capital_all(),
         "buy_operation_info": cerebro.strategy.get_buy_operation_info()
     }
+    '''
+    return True
 
 if __name__ == "__main__":
     try:

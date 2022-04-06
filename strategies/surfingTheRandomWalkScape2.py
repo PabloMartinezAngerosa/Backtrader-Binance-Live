@@ -336,7 +336,7 @@ class SurfingTheRandomWalkScape2(StrategyBase):
 
         actual_price = close
         message = 'Close: %.3f %% '  % close
-        #self.log(message)
+        self.log(message)
         self.jsonParser.addTick(self.datetime[0], actual_price)
         
         #TODO hacer por minuto en live. si cambia ahi actualiza el close y activa ver. 
@@ -357,7 +357,7 @@ class SurfingTheRandomWalkScape2(StrategyBase):
             if timestamp.minute != self.actual_minute:
                 self.actual_minute = timestamp.minute
                 self.action_min = True
-                #print(self.actual_minute) 
+                print(self.actual_minute) 
             else:
                 self.action_min = False
         except Exception as e:

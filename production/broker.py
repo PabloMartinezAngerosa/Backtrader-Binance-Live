@@ -78,7 +78,7 @@ class BrokerProduction:
             message["k"] = candle
             message["phemex"] = tick["phemex_close"]
             self.on_message(None, json.dumps(message))
-        
+        '''
         print("Finaliza con los siguientes resultados:")
         print(self.cerebro.get_wallet_balance())
         print("History Balance:")
@@ -92,6 +92,7 @@ class BrokerProduction:
         # print(self.cerebro.get_wallet_balance_leverage())
         # genera el json_message simulando lo que envia Binance desde el API
         # llama on_message 
+        '''
 
     def set_cerebro(self,cerebro):
         self.cerebro = cerebro
