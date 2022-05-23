@@ -7,7 +7,7 @@ DEVELOPMENT = "development"
 COIN_TARGET = "BTC"
 COIN_REFER = "USDT"
 
-ENV = os.getenv("ENVIRONMENT", PRODUCTION)
+ENV = os.getenv("ENVIRONMENT", DEVELOPMENT)
 MULTIPLE_INSTANCE = False
 DEBUG = True
 PERSISTENCE_CONNECTION = False
@@ -66,8 +66,8 @@ STRATEGY = {
   "min_profit": (80/100)**(1/60),
   "length_frames": 25,
   "lags": 5,
-  "candle_min":720,
-  "kline_interval": "KLINE_INTERVAL_12HOUR",
+  "candle_min":640,
+  "kline_interval": "KLINE_INTERVAL_4HOUR",
   "mean_tick_prod":418,
   "mean_tick_dev":418
 }

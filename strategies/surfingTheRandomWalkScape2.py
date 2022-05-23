@@ -52,7 +52,7 @@ class SurfingTheRandomWalkScape2(StrategyBase):
         self.ensambleIndicatorsLags = STRATEGY.get("lags")
         self.ensambleIndicatorsLengthFrames = STRATEGY.get("length_frames")
         self.ponderador = 4 # original 4 hs x3 = 12 horas
-        self.candle_min = 720
+        self.candle_min = 240
         self.is_order_long = False
         self.is_order_short = False
         self.long_ticks_order = 0
