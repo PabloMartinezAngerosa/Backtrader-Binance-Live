@@ -35,7 +35,7 @@ class BrokerProduction:
         self.cerebro = None
         # sin futuros wss://stream.binance.com:9443/ws/btcusdt@kline_
         # con fuures wss://fstream.binance.com/ws/btcusdt@kline_
-        self.socket  = "wss://fstream.binance.com/ws/btcusdt@kline_" + self.interval[self.klineInterval]
+        self.socket  = "wss://fstream.binance.com/ws/"+COIN_TARGET.lower() + COIN_REFER.lower() +"@kline_" + self.interval[self.klineInterval]
         print(self.socket)
         self.symbol = COIN_TARGET + COIN_REFER
         # en la version stand alone, en fuerza bruto por ejemplo, no es necesario instanciar el Client.
@@ -147,9 +147,9 @@ class BrokerProduction:
         if TESTING_PRODUCTION == False and self.STANDALONE == False:
             if PHEMEX_PRICE == True:
                 # agrega el price pero con el precio phemex
-                self.sql_cache.insert_realtime_price_with_phemex(datetime, open, low, high, close, volume, datetime_closed,  is_closed, phemex_price)
+                self.sql_cache.insert_realtime_price_with_phemex(datetime, open, low, high, close, volume, datetime_closed,  is_closed, phemex_price, coin=COIN_TARGET)
             else:
-                self.sql_cache.insert_realtime_price(datetime, open, low, high, close, volume, datetime_closed,  is_closed)
+                self.sql_cache.insert_realtime_price(datetime, open, low, high, close, volume, datetime_closed,  is_closed, coin=COIN_TARGET)
         #except:
         #    print("Problema en guardar en la BD el tick en realtime.")
 

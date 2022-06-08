@@ -4,10 +4,8 @@ from config_binance import BINANCE_CREDENTIALS
 PRODUCTION = "production"
 DEVELOPMENT = "development"
 
-COIN_TARGET = "BTC"
-COIN_REFER = "USDT"
 
-ENV = os.getenv("ENVIRONMENT", DEVELOPMENT)
+ENV = os.getenv("ENVIRONMENT", PRODUCTION)
 MULTIPLE_INSTANCE = False
 DEBUG = True
 PERSISTENCE_CONNECTION = False
@@ -61,13 +59,26 @@ SQL = {
   "pass" :  "libertad" 
 }
 
+
+COIN_TARGET = "GMT"  #****** IMPORTANTE SE TOMA EN CUENTA PARA GUARAD Y OBTENER EN BD ESTIMADORES *******#
+COIN_REFER = "USDT"
+
 STRATEGY = {
+  "coin": COIN_TARGET,
   "max_profit": (130/100)**(1/60),
   "min_profit": (80/100)**(1/60),
   "length_frames": 25,
   "lags": 5,
-  "candle_min":640,
+  "candle_min":240,
   "kline_interval": "KLINE_INTERVAL_4HOUR",
+  # start strategy
+  "start_year":2022,
+  "start_month":5,
+  "start_day":26,
+  # end strategy
+  "end_year":2022,
+  "end_month":6,
+  "end_day":6,
   "mean_tick_prod":418,
   "mean_tick_dev":418
 }

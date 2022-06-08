@@ -123,7 +123,7 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
                 dataset.volume.append(data.volume[i])
         return dataset
     
-    def get_indicators(self, dataset, datetime, lags, lengths_frames, candle_min, stand_alone = False):
+    def get_indicators(self, dataset, datetime, lags, lengths_frames, candle_min, coin = "BTC", stand_alone = False):
 
         indicators = None
         is_in_database = False
@@ -131,7 +131,7 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
         if (ENV == DEVELOPMENT or TESTING_PRODUCTION == True or stand_alone == True):
             #print("bsuca en la BD si existen, deberian!")
             #print(datetime)
-            result = self.sqlCache.check_estimators(datetime, candle_min, lags, lengths_frames)
+            result = self.sqlCache.check_estimators(datetime, candle_min, lags, lengths_frames, coin=coin)
             #print(result.rowcount)
             if result.rowcount >0:
                 #  Ya existe en la BD con las condiciones
@@ -173,7 +173,7 @@ class EnsambleLinearRegressionAverage(EnsambleLinearIndicatorsClass):
                 self.update(indicators)
                 self.timestamp = datetime
                 self.date = pd.to_datetime(datetime, unit='ms')
-                self.sqlCache.insert_estimators(datetime, candle_min, lags, lengths_frames, self)
+                self.sqlCache.insert_estimators(datetime, candle_min, lags, lengths_frames, self, coin=coin)
 
        
         return True

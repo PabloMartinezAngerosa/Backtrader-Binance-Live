@@ -29,18 +29,19 @@ class SqlCache:
         self.table_realtime_price_miliseconds = sql.Table("realtime_price_miliseconds", self.metadata, autoload=True, autoload_with=self.engine)
 
 
-    def check_estimators(self, date, candle, lags, length_frames):
+    def check_estimators(self, date, candle, lags, length_frames, coin="BTC"):
         query = sql.select([self.table_combo_estimations]).where(sql.and_(
             self.table_combo_estimations.columns.date  == date, 
             self.table_combo_estimations.columns.candle_min  == candle,
             self.table_combo_estimations.columns.lags  == lags,
+            self.table_combo_estimations.columns.coin == coin,
             self.table_combo_estimations.columns.length_frames == length_frames))
         result = self.connection.execute(query)
         #print(result)
         return result
 
 
-    def insert_realtime_price(self, date, open, low, high, close, volume, datetime_closed, is_candle_closed):
+    def insert_realtime_price(self, date, open, low, high, close, volume, datetime_closed, is_candle_closed, coin = "BTC"):
         query = sql.insert(self.table_realtime_price_miliseconds).values(
             open = open,
             low = low,
@@ -49,7 +50,8 @@ class SqlCache:
             volume = volume,
             timestamp = date,
             timestamp_close = datetime_closed,
-            is_close = is_candle_closed
+            is_close = is_candle_closed,
+            coin = coin
         )
         result_proxy = self.connection.execute(query)
     
@@ -67,7 +69,7 @@ class SqlCache:
         )
         result_proxy = self.connection.execute(query)
 
-    def insert_estimators(self, date, candle_min, lags, length_frames, estimations):
+    def insert_estimators(self, date, candle_min, lags, length_frames, estimations, coin="BTC"):
 
         # low values
         low_mean = estimations.mediaEstimadorLow
@@ -88,7 +90,7 @@ class SqlCache:
         query = sql.insert(self.table_combo_estimations).values(date=date, candle_min=candle_min, lags=lags, length_frames = length_frames,
                            low_mean=low_mean, low_mean2 = low_mean2, low_mean3 = low_mean3, low_delta = low_delta, low_combo = low_combo,
                            high_mean = high_mean, high_mean2=high_mean2, high_mean3=high_mean3, high_delta= high_delta, high_combo = high_combo,
-                           close_mean=close_mean, close_combo = close_combo) 
+                           close_mean=close_mean, close_combo = close_combo, coin = coin) 
         result_proxy = self.connection.execute(query)
 
     def create_real_time_price_csv(self, _from, _to):

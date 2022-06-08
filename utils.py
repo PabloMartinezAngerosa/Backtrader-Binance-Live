@@ -79,9 +79,10 @@ def print_sqn(analyzer):
 
 
 def send_telegram_message(message="", force=False):
+    showMessage = True
     if ENV != "production":
         return False
-    elif TESTING_PRODUCTION == False or force == True:
+    elif showMessage == True or force == True:
         telegram_send.send(messages=[message])
         if LIVE == True:
             base_url = "https://api.telegram.org/bot%s" % TELEGRAM.get("bot")

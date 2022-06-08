@@ -28,6 +28,9 @@ from strategies.frameMobileStrategyLongShort import FrameMobileStrategyLongShort
 from strategies.frameMobileStrategyShortAceleration import FrameMobileStrategyShortAceleration
 from strategies.surfingTheRandomWalk import SurfingTheRandomWalk
 from strategies.surfingTheRandomWalkScape3 import SurfingTheRandomWalkScape3
+from strategies.surfingTheRandomWalkScape2Alt import SurfingTheRandomWalkScape2Alt # alta 
+from strategies.surfingTheRandomWalkScape3Alt import SurfingTheRandomWalkScape3Alt # baja
+
 #from strategies.fastTradingNoFeeLowHigh import FastTradingNoFeeLowHigh
 #from strategies.fastTradingNoFeeHighLow import FastTradingNoFeeHighLow
 #from strategies.allNoFee import AllNoFee
@@ -79,13 +82,13 @@ def main():
         
         data = CustomDataset(
             name = COIN_TARGET,
-            dataname = "dataset/databases/FUTURE-BTC-1m.csv",
+            dataname = "dataset/databases/FUTURE-" + COIN_TARGET + "-1m.csv",
             timeframe = bt.TimeFrame.Minutes,
             #fromdate = datetime.datetime(2021, 6, 2),
             #todate = datetime.datetime(2021, 5, 4),
-            fromdate = datetime.datetime(2021, 11, 22),
+            fromdate = datetime.datetime(STRATEGY.get("start_year"), STRATEGY.get("start_month"), STRATEGY.get("start_day")),
             #todate = datetime.datetime(2021, 9, 10),
-            todate = datetime.datetime(2022, 5, 18),
+            todate = datetime.datetime(STRATEGY.get("end_year"), STRATEGY.get("end_month"), STRATEGY.get("end_day")),
             nullvalue = 0.0
         )
         
@@ -103,7 +106,7 @@ def main():
         '''
         cerebro.adddata(data)
         # Resample to have multiple data like Binance. Compression x30, x60, x240, min. 
-        second_time_frame = 240
+        second_time_frame = STRATEGY.get("candle_min")
         cerebro.resampledata(data, timeframe=bt.TimeFrame.Minutes, 
                              compression=second_time_frame)
         broker = cerebro.getbroker()
@@ -118,7 +121,7 @@ def main():
 
     # # Include Strategy
     if ENV == PRODUCTION:
-        strategy = SurfingTheRandomWalkScape3()
+        strategy = SurfingTheRandomWalkScape3Alt()
         #strategy = SimpleLowHighHighLowStaticLoss() 
         #strategy  = FrameMobileStrategyShortAceleration()
         #strategy = AllNoFee(phemex_automation)
@@ -133,7 +136,7 @@ def main():
             if BUY_OPERATION_INFO["is_order"] == True:
                 cerebro.strategy.set_buy_operation(BUY_OPERATION_INFO)
     else:
-        cerebro.addstrategy(SurfingTheRandomWalkScape3)
+        cerebro.addstrategy(SurfingTheRandomWalkScape3Alt)
         #cerebro.addstrategy(FrameMobileStrategyShortAceleration)
 
     # # Starting backtrader bot
@@ -146,8 +149,8 @@ def main():
     else:
         result = cerebro.run(stdstats=False)
 
-    # if ENV == PRODUCTION:
-    #     ws.run_forever()
+    #if ENV == PRODUCTION:
+    #    ws.run_forever()
 
     # # Print analyzers - results
     # final_value = cerebro.broker.getvalue()

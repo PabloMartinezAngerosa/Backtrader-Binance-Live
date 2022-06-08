@@ -1,5 +1,6 @@
 from binance.client import Client
-from binance import exceptions.BinanceAPIException
+#from binance import exceptions.BinanceAPIException
+from binance.exceptions import BinanceAPIException
 from config import BINANCE
 from binance.enums import *
 
@@ -31,8 +32,8 @@ interval = KLINE_INTERVAL_15MINUTE
 client = Client(BINANCE.get("key"), BINANCE.get("secret"))
 futureBalance = client.futures_account_balance()
 
-print(futureBalance)
-print("Usdt", futureBalance[1].get('balance'))
+# print(futureBalance)
+# print("USDT ", futureBalance[1].get('balance'))
 
 
 # es la otra libreria... puede ser una opcion, hay buennos ejemplos, se ve la libreria, y se puede usar con apalancamiento bitcoin
@@ -44,17 +45,26 @@ print("Usdt", futureBalance[1].get('balance'))
 client.futures_change_leverage(symbol='BTCUSDT', leverage=1)
 
 #TODO probar el try/catch
+
 try:
-    client.futures_create_order(
-        symbol='BTCUSDT',
+    order_future = client.futures_create_order(
+        symbol='ADAUSDT',
         type='MARKET',
         side='BUY',
-        positionSide='LONG',
-        quantity=0.001
+        positionSide='SHORT',
+        quantity=20
     )
-except binance.exceptions.BinanceAPIException as e:
-    print("exepction order")
-    print(e)
+except BinanceAPIException as e:
+    print(e.status_code)
+    print(e.message)
 
 
-client.futures_get_open_orders(symbol='BTCUSDT')
+#print("Future active orders")
+#print(client.futures_get_all_orders(symbol='BTCUSDT'))
+
+# print(order_future)
+#print("Try cancel order")
+#cancel = client.cancel_order(symbol='BTCUSDT', orderId=56229191695)
+
+
+
