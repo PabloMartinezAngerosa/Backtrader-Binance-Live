@@ -573,9 +573,6 @@ class SurfingTheRandomWalkScape3Alt(StrategyBase):
                             self.is_order_long = False
                             print("capital acumulado " + str(self.capital_acumulado))
                             print(self.capital_list)
-                if self.total_ticks >= 718:
-                    print("capital acumulado " + str(self.capital_acumulado))
-                    print(self.capital_list)
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()

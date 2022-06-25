@@ -153,6 +153,7 @@ class BrokerProduction:
         #except:
         #    print("Problema en guardar en la BD el tick en realtime.")
 
+
     def on_error(self, ws, message):
         print("Error socket")
         print(message)

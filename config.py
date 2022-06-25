@@ -5,7 +5,7 @@ PRODUCTION = "production"
 DEVELOPMENT = "development"
 
 
-ENV = os.getenv("ENVIRONMENT", PRODUCTION)
+ENV = os.getenv("ENVIRONMENT", DEVELOPMENT)
 MULTIPLE_INSTANCE = False
 DEBUG = True
 PERSISTENCE_CONNECTION = False
@@ -69,8 +69,8 @@ STRATEGY = {
   "min_profit": (80/100)**(1/60),
   "length_frames": 25,
   "lags": 5,
-  "candle_min":240,
-  "kline_interval": "KLINE_INTERVAL_4HOUR",
+  "candle_min":60,
+  "kline_interval": "KLINE_INTERVAL_1HOUR",
   # start strategy
   "start_year":2022,
   "start_month":5,
