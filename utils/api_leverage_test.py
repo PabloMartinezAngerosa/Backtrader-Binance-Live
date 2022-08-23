@@ -32,6 +32,7 @@ interval = KLINE_INTERVAL_15MINUTE
 client = Client(BINANCE.get("key"), BINANCE.get("secret"))
 futureBalance = client.futures_account_balance()
 
+print(futureBalance)
 # print(futureBalance)
 # print("USDT ", futureBalance[1].get('balance'))
 

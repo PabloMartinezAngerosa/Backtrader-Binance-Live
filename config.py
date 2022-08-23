@@ -60,8 +60,10 @@ SQL = {
 }
 
 
-COIN_TARGET = "GMT"  #****** IMPORTANTE SE TOMA EN CUENTA PARA GUARAD Y OBTENER EN BD ESTIMADORES *******#
+COIN_TARGET = "WAVES"  #****** IMPORTANTE SE TOMA EN CUENTA PARA GUARAD Y OBTENER EN BD ESTIMADORES *******#
 COIN_REFER = "USDT"
+
+LEVERAGE = 10
 
 STRATEGY = {
   "coin": COIN_TARGET,
@@ -73,14 +75,14 @@ STRATEGY = {
   "kline_interval": "KLINE_INTERVAL_1HOUR",
   # start strategy
   "start_year":2022,
-  "start_month":5,
-  "start_day":26,
+  "start_month":8,
+  "start_day":10,
   # end strategy
   "end_year":2022,
-  "end_month":6,
-  "end_day":6,
-  "mean_tick_prod":418,
-  "mean_tick_dev":418
+  "end_month":8,
+  "end_day":17,
+  "mean_tick_prod":14,
+  "mean_tick_dev":14
 }
 
 PHEMEX = {

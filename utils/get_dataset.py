@@ -26,7 +26,7 @@ KLINE_INTERVAL_1MONTH= '1M'
 
 
 interval = KLINE_INTERVAL_1MINUTE 
-COIN_TARGET = "GMT"
+COIN_TARGET = "WAVES"
 
 client = Client(BINANCE.get("key"), BINANCE.get("secret"))
 # 9 meses aprox
@@ -44,8 +44,8 @@ print("Empieza a descargar cada " + interval )
 klines = client.futures_historical_klines(
     symbol = COIN_TARGET + 'USDT',
     interval = interval,  # can play with this e.g. '1h', '4h', '1w', etc.
-    start_str = '2022-5-20',
-    end_str = '2022-6-6'
+    start_str = '2022-8-10',
+    end_str = '2022-8-17'
 )
 
 data = pd.DataFrame(klines, columns = ['timestamp', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'quote_av', 'trades', 'tb_base_av', 'tb_quote_av', 'ignore' ])

@@ -6,19 +6,19 @@ import pandas as pd
 from random import random
 from config import ENV, PRODUCTION
 from strategies.base import StrategyBase
-from config import ENV, PRODUCTION, STRATEGY, TESTING_PRODUCTION, LIVE, UPDATE_PARAMS_FUERZA_BRUTA
+from config import ENV, PRODUCTION, STRATEGY, TESTING_PRODUCTION, LIVE, UPDATE_PARAMS_FUERZA_BRUTA, LEVERAGE
 import sys, os
 
 
 '''
 
+SurfingTheRandomWalkScape3
 Primera version:
    
-Este es igual que el SurgingTheRandommWalk, pero ajustado para altcoins. 
-Con porcentaje relativos
+    Igual que la anterior Surfing the Random Walk Scape 2 pero compra en Short.
 
 '''
-class SurfingTheRandomWalkScape2Alt(StrategyBase):
+class SurfingTheRandomWalkScape3Alt(StrategyBase):
 
     # Moving average parameters
     # params = (('pfast',20),('pslow',50),)
@@ -27,25 +27,24 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
         StrategyBase.__init__(self, index=index)
         self.do_update_martin_gala = False
         self.indicators_ready = False
-        self.log("Using Surfing the Random Walk Scape 2 Alt")
+        self.log("Using Surfing the Random Walk Scape 3 Alt(short edition) " + STRATEGY.get("coin"))
         self.lendata1 = 0
         self.lagsReady = False
         self.ensambleIndicatorsLags = STRATEGY.get("lags")
         self.ensambleIndicatorsLengthFrames = STRATEGY.get("length_frames")
         self.ponderador = 4 # original 4 hs x3 = 12 horas
         self.candle_min = STRATEGY.get("candle_min")
+        self.media_accion_bitcoin = 35000
         self.is_order_long = False
         self.is_order_short = False
         self.long_ticks_order = 0
         self.lost_acum = 0
         self.succes_acum = 0
-        # configuracion promemdio que se establecieronn lo valores
-        # ajustar a un promedio de los ultimos valores, probar
-        self.media_accion_bitcoin = 35000
+        
         #self.dataclose = self.datas[0].close
         self.order = None
         self.len_frames = 0
-        self.name = "Surfing the Random Walk Scape" 
+        self.name = "Surfing the Random Walk Scape 3. (Short edition)" + STRATEGY.get("coin") 
         self.index = 0
         self.capital_list = []
         # Instantiate moving averages
@@ -134,7 +133,7 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
     
     def is_touch_high_media_iterada_3(self, actual_price):
         high_media_3 = self.ensambleIndicators.mediaEstimadorHigh_iterada3
-        if actual_price >= high_media_3 - (self.RMSE_high*high_media_3):
+        if actual_price >= high_media_3 - self.RMSE_high:
             self.touch_high_media_iterada_3 = True
     
     def delta_low_estimators_limit(self):
@@ -148,13 +147,19 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
     
     def is_touching_low_delta(self, actual_price):
         low = self.ensambleIndicators.mediaEstimadorLow_iterada3
-        if actual_price >= (low - self.RMSE_low*low) and actual_price <= low + self.RMSE_low*low:
+        if actual_price >= (low - self.RMSE_low) and actual_price <= low + self.RMSE_low:
+            return True
+        return False
+    
+    def is_touching_high_delta(self, actual_price):
+        high = self.ensambleIndicators.mediaEstimadorHigh_iterada3
+        if actual_price >= (high - self.RMSE_low*high) and actual_price <= high + self.RMSE_low*high:
             return True
         return False
     
     def is_touch_low_media_iterada_3(self, actual_price, filter_price):
         low_media_3 = self.ensambleIndicators.mediaEstimadorHigh
-        if actual_price >= (low_media_3 - self.RMSE_low*low_media_3) and actual_price <= low_media_3 + self.RMSE_low*low_media_3:
+        if actual_price >= (low_media_3 - self.RMSE_low) and actual_price <= low_media_3 + self.RMSE_low:
             if self.touch_media_low_iterada_3 == False:
                 self.first_touch_filter = filter_price
             self.touch_media_low_iterada_3 = True
@@ -167,14 +172,14 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
         else :
             self.delta_aceleration = False
     
-    def is_touch_low_media_iterada_3_short(self, actual_price):
+    def is_touch_low_media_iterada_3_short(self, actual_price, filter_price):
         low_media_3 = self.ensambleIndicators.mediaEstimadorLow_iterada3
-        if actual_price <= low_media_3 + (self.RMSE_high*low_media_3):
+        if actual_price <= low_media_3 + (self.RMSE_low*4*low_media_3):
             self.touch_low_media_iterada_3_short = True
     
     def is_touch_high_media_iterada_3_short(self, actual_price, filter_price):
         high_media_3 = self.ensambleIndicators.mediaEstimadorHigh_iterada3
-        if actual_price >= (high_media_3 - self.RMSE_low*4*high_media_3) and actual_price <= high_media_3 + self.RMSE_low*4*high_media_3:
+        if actual_price >= (high_media_3 - self.RMSE_low*4) and actual_price <= high_media_3 + self.RMSE_low*4:
             self.touch_media_high_iterada_3_short = True
             #self.log("Toco  media high itereada 3  en price {} ".format(actual_price),  to_ui = True, date = self.datetime[0])
     
@@ -264,8 +269,6 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
                 self.long_stop_loss = actual_price * (1 - (0.0035))
                 return 9180
     '''
-
-
     
     def get_martin_gala_capital(self):
         if self.lost_acum == 0:
@@ -276,15 +279,15 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
             elif self.succes_acum == 2:
                 return self.base_martingala * 4
             elif self.succes_acum == 3:
-                return self.base_martingala * 4
+                return self.base_martingala * 8
             elif self.succes_acum == 4:
-                return self.base_martingala * 4
+                return self.base_martingala * 8
             elif self.succes_acum == 5:
-                return self.base_martingala * 4
+                return self.base_martingala * 8
             elif self.succes_acum == 6:
-                return self.base_martingala * 4
+                return self.base_martingala * 8
             else:
-                return self.base_martingala * 4
+                return self.base_martingala * 8
 
         elif self.lost_acum == 1:
             return self.base_martingala*0.5 
@@ -309,7 +312,21 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
         else:
             return self.base_martingala * 0.5
     
-    
+
+    def do_short_buy(self, time, price):
+        self.jsonParser.addBuyOperation(time, 
+                        price, 
+                        price, 
+                        0, 
+                        0)
+
+    def do_short_sell(self, time, price, buy_price):
+        self.jsonParser.addSellOperation(time, 
+                                price, 
+                                price, 
+                                0, 
+                                0)
+        self.jsonParser.addTrade(price - buy_price, 0)
 
     def next(self):
         if self.order:  # waiting for pending order
@@ -370,8 +387,10 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
                 if self.action_min == True:
                     self.total_ticks = self.total_ticks + 1 
                     if self.total_ticks <= self.max_ticks and self.is_order_long == False:
-                        self.is_touch_high_media_iterada_3_short(high, filter_price["value"]) 
-                        if  self.is_touching_low_delta(actual_price) == True and self.touch_media_high_iterada_3_short == False:
+                        # si toca el Low media iterada 3 no entra 
+                        self.is_touch_low_media_iterada_3_short(low, filter_price["value"]) 
+                        # si todavia nnon toco low meia iterada y esta tocando high delta
+                        if  self.is_touching_high_delta(actual_price) == True and self.touch_low_media_iterada_3_short == False:
                             if self.trade_made == False:
                                 if self.is_order_long == False:
                                     self.is_order_long = True
@@ -380,16 +399,18 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
                                     self.long_price = actual_price
                                     #self.buffer_price_long = actual_price
                                     #self.long_profit = self.ensambleIndicators.mediaEstimadorHigh_iterada3
-                                    self.long_profit = actual_price * (1 + 0.004)
+                                    self.long_profit = actual_price * (1 - 0.01*1.4)
                                     #self.long_profit = actual_price + self.get_delta_mean()
-                                    self.long_stop_loss = actual_price * (1 - (0.002))
+                                    self.long_stop_loss = actual_price * (1 + (0.0035))
                                     #self.long_profit = actual_price + self.get_delta_mean()
                                     #self.long_stop_loss = self.ensambleIndicators.mediaEstimadorLow - (self.ensambleIndicators.mediaEstimadorLow_iterada3 - self.ensambleIndicators.mediaEstimadorLow)
                                     #self.long_stop_loss = actual_price * (1 - (0.004))
                                     #self.long_stop_loss = actual_price - self.get_delta_open_low()
                                     self.long_ticks_order = -1
-                                    self.sell_and_buy_strategy = False
-                                    message = "Long Buy Acrecentada: " + str(actual_price) + " profit objective: " + str(self.long_profit) + " - delta high-min: " + str(self.get_delta_mean())  + " stop loss " + str(self.long_stop_loss) + " delta open-low"+ str(self.get_delta_open_low())
+                                    # va en short
+                                    self.sell_and_buy_strategy = True
+                                    self.do_short_buy(self.datetime[0], actual_price)
+                                    message = "Long Short Acrecentada: " + str(actual_price) + " profit objective: " + str(self.long_profit) + " - delta high-min: " + str(self.get_delta_mean())  + " stop loss " + str(self.long_stop_loss) + " delta open-low"+ str(self.get_delta_open_low())
                                     self.log(message,  to_ui = True, date = self.datetime[0], send_telegram=True)
                                     self.jsonParser.set_subida_estrepitosa(1, self.total_ticks)
             except Exception as e:
@@ -399,35 +420,20 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
             try:
                 if self.is_order_long == True:
                     self.long_ticks_order = self.long_ticks_order + 1
-                    #if self.long_ticks_order < 4:
-                    #    if actual_price < self.long_price:
-                    #        self.is_order_long = False
-                    #        #self.buffer_price_long = actual_price
-                    #        self.parent.is_order_long = False
-                    #        print("Saved fail!")
-                    #    else:
-                    #        if self.long_ticks_order == 3:
-                    #            # new limit stop loss
-                    #            print("change stop loss")
-                    #            self.long_stop_loss = actual_price * (1 - 0.004)
-                    #            self.long_profit = actual_price * 1.004
-                    #            # porcentaje q en realidad pierdo
-                    #            # actualiza long price al verdadero
-                    #            self.long_price = actual_price
-                    #else:
                     if self.long_ticks_order > 0:
                         if ENV == PRODUCTION:
-                            high = actual_price
+                            low = actual_price
                         continue_limit = False # solo se fija en el close pirmariamente
-                        if high >= self.long_profit and continue_limit == True:
+                        if low <= self.long_profit and continue_limit == True:
                             martin_gala_capital = self.get_martin_gala_capital()
-                            self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, high,martin_gala_capital) - martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(LEVERAGE, self.long_price, self.long_profit , martin_gala_capital) - martin_gala_capital)
                             self.capital_list.append(self.capital_acumulado)
                             profit_long_succes = (high/self.long_price)-1
                             profit_long_succes = 0.01
                             self.long_real_profit.append(profit_long_succes)
                             self.long_ticks_succes_active_order.append(self.long_ticks_order)
                             
+                            self.do_short_sell( self.datetime[0], self.long_profit, self.long_price)
                             # con martin gala toma en cuenta todos los F y T. hace martin gala para aumentar los T
     
                             index_martin_gala = self.getMartinGalaIndex(self.total_long_orders)
@@ -447,12 +453,12 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
                                 self.total_long_orders = self.total_long_orders + "T" 
                                 message = "Succes Long Buy: " + str(actual_price) + " total succes " + str(self.total_succes_long) + " total fial " + str(self.total_fial_long) 
                             else:
-                                self.total_long_orders_filtered += "F"
-                                self.lost_acum += 1 
-                                self.succes_acum = 0
-                                self.total_long_orders = self.total_long_orders + "F" 
-                                message = "Fail Short Buy: " + str(actual_price) + " total succes " + str(self.total_succes_long) + " total fial " + str(self.total_fial_long) 
-                            
+                                self.total_long_orders_filtered += "T"
+                                self.lost_acum = 0
+                                self.succes_acum += 1
+                                self.total_long_orders = self.total_long_orders + "T" 
+                                message = "Succes Short Buy: " + str(actual_price) + " total succes " + str(self.total_succes_long) + " total fial " + str(self.total_fial_long) 
+
                             self.acum_capital_martingala -= profit
                             #message = "T Long Buy: " + self.parent.total_long_orders_filtered + " total capital " + str(self.parent.acum_capital_martingala) + " index mgl  " + str(index_martin_gala) + " ganancia " + str(profit) + " capital to " + str(capital_to)
                             #self.log(message,  to_ui = True, date = self.datetime[0], send_telegram=True)
@@ -466,37 +472,11 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
                             #self.log(sum(self.long_real_profit)/len(self.long_real_profit),  to_ui = True, date = self.datetime[0], send_telegram=True)
                             self.jsonParser.set_subida_estrepitosa(1, self.total_ticks)
                             
-                            '''
-                            # if succes make a new one in long
-                            if self.repeat == True:
-                                self.repeat = False
-                                self.is_order_long = True
-                                self.trade_made = True
-                                #self.buy_tick = self.total_ticks
-                                self.long_price = actual_price
-                                #self.buffer_price_long = actual_price
-                                #self.long_profit = self.ensambleIndicators.mediaEstimadorHigh_iterada3
-                                self.long_profit = actual_price * (1 + 0.01*1.4)
-                                #self.long_profit = actual_price + self.get_delta_mean()
-                                self.long_stop_loss = actual_price * (1 - (0.0035))
-                                #self.long_profit = actual_price + self.get_delta_mean()
-                                #self.long_stop_loss = self.ensambleIndicators.mediaEstimadorLow - (self.ensambleIndicators.mediaEstimadorLow_iterada3 - self.ensambleIndicators.mediaEstimadorLow)
-                                #self.long_stop_loss = actual_price * (1 - (0.004))
-                                #self.long_stop_loss = actual_price - self.get_delta_open_low()
-                                self.long_ticks_order = -1
-                                message = "Long Buy Acrecentada: " + str(actual_price) + " profit objective: " + str(self.long_profit) + " - delta high-min: " + str(self.get_delta_mean())  + " stop loss " + str(self.long_stop_loss) + " delta open-low"+ str(self.get_delta_open_low())
-                                self.log(message,  to_ui = True, date = self.datetime[0], send_telegram=True)
-                                self.jsonParser.set_subida_estrepitosa(1, self.total_ticks)
-                                self.sell_and_buy_strategy = False # in base long
-                            '''
-
-
-
                         if ENV == PRODUCTION:
                             low = actual_price
-                        if filter_price["value"] <= self.long_stop_loss:
+                        if filter_price["value"] >= self.long_stop_loss and self.is_order_long == True:
                             martin_gala_capital = self.get_martin_gala_capital()
-                            self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, actual_price,martin_gala_capital) - martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(LEVERAGE, self.long_price, actual_price,martin_gala_capital) - martin_gala_capital)
                             self.capital_list.append(self.capital_acumulado)
                             profit_long_lost = 1 - (low/self.long_price)
                             profit_long_lost = 0.04
@@ -504,6 +484,7 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
                             self.long_ticks_fail_active_order.append(self.long_ticks_order)
 
                             # con martin gala real
+                            self.do_short_sell( self.datetime[0], actual_price, self.long_price)
 
                             index_martin_gala = self.getMartinGalaIndex(self.total_long_orders)
                             #index_martin_gala = 0
@@ -526,11 +507,11 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
                                 self.total_long_orders = self.total_long_orders + "F"
                                 message = "Fail Long Buy: " + str(self.capital_acumulado) + " total fial " + str(self.total_fial_long) + " total succes " + str(self.total_succes_long) 
                             else:
-                                self.lost_acum = 0
-                                self.succes_acum += 1 
-                                self.total_succes_long = self.total_succes_long + 1
-                                self.total_long_orders = self.total_long_orders + "T"
-                                message = "Succes Short Buy: " + str(self.capital_acumulado) + " total fial " + str(self.total_fial_long) + " total succes " + str(self.total_succes_long) 
+                                self.lost_acum += 1
+                                self.succes_acum = 0 
+                                self.total_fial_long = self.total_fial_long + 1
+                                self.total_long_orders = self.total_long_orders + "F"
+                                message = "Fail Short Buy: " + str(self.capital_acumulado) + " total fial " + str(self.total_fial_long) + " total succes " + str(self.total_succes_long) 
 
                             self.log(message,  to_ui = True, date = self.datetime[0], send_telegram=True)
                             self.log(self.total_long_orders,  to_ui = True, date = self.datetime[0], send_telegram=True)
@@ -546,58 +527,40 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
                                 self.long_price = actual_price
                                 #self.buffer_price_long = actual_price
                                 #self.long_profit = self.ensambleIndicators.mediaEstimadorHigh_iterada3
-                                self.long_profit = actual_price * (1 + 0.004)
+                                self.long_profit = actual_price * (1 - 0.01*1.4)
                                 #self.long_profit = actual_price + self.get_delta_mean()
-                                self.long_stop_loss = actual_price * (1 - (0.002))
+                                self.long_stop_loss = actual_price * (1 + (0.0035))
                                 self.candle_total_repeat += 1
-                            '''
-                            if self.repeat == True:
-                                self.repeat = False
-                                self.is_order_long = True
-                                self.trade_made = True
-                                #self.buy_tick = self.total_ticks
-                                self.long_price = actual_price
-                                #self.buffer_price_long = actual_price
-                                #self.long_profit = self.ensambleIndicators.mediaEstimadorHigh_iterada3
-                                self.long_stop_loss = actual_price * (1 - 0.0045)
-                                #self.long_profit = actual_price + self.get_delta_mean()
-                                self.long_profit = actual_price * (1 + (0.0035))
-                                #self.long_profit = actual_price + self.get_delta_mean()
-                                #self.long_stop_loss = self.ensambleIndicators.mediaEstimadorLow - (self.ensambleIndicators.mediaEstimadorLow_iterada3 - self.ensambleIndicators.mediaEstimadorLow)
-                                #self.long_stop_loss = actual_price * (1 - (0.004))
-                                #self.long_stop_loss = actual_price - self.get_delta_open_low()
-                                self.long_ticks_order = -1
-                                message = "Short Buy Acrecentada Short: " + str(actual_price) + " profit objective: " + str(self.long_profit) + " - delta high-min: " + str(self.get_delta_mean())  + " stop loss " + str(self.long_stop_loss) + " delta open-low"+ str(self.get_delta_open_low())
-                                self.log(message,  to_ui = True, date = self.datetime[0], send_telegram=True)
-                                self.jsonParser.set_subida_estrepitosa(1, self.total_ticks)
-                                self.sell_and_buy_strategy = True # in base long
-                            '''
+                                self.do_short_buy(self.datetime[0], actual_price)
 
 
-                        if self.total_ticks >= self.candle_min - 2:
+                        if self.total_ticks >= self.candle_min - 2 and self.is_order_long == True:
                             # close
                             
-                            if actual_price <= self.long_stop_loss:
+                            if actual_price >= self.long_stop_loss:
                                 self.lost_acum += 1
                                 self.succes_acum = 0
                                 self.total_long_orders = self.total_long_orders + "F" 
                                 self.do_update_martin_gala = False
-                            if actual_price >= self.long_profit:
+                            if actual_price <= self.long_profit:
                                 self.distribution_lost_until_succes.append(self.lost_acum)
                                 self.lost_acum = 0
                                 self.succes_acum += 1
                                 self.total_long_orders = self.total_long_orders + "T"
                                 self.do_update_martin_gala = True 
-                            if actual_price < self.long_profit and actual_price > self.long_stop_loss:
-                                if actual_price > self.long_price + (80 / self.media_accion_bitcoin) * self.long_price:
+                            if actual_price > self.long_profit and actual_price < self.long_stop_loss:
+                                if actual_price < self.long_price - ((80*filter_price["value"])/self.media_accion_bitcoin):
                                     self.total_long_orders = self.total_long_orders + "t"
                                     self.do_update_martin_gala = True 
                                 else:
                                     self.total_long_orders = self.total_long_orders + "f"
                                     self.do_update_martin_gala = False
+
+                            self.do_short_sell(self.datetime[0], actual_price, self.long_price)
+
                             self.log(self.total_long_orders,  to_ui = True, date = self.datetime[0], send_telegram=True)
                             martin_gala_capital = self.get_martin_gala_capital()
-                            self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, actual_price, martin_gala_capital)-martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(LEVERAGE, self.long_price, actual_price, martin_gala_capital)-martin_gala_capital)
                             if self.do_update_martin_gala == True:
                                 self.base_martingala = (self.capital_acumulado *100) / 250
                                 if self.base_martingala >= 40000000:
@@ -605,69 +568,16 @@ class SurfingTheRandomWalkScape2Alt(StrategyBase):
                                     print("touch limit!")
 
                             self.capital_list.append(self.capital_acumulado)
-                            message = "Long Buy Close Acrecentada: " + str(self.capital_acumulado) 
+                            message = "Short Buy Close Acrecentada: " + str(self.capital_acumulado) 
                             self.log(message,  to_ui = True, date = self.datetime[0], send_telegram=True)
                             self.is_order_long = False
                             print("capital acumulado " + str(self.capital_acumulado))
                             print(self.capital_list)
-                if self.total_ticks >= 718:
-                    print("capital acumulado " + str(self.capital_acumulado))
-                    print(self.capital_list)
 
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 print(exc_type, fname, exc_tb.tb_lineno)
-
-
-            
-            ############################################
-            #           fast trading high low  - Short #
-            ############################################
-            '''
-            if self.total_ticks <= self.max_ticks and self.is_order_short == False:
-                self.is_touch_low_media_iterada_3_short(actual_price)
-                if self.touch_low_media_iterada_3_short == False:
-                    if self.touch_media_high_iterada_3_short == False:
-                        self.is_touch_high_media_iterada_3_short(actual_price, filter_price["value"])
-                    else:
-                        if self.delta_aceleration_short == False:
-                            self.is_delta_aceleration_short(filter_price["value"])  
-                        else:
-                            if  self.trade_made == False and self.delta_low_mean_3_succes_short(actual_price) == True:
-                                if self.is_order_short == False: 
-                                    self.is_order_short = True
-                                    #self.buy_tick = self.total_ticks
-                                    self.short_price = actual_price
-                                    self.short_profit = actual_price * (1 - 0.005)
-                                    self.short_stop_loss = actual_price * (1.005) 
-                                    message = "Short Sell: " + str(actual_price) + " profit objective: " + str(self.short_profit) + " stop loss " + str(self.short_stop_loss)
-                                    self.log(message,  to_ui = True, date = self.datetime[0], send_telegram=True)
-                                    self.jsonParser.set_subida_estrepitosa(1, self.total_ticks) 
-            
-            if self.is_order_short == True:
-                if actual_price <= self.short_profit:
-                    self.short_real_profit.append(1-(actual_price/self.short_price))
-                    self.is_order_short = False
-                    self.total_succes_short = self.total_succes_short + 1
-                    self.total_short_orders = self.total_short_orders + "T"
-                    message = "Succes Short Sell: " + str(actual_price) + " total succes " + str(self.total_succes_short) + " total fail " + str(self.total_fial_short)
-                    self.log(message,  to_ui = True, date = self.datetime[0], send_telegram=True)
-                    self.log(self.total_short_orders,  to_ui = True, date = self.datetime[0], send_telegram=True)
-                    self.log(sum(self.short_real_profit)/len(self.short_real_profit),  to_ui = True, date = self.datetime[0], send_telegram=True)
-                    self.jsonParser.set_subida_estrepitosa(1, self.total_ticks)
-                if actual_price >= self.short_stop_loss:
-                    self.short_real_lost.append((actual_price/self.short_price)-1)
-                    self.is_order_short = False
-                    self.total_fial_short = self.total_fial_short + 1
-                    self.total_short_orders = self.total_short_orders + "F"
-                    message = "Fail Short Sell: " + str(actual_price) + " total fail " + str(self.total_fial_short)+ " total succes " + str(self.total_succes_short) 
-                    self.log(sum(self.short_real_lost)/len(self.short_real_lost),  to_ui = True, date = self.datetime[0], send_telegram=True)
-                    self.log(message,  to_ui = True, date = self.datetime[0], send_telegram=True)
-                    self.log(self.total_short_orders,  to_ui = True, date = self.datetime[0], send_telegram=True)
-                    self.jsonParser.set_subida_estrepitosa(1, self.total_ticks) 
-            '''
-
                         
 
         if len(self.data1.low) > self.lendata1:

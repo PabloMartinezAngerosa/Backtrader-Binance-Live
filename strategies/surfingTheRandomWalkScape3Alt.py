@@ -6,7 +6,7 @@ import pandas as pd
 from random import random
 from config import ENV, PRODUCTION
 from strategies.base import StrategyBase
-from config import ENV, PRODUCTION, STRATEGY, TESTING_PRODUCTION, LIVE, UPDATE_PARAMS_FUERZA_BRUTA
+from config import ENV, PRODUCTION, STRATEGY, TESTING_PRODUCTION, LIVE, UPDATE_PARAMS_FUERZA_BRUTA, LEVERAGE
 import sys, os
 
 
@@ -279,15 +279,15 @@ class SurfingTheRandomWalkScape3Alt(StrategyBase):
             elif self.succes_acum == 2:
                 return self.base_martingala * 4
             elif self.succes_acum == 3:
-                return self.base_martingala * 8
+                return self.base_martingala * 4
             elif self.succes_acum == 4:
-                return self.base_martingala * 8
+                return self.base_martingala * 4
             elif self.succes_acum == 5:
-                return self.base_martingala * 8
+                return self.base_martingala * 4
             elif self.succes_acum == 6:
-                return self.base_martingala * 8
+                return self.base_martingala * 4
             else:
-                return self.base_martingala * 8
+                return self.base_martingala * 4
 
         elif self.lost_acum == 1:
             return self.base_martingala*0.5 
@@ -399,9 +399,9 @@ class SurfingTheRandomWalkScape3Alt(StrategyBase):
                                     self.long_price = actual_price
                                     #self.buffer_price_long = actual_price
                                     #self.long_profit = self.ensambleIndicators.mediaEstimadorHigh_iterada3
-                                    self.long_profit = actual_price * (1 - 0.01*1.4)
+                                    self.long_profit = actual_price * (1 - 0.004)
                                     #self.long_profit = actual_price + self.get_delta_mean()
-                                    self.long_stop_loss = actual_price * (1 + (0.0035))
+                                    self.long_stop_loss = actual_price * (1 + (0.004))
                                     #self.long_profit = actual_price + self.get_delta_mean()
                                     #self.long_stop_loss = self.ensambleIndicators.mediaEstimadorLow - (self.ensambleIndicators.mediaEstimadorLow_iterada3 - self.ensambleIndicators.mediaEstimadorLow)
                                     #self.long_stop_loss = actual_price * (1 - (0.004))
@@ -424,9 +424,10 @@ class SurfingTheRandomWalkScape3Alt(StrategyBase):
                         if ENV == PRODUCTION:
                             low = actual_price
                         continue_limit = False # solo se fija en el close pirmariamente
+                        '''
                         if low <= self.long_profit and continue_limit == True:
                             martin_gala_capital = self.get_martin_gala_capital()
-                            self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, self.long_profit , martin_gala_capital) - martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(LEVERAGE, self.long_price, self.long_profit , martin_gala_capital) - martin_gala_capital)
                             self.capital_list.append(self.capital_acumulado)
                             profit_long_succes = (high/self.long_price)-1
                             profit_long_succes = 0.01
@@ -474,9 +475,9 @@ class SurfingTheRandomWalkScape3Alt(StrategyBase):
                             
                         if ENV == PRODUCTION:
                             low = actual_price
-                        if filter_price["value"] >= self.long_stop_loss:
+                        if filter_price["value"] >= self.long_stop_loss and self.is_order_long == True:
                             martin_gala_capital = self.get_martin_gala_capital()
-                            self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, actual_price,martin_gala_capital) - martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(LEVERAGE, self.long_price, actual_price,martin_gala_capital) - martin_gala_capital)
                             self.capital_list.append(self.capital_acumulado)
                             profit_long_lost = 1 - (low/self.long_price)
                             profit_long_lost = 0.04
@@ -518,23 +519,26 @@ class SurfingTheRandomWalkScape3Alt(StrategyBase):
                             #self.log(self.parent.long_ticks_fail_active_order,  to_ui = True, date = self.datetime[0], send_telegram=True)
                             self.log(sum(self.long_real_lost)/len(self.long_real_lost),  to_ui = True, date = self.datetime[0], send_telegram=True)
                             self.jsonParser.set_subida_estrepitosa(1, self.total_ticks)
-                            
-                            # if lost try again//  make a new one in long
-                            if self.candle_total_repeat < 4:
-                                self.is_order_long = True
-                                self.trade_made = True
-                                #self.buy_tick = self.total_ticks
-                                self.long_price = actual_price
-                                #self.buffer_price_long = actual_price
-                                #self.long_profit = self.ensambleIndicators.mediaEstimadorHigh_iterada3
-                                self.long_profit = actual_price * (1 - 0.01*1.4)
-                                #self.long_profit = actual_price + self.get_delta_mean()
-                                self.long_stop_loss = actual_price * (1 + (0.0035))
-                                self.candle_total_repeat += 1
-                                self.do_short_buy(self.datetime[0], actual_price)
+                        ''' 
+                        # if lost try again//  make a new one in long
+                        #if self.candle_total_repeat < 4:
+                        #    pass
+                        '''
+                        self.is_order_long = True
+                        self.trade_made = True
+                        #self.buy_tick = self.total_ticks
+                        self.long_price = actual_price
+                        #self.buffer_price_long = actual_price
+                        #self.long_profit = self.ensambleIndicators.mediaEstimadorHigh_iterada3
+                        self.long_profit = actual_price * (1 - 0.005)
+                        #self.long_profit = actual_price + self.get_delta_mean()
+                        self.long_stop_loss = actual_price * (1 + (0.002))
+                        self.candle_total_repeat += 1
+                        self.do_short_buy(self.datetime[0], actual_price)
+                        '''
 
 
-                        if self.total_ticks >= self.candle_min - 2:
+                        if self.total_ticks >= self.candle_min - 1 and self.is_order_long == True:
                             # close
                             
                             if actual_price >= self.long_stop_loss:
@@ -549,7 +553,7 @@ class SurfingTheRandomWalkScape3Alt(StrategyBase):
                                 self.total_long_orders = self.total_long_orders + "T"
                                 self.do_update_martin_gala = True 
                             if actual_price > self.long_profit and actual_price < self.long_stop_loss:
-                                if actual_price < self.long_price - 80:
+                                if actual_price < self.long_price - ((80*filter_price["value"])/self.media_accion_bitcoin):
                                     self.total_long_orders = self.total_long_orders + "t"
                                     self.do_update_martin_gala = True 
                                 else:
@@ -560,7 +564,7 @@ class SurfingTheRandomWalkScape3Alt(StrategyBase):
 
                             self.log(self.total_long_orders,  to_ui = True, date = self.datetime[0], send_telegram=True)
                             martin_gala_capital = self.get_martin_gala_capital()
-                            self.capital_acumulado += (self.get_leverage_profit(10, self.long_price, actual_price, martin_gala_capital)-martin_gala_capital)
+                            self.capital_acumulado += (self.get_leverage_profit(LEVERAGE, self.long_price, actual_price, martin_gala_capital)-martin_gala_capital)
                             if self.do_update_martin_gala == True:
                                 self.base_martingala = (self.capital_acumulado *100) / 250
                                 if self.base_martingala >= 40000000:
