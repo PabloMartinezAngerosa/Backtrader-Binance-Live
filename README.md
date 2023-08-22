@@ -1,6 +1,6 @@
 # Backtrader with Real-Time Binance Integration and R Estimators
 
-![Backtrader Logo](backtrader_logo.png)
+![Backtrader Logo](https://www.google.com/url?sa=i&url=https%3A%2F%2Fpixabay.com%2Fvectors%2Fbitcoin-icon-bitcoin-logo-currency-6219383%2F&psig=AOvVaw2rPC44ha0qZSEUws-wOfSo&ust=1692756484434000&source=images&cd=vfe&opi=89978449&ved=0CBAQjRxqFwoTCOifh7uX74ADFQAAAAAdAAAAABAE)
 
 ## Overview
 
