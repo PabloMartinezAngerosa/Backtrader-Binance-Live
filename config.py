@@ -19,9 +19,6 @@ PHEMEX_PRICE = False # si va a buscar precio en phemex desde automatizacion
 # Secret Key: YvKlog7B5wlbUIPKLpPT9Aos12S92X0OJfsyCDGythVuN1fbmmNxiQmSNYH3nlgi
 
 
-# PRODUCTION
- # ExcI0XeCRrWCUfklhGggIFCCNjn9gwB0bsU79qbE0kuASPzrqfOR1BZDhBuJ8lSj 
- # gAPN5Wgv7yeNfxt8eyO8IxmMtyvc235FZsuRngYHek3E5263JqlBs1FtB5xxNQn5
 
 TESTING_PRODUCTION_DATE = {
   "from":1627942499999,
