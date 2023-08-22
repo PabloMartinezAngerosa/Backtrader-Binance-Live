@@ -44,15 +44,8 @@ This repository contains a modified version of the Backtrader trading framework,
 
 3. **R Estimators:** Create R scripts in the `r_estimators` directory. Use the provided communication channel to send and receive data between Python and R. Ensure that the required R packages are installed.
 
-4. **Running a Strategy:** Execute your customized strategy using the `run_strategy.py` script. This script initializes the strategy, handles real-time data streaming, and interfaces with R estimators.
 
-## Examples
 
-Check out the `examples` directory for sample strategies and R estimator scripts. These examples demonstrate how to create, backtest, and execute trading strategies using the enhanced capabilities of Backtrader with Binance integration and R estimators.
-
-## Contributing
-
-Contributions to this project are welcome! Whether you want to enhance the Binance integration, improve R communication, add more examples, or suggest new features, please feel free to submit pull requests.
 
 ## License
 
